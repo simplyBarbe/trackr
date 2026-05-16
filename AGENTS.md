@@ -63,3 +63,44 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+## Tech stack boundaries
+
+Do not introduce alternatives to the choices below unless the user explicitly asks.
+
+### Do not use
+
+- **MySQL** or other databases — use **SQLite** only
+- **MediatR**, CQRS buses, domain events, event sourcing
+- Rich **DDD** (aggregates, domain services, ubiquitous language ceremony)
+- Generic repositories, specification frameworks, extra "core"/shared abstraction layers
+- Swapping **MudBlazor**, **FastEndpoints**, **Kiota**, or other listed stack components
+- Hand-rolled API clients/DTOs that duplicate **Kiota**-generated types
+
+### Backend (`src/backend`)
+
+| Concern | Use |
+|--------|-----|
+| Runtime | .NET 10 |
+| API | FastEndpoints — vertical slices (one folder per use case) |
+| Data | Entity Framework Core + SQLite |
+| Validation | FluentValidation on request DTOs |
+| API docs | Scalar + OpenAPI |
+| Errors | Result pattern → Problem Details (RFC 7807) at the HTTP boundary |
+| Logging | Serilog (structured) |
+| Domain | Anemic — thin entities; logic in handlers/services |
+
+Slice layout: endpoint, request/response, validator, handler per feature (e.g. `Features/<Name>/<Action>/`).
+
+### Frontend (`src/frontend`)
+
+| Concern | Use |
+|--------|-----|
+| Host | Blazor WebAssembly |
+| UI | MudBlazor |
+| API client | Kiota from OpenAPI |
+| Components | `.razor` + `.razor.cs` code-behind |
+
+OpenAPI is the contract: regenerate the Kiota client when the API surface changes.
