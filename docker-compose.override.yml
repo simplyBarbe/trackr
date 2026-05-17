@@ -1,13 +1,16 @@
-# Visual Studio / VS Code merge overrides (not used by plain `docker compose` unless this file exists).
+# Local / Visual Studio overrides (merged automatically by `docker compose` and VS).
 services:
   api:
+    # VS debug runs DistrolessHelper --wait until the debugger attaches, so /api/health
+    # is unreachable while compose still gates `web` on service_healthy.
+    healthcheck:
+      disable: true
     labels:
       com.microsoft.visualstudio.project: "src\backend\backend.csproj"
       com.microsoft.visualstudio.debugging.tcp.port: "8080"
       com.microsoft.visualstudio.debugging.tcp.local: "5080"
 
   web:
-    labels:
-      com.microsoft.visualstudio.project: "src\frontend\frontend.csproj"
-      com.microsoft.visualstudio.debugging.tcp.port: "8080"
-      com.microsoft.visualstudio.debugging.tcp.local: "5081"
+    depends_on:
+      api:
+        condition: service_started

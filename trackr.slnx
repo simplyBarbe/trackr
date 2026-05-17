@@ -1,9 +1,9 @@
 <Solution>
-  <Project Path="docker-compose.dcproj">
-    <Build />
-  </Project>
   <Folder Name="/src/">
     <Project Path="src/backend/backend.csproj" />
     <Project Path="src/frontend/frontend.csproj" />
   </Folder>
+  <Project Path="docker-compose.dcproj" Id="8f4e2c1a-9b3d-4e5f-a6c7-1d2e3f4a5b6c">
+    <Build />
+  </Project>
 </Solution>

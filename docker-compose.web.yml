@@ -1,0 +1,6 @@
+# Loaded last via AdditionalComposeFilePaths so web serves nginx on 5081 under Visual Studio.
+services:
+  web:
+    build:
+      target: final
+    entrypoint: ["nginx", "-g", "daemon off;"]

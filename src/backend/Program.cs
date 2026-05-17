@@ -30,6 +30,7 @@ try
         {
             o.DocumentSettings = s =>
             {
+                s.DocumentName = "v1";
                 s.Title = "trackr API";
                 s.Version = "v1";
             };
@@ -61,7 +62,10 @@ try
     app.UseCors();
 
     app.UseFastEndpoints()
-        .UseSwaggerGen();
+        .UseSwaggerGen(config =>
+        {
+            config.Path = "/openapi/{documentName}.json";
+        });
 
     if (app.Environment.IsDevelopment())
     {
