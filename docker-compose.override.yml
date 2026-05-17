@@ -1,0 +1,13 @@
+# Visual Studio / VS Code merge overrides (not used by plain `docker compose` unless this file exists).
+services:
+  api:
+    labels:
+      com.microsoft.visualstudio.project: "src\backend\backend.csproj"
+      com.microsoft.visualstudio.debugging.tcp.port: "8080"
+      com.microsoft.visualstudio.debugging.tcp.local: "5080"
+
+  web:
+    labels:
+      com.microsoft.visualstudio.project: "src\frontend\frontend.csproj"
+      com.microsoft.visualstudio.debugging.tcp.port: "8080"
+      com.microsoft.visualstudio.debugging.tcp.local: "5081"

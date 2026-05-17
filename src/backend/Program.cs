@@ -1,31 +1,83 @@
+using backend.Common;
+using backend.Data;
+using backend.Features.Health.Get;
+using FastEndpoints;
+using FastEndpoints.Swagger;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+using Serilog;
 
-namespace backend
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+try
 {
-    public class Program
-    {
-        public static void Main(string[] args)
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog((context, services, configuration) =>
+        configuration.ReadFrom.Configuration(context.Configuration));
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddScoped<GetHealthHandler>();
+
+    builder.Services
+        .AddFastEndpoints()
+        .SwaggerDocument(o =>
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddAuthorization();
-
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            o.DocumentSettings = s =>
             {
-                app.MapOpenApi();
-            }
+                s.Title = "trackr API";
+                s.Version = "v1";
+            };
+        });
 
-            app.UseHttpsRedirection();
+    builder.Services.AddValidatorsFromAssemblyContaining<AssemblyMarker>();
+    builder.Services.AddProblemDetails();
 
-            app.UseAuthorization();
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+    });
 
-            app.Run();
-        }
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
     }
+
+    app.UseSerilogRequestLogging();
+    app.UseExceptionHandler();
+    app.UseCors();
+
+    app.UseFastEndpoints()
+        .UseSwaggerGen();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTitle("trackr API");
+        });
+    }
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }

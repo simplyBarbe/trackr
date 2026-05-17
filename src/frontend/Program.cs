@@ -1,20 +1,17 @@
+using frontend;
+using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 
-namespace frontend
-{
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddMudServices();
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
+    ?? throw new InvalidOperationException("ApiBaseUrl is not configured in wwwroot/appsettings.json.");
 
-            await builder.Build().RunAsync();
-        }
-    }
-}
+builder.Services.AddMudServices();
+builder.Services.AddTrackrApiClient(apiBaseUrl);
+
+await builder.Build().RunAsync();

@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Folder Name="/src/">
     <Project Path="src/backend/backend.csproj" />
     <Project Path="src/frontend/frontend.csproj" />
