@@ -1,6 +1,7 @@
+using System.Text.Json.Serialization;
+using backend;
 using backend.Common;
 using backend.Data;
-using backend.Features.Health.Get;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using FluentValidation;
@@ -22,16 +23,22 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    builder.Services.AddScoped<GetHealthHandler>();
+    builder.Services.AddTrackrApplication();
+
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
     builder.Services
         .AddFastEndpoints()
         .SwaggerDocument(o =>
         {
+            o.AutoTagPathSegmentIndex = 0;
             o.DocumentSettings = s =>
             {
                 s.DocumentName = "v1";
-                s.Title = "trackr API";
+                s.Title = "Trackr API";
                 s.Version = "v1";
             };
         });
@@ -61,7 +68,10 @@ try
     app.UseExceptionHandler();
     app.UseCors();
 
-    app.UseFastEndpoints()
+    app.UseFastEndpoints(config =>
+        {
+            config.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
+        })
         .UseSwaggerGen(config =>
         {
             config.Path = "/openapi/{documentName}.json";

@@ -11,8 +11,19 @@ public abstract class TrackrEndpointWithoutRequest<TResponse> : EndpointWithoutR
         if (result.IsSuccess)
             return Send.OkAsync(result.Value!, cancellation);
 
-        return ProblemResponses.WriteAsync(HttpContext, result.Error!, cancellation);
+        return SendFailureAsync(result.Error!, cancellation);
     }
+
+    protected Task SendNoContentAsync(Result result, CancellationToken cancellation = default)
+    {
+        if (result.IsSuccess)
+            return Send.NoContentAsync(cancellation);
+
+        return SendFailureAsync(result.Error!, cancellation);
+    }
+
+    protected Task SendFailureAsync(Error error, CancellationToken cancellation = default) =>
+        ProblemResponses.WriteAsync(HttpContext, error, cancellation);
 }
 
 public abstract class TrackrEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
@@ -23,8 +34,45 @@ public abstract class TrackrEndpoint<TRequest, TResponse> : Endpoint<TRequest, T
         if (result.IsSuccess)
             return Send.OkAsync(result.Value!, cancellation);
 
-        return ProblemResponses.WriteAsync(HttpContext, result.Error!, cancellation);
+        return SendFailureAsync(result.Error!, cancellation);
     }
+
+    protected Task SendCreatedAsync(Result<TResponse> result, string location, CancellationToken cancellation = default)
+    {
+        if (result.IsSuccess)
+        {
+            HttpContext.Response.Headers.Location = location;
+            return Send.ResponseAsync(result.Value!, StatusCodes.Status201Created, cancellation: cancellation);
+        }
+
+        return SendFailureAsync(result.Error!, cancellation);
+    }
+
+    protected Task SendNoContentAsync(Result result, CancellationToken cancellation = default)
+    {
+        if (result.IsSuccess)
+            return Send.NoContentAsync(cancellation);
+
+        return SendFailureAsync(result.Error!, cancellation);
+    }
+
+    protected Task SendFailureAsync(Error error, CancellationToken cancellation = default) =>
+        ProblemResponses.WriteAsync(HttpContext, error, cancellation);
+}
+
+public abstract class TrackrEndpointWithoutResponse<TRequest> : Endpoint<TRequest>
+    where TRequest : notnull
+{
+    protected Task SendNoContentAsync(Result result, CancellationToken cancellation = default)
+    {
+        if (result.IsSuccess)
+            return Send.NoContentAsync(cancellation);
+
+        return SendFailureAsync(result.Error!, cancellation);
+    }
+
+    protected Task SendFailureAsync(Error error, CancellationToken cancellation = default) =>
+        ProblemResponses.WriteAsync(HttpContext, error, cancellation);
 }
 
 internal static class ProblemResponses

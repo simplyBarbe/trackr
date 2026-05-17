@@ -1,0 +1,34 @@
+using backend.Application.Services;
+using backend.Common.Results;
+using backend.Features.Accounts;
+using backend.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace backend.Features.Accounts.List;
+
+public sealed class ListAccountsHandler(AppDbContext db, IAccountBalanceService balanceService)
+{
+    public async Task<Result<ListAccountsResponse>> HandleAsync(
+        ListAccountsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = db.Accounts.AsNoTracking();
+
+        if (!request.IncludeArchived)
+            query = query.Where(a => !a.IsArchived);
+
+        var accounts = await query
+            .OrderBy(a => a.Name)
+            .ToListAsync(cancellationToken);
+
+        var balances = await balanceService.GetBalancesAsync(
+            accounts.Select(a => a.Id),
+            cancellationToken);
+
+        var items = accounts
+            .Select(a => AccountMapping.ToResponse(a, balances.GetValueOrDefault(a.Id, a.InitialBalance)))
+            .ToList();
+
+        return Result<ListAccountsResponse>.Success(new ListAccountsResponse(items));
+    }
+}
