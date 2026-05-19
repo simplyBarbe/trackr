@@ -17,69 +17,26 @@ public partial class AccountsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>> _accountsQuery =
+    private QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>> _query =
         QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
-
-    private QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>> _categoriesQuery =
-        QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
 
     private bool _includeArchived;
-    private string _categoryIdFilter = string.Empty;
-    private bool _categoryFilterLoading;
-    private HashSet<string>? _accountIdsForCategory;
 
-    protected override async Task OnInitializedAsync() =>
-        await Task.WhenAll(LoadCategoriesAsync(), LoadAccountsAsync());
-
-    private IReadOnlyList<BackendFeaturesAccountsAccountResponse> DisplayedAccounts =>
-        FilterAccounts(_accountsQuery.Data);
+    protected override async Task OnInitializedAsync() => await LoadAsync();
 
     private static string FormatCreatedAt(DateTimeOffset? createdAt) =>
         createdAt?.ToLocalTime().ToString("g") ?? "";
 
-    private IReadOnlyList<BackendFeaturesAccountsAccountResponse> FilterAccounts(
-        IReadOnlyList<BackendFeaturesAccountsAccountResponse>? rows)
+    private async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        if (rows is null)
-            return [];
-
-        if (string.IsNullOrEmpty(_categoryIdFilter) || _accountIdsForCategory is null)
-            return rows;
-
-        return rows
-            .Where(a => !string.IsNullOrEmpty(a.Id) && _accountIdsForCategory.Contains(a.Id))
-            .ToList();
-    }
-
-    private async Task LoadCategoriesAsync(CancellationToken cancellationToken = default)
-    {
-        if (_categoriesQuery.Data is not null)
-            _categoriesQuery = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Fetching(_categoriesQuery.Data);
+        if (_query.Data is not null)
+            _query = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Fetching(_query.Data);
         else
-            _categoriesQuery = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+            _query = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
 
-        _categoriesQuery = await QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.RunAsync(async () =>
-        {
-            var response = await Api.Api.Categories.GetAsync(configuration =>
-                {
-                    configuration.QueryParameters.IncludeArchived = false;
-                },
-                cancellationToken);
-
-            return (IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>)(response?.Items ?? []);
-        });
-    }
-
-    private async Task LoadAccountsAsync(CancellationToken cancellationToken = default)
-    {
-        if (_accountsQuery.Data is not null)
-            _accountsQuery = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Fetching(_accountsQuery.Data);
-        else
-            _accountsQuery = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
-
-        _accountsQuery = await QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.RunAsync(async () =>
+        _query = await QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Accounts.GetAsync(configuration =>
                 {
@@ -94,42 +51,7 @@ public partial class AccountsPage : ComponentBase
     private async Task OnIncludeArchivedChanged(bool value)
     {
         _includeArchived = value;
-        await LoadAccountsAsync();
-    }
-
-    private async Task OnCategoryFilterChanged(string value)
-    {
-        _categoryIdFilter = value;
-        _accountIdsForCategory = null;
-
-        if (string.IsNullOrEmpty(value))
-            return;
-
-        _categoryFilterLoading = true;
-        try
-        {
-            var response = await Api.Api.Transactions.GetAsync(configuration =>
-            {
-                configuration.QueryParameters.CategoryId = value;
-                configuration.QueryParameters.Page = 1;
-                configuration.QueryParameters.PageSize = 500;
-            });
-
-            var items = response?.Items ?? [];
-            _accountIdsForCategory = items
-                .Select(t => t.AccountId)
-                .Where(id => !string.IsNullOrEmpty(id))
-                .ToHashSet(StringComparer.Ordinal)!;
-        }
-        catch (Exception ex)
-        {
-            _categoryIdFilter = string.Empty;
-            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
-        }
-        finally
-        {
-            _categoryFilterLoading = false;
-        }
+        await LoadAsync();
     }
 
     private async Task OpenCreateDialogAsync()
@@ -202,9 +124,7 @@ public partial class AccountsPage : ComponentBase
             return;
         }
 
-        await LoadAccountsAsync();
-        if (!string.IsNullOrEmpty(_categoryIdFilter))
-            await OnCategoryFilterChanged(_categoryIdFilter);
+        await LoadAsync();
     }
 
     private async Task UpdateAsync(string accountId, AccountFormResult form)
@@ -229,8 +149,6 @@ public partial class AccountsPage : ComponentBase
             return;
         }
 
-        await LoadAccountsAsync();
-        if (!string.IsNullOrEmpty(_categoryIdFilter))
-            await OnCategoryFilterChanged(_categoryIdFilter);
+        await LoadAsync();
     }
 }

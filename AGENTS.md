@@ -135,3 +135,12 @@ Conventions:
 - Load errors → `MudAlert` on the page; mutation errors → `ISnackbar` (`Severity.Error`, ~5s auto-close).
 - New list pages should follow `AccountsPage` / `CategoriesPage` (query + mutation, refetch after successful mutation).
 - Do not reference MudBlazor from `Infrastructure/`.
+
+**Multiple queries on one page** — only when the page has a real, API-backed filter or auxiliary data (do not add a second query until then):
+
+- Use separate `QueryState<T>` fields (e.g. `_accountsQuery`, `_categoriesQuery`), each with its own `Load*Async`.
+- Initial load: `await Task.WhenAll(...)` when queries are independent.
+- Refetch only the query whose inputs changed.
+- Loading UX: full-page spinner while **all** initial queries load; toolbar/auxiliary controls as soon as their query resolves; `IsFetching` on the main list for refetch.
+- Errors: main query → `MudAlert`; auxiliary query → caption near control or snackbar.
+- Prefer a backend filter on the primary list over client-side joins across entities.

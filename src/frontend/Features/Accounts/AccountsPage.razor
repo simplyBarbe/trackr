@@ -4,15 +4,15 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">Accounts</MudText>
 
-@if (_accountsQuery.IsLoading)
+@if (_query.IsLoading)
 {
     <MudProgressLinear Indeterminate="true" Class="mb-4" />
 }
 else
 {
-    @if (_accountsQuery.IsError)
+    @if (_query.IsError)
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">@_accountsQuery.Error</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
     }
 
     <MudStack Row="true"
@@ -28,32 +28,6 @@ else
             New account
         </MudButton>
 
-        <MudSelect T="string"
-                   Label="Category"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Style="min-width: 14rem;"
-                   Disabled="@(_categoriesQuery.IsLoading || _categoryFilterLoading)"
-                   Value="_categoryIdFilter"
-                   ValueChanged="OnCategoryFilterChanged">
-            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            @if (_categoriesQuery.HasData)
-            {
-                @foreach (var category in _categoriesQuery.Data!)
-                {
-                    <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
-                }
-            }
-        </MudSelect>
-        @if (_categoriesQuery.IsFetching || _categoryFilterLoading)
-        {
-            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-        }
-        @if (_categoriesQuery.IsError)
-        {
-            <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
-        }
-
         <MudCheckBox T="bool"
                      Value="@_includeArchived"
                      Label="Include archived"
@@ -61,20 +35,20 @@ else
                      ValueChanged="@OnIncludeArchivedChanged"/>
     </MudStack>
 
-    @if (_accountsQuery.IsFetching)
+    @if (_query.IsFetching)
     {
         <MudProgressLinear Indeterminate="true" Class="mb-4" />
     }
 
-    @if (!_accountsQuery.IsError && _accountsQuery.Data is not null)
+    @if (!_query.IsError && _query.Data is not null)
     {
-        @if (DisplayedAccounts.Count == 0)
+        @if (_query.Data.Count == 0)
         {
             <MudText>No accounts found.</MudText>
         }
         else
         {
-            <MudTable Items="@DisplayedAccounts"
+            <MudTable Items="@_query.Data"
                       Hover="true"
                       Striped="true"
                       Breakpoint="Breakpoint.Sm">
