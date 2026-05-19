@@ -127,3 +127,11 @@ Conventions:
 - Namespace matches folder: `frontend.Features.Accounts`.
 - Do not put feature UI in a flat `Pages/` folder or duplicate a top-level `Components/<Name>/` tree — keep each domain self-contained under `Features/<Name>/`.
 - Extract to `Features/Shared/` only when at least two features need the same component or helper.
+
+**Server state (v1)** — TanStack Query–inspired helpers in `Infrastructure/` (no client cache):
+
+- `QueryState<T>` for API reads (`IsLoading` = first load, `IsFetching` = refetch with stale data kept, `Success`, `Error`); `MutationState` for writes (`IsPending` / `Error`).
+- Use `QueryState.RunAsync` and `MutationState.RunAsync`; map exceptions via `ApiErrors.GetMessage`.
+- Load errors → `MudAlert` on the page; mutation errors → `ISnackbar` (`Severity.Error`, ~5s auto-close).
+- New list pages should follow `AccountsPage` / `CategoriesPage` (query + mutation, refetch after successful mutation).
+- Do not reference MudBlazor from `Infrastructure/`.

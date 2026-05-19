@@ -12,8 +12,8 @@ public partial class Home : ComponentBase
     [Inject]
     private IConfiguration Configuration { get; set; } = null!;
 
-    private bool _loading = true;
-    private HealthProbeResult? _health;
+    private QueryState<HealthProbeResult> _query = QueryState<HealthProbeResult>.Loading();
+
     private string _apiBaseUrl = string.Empty;
     private string _clientMode = "Kiota";
 
@@ -21,7 +21,10 @@ public partial class Home : ComponentBase
     {
         _apiBaseUrl = Configuration["ApiBaseUrl"] ?? string.Empty;
 
-        _health = await HealthProbe.GetAsync();
-        _loading = false;
+        _query = await QueryState<HealthProbeResult>.RunAsync(async () =>
+        {
+            var health = await HealthProbe.GetAsync();
+            return health ?? throw new InvalidOperationException("API unreachable.");
+        });
     }
 }

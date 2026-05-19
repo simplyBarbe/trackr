@@ -4,15 +4,15 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">Categories</MudText>
 
-@if (_loading)
+@if (_query.IsLoading)
 {
     <MudProgressLinear Indeterminate="true" Class="mb-4" />
 }
 else
 {
-    @if (_error is not null)
+    @if (_query.IsError)
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
     }
 
     <MudStack Row="true"
@@ -23,7 +23,7 @@ else
         <MudButton Color="Color.Primary"
                    Variant="Variant.Filled"
                    StartIcon="@Icons.Material.Filled.Add"
-                   Disabled="@_mutating"
+                   Disabled="@_mutation.IsPending"
                    OnClick="OpenCreateDialogAsync">
             New category
         </MudButton>
@@ -47,15 +47,20 @@ else
                      ValueChanged="@OnIncludeArchivedChanged"/>
     </MudStack>
 
-    @if (_error is null)
+    @if (_query.IsFetching)
     {
-        @if (_rows.Count == 0)
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+
+    @if (!_query.IsError && _query.Data is not null)
+    {
+        @if (_query.Data.Count == 0)
         {
             <MudText>No categories found.</MudText>
         }
         else
         {
-            <MudTable Items="@_rows"
+            <MudTable Items="@_query.Data"
                       Hover="true"
                       Striped="true"
                       Breakpoint="Breakpoint.Sm">
@@ -79,7 +84,7 @@ else
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
-                                       Disabled="@(_mutating || context.IsArchived == true)"
+                                       Disabled="@(_mutation.IsPending || context.IsArchived == true)"
                                        OnClick="@(() => OpenEditDialogAsync(context))" />
                     </MudTd>
                 </RowTemplate>

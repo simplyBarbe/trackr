@@ -5,20 +5,24 @@
 <MudText Typo="Typo.h3" GutterBottom="true">trackr</MudText>
 <MudText Class="mb-4">Personal money tracking — foundation preview.</MudText>
 
-@if (_loading)
+@if (_query.IsLoading)
 {
     <MudProgressLinear Indeterminate="true" Class="mb-4" />
 }
-else if (_health is not null)
+else if (_query.HasData)
 {
     <MudAlert Severity="Severity.Success" Class="mb-4">
-        API @(_health.Status) — database @(_health.Database)
+        API @(_query.Data!.Status) — database @(_query.Data.Database)
     </MudAlert>
 }
 else
 {
     <MudAlert Severity="Severity.Warning" Class="mb-4">
         API unreachable. Start the backend and ensure @(_apiBaseUrl) is correct.
+        @if (_query.IsError)
+        {
+            <text> (@_query.Error)</text>
+        }
     </MudAlert>
 }
 

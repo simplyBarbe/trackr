@@ -1,5 +1,5 @@
+using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Kiota.Abstractions;
 using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
@@ -14,23 +14,72 @@ public partial class AccountsPage : ComponentBase
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
 
-    private bool _loading = true;
-    private bool _mutating;
-    private string? _error;
-    private IReadOnlyList<BackendFeaturesAccountsAccountResponse> _rows = [];
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    private QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>> _accountsQuery =
+        QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
+
+    private QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>> _categoriesQuery =
+        QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+
+    private MutationState _mutation = MutationState.Idle;
 
     private bool _includeArchived;
+    private string _categoryIdFilter = string.Empty;
+    private bool _categoryFilterLoading;
+    private HashSet<string>? _accountIdsForCategory;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    protected override async Task OnInitializedAsync() =>
+        await Task.WhenAll(LoadCategoriesAsync(), LoadAccountsAsync());
+
+    private IReadOnlyList<BackendFeaturesAccountsAccountResponse> DisplayedAccounts =>
+        FilterAccounts(_accountsQuery.Data);
 
     private static string FormatCreatedAt(DateTimeOffset? createdAt) =>
         createdAt?.ToLocalTime().ToString("g") ?? "";
 
-    private async Task LoadAsync(CancellationToken cancellationToken = default)
+    private IReadOnlyList<BackendFeaturesAccountsAccountResponse> FilterAccounts(
+        IReadOnlyList<BackendFeaturesAccountsAccountResponse>? rows)
     {
-        _loading = true;
-        _error = null;
-        try
+        if (rows is null)
+            return [];
+
+        if (string.IsNullOrEmpty(_categoryIdFilter) || _accountIdsForCategory is null)
+            return rows;
+
+        return rows
+            .Where(a => !string.IsNullOrEmpty(a.Id) && _accountIdsForCategory.Contains(a.Id))
+            .ToList();
+    }
+
+    private async Task LoadCategoriesAsync(CancellationToken cancellationToken = default)
+    {
+        if (_categoriesQuery.Data is not null)
+            _categoriesQuery = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Fetching(_categoriesQuery.Data);
+        else
+            _categoriesQuery = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+
+        _categoriesQuery = await QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.RunAsync(async () =>
+        {
+            var response = await Api.Api.Categories.GetAsync(configuration =>
+                {
+                    configuration.QueryParameters.IncludeArchived = false;
+                },
+                cancellationToken);
+
+            return (IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>)(response?.Items ?? []);
+        });
+    }
+
+    private async Task LoadAccountsAsync(CancellationToken cancellationToken = default)
+    {
+        if (_accountsQuery.Data is not null)
+            _accountsQuery = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Fetching(_accountsQuery.Data);
+        else
+            _accountsQuery = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
+
+        _accountsQuery = await QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Accounts.GetAsync(configuration =>
                 {
@@ -38,34 +87,49 @@ public partial class AccountsPage : ComponentBase
                 },
                 cancellationToken);
 
-            var items = response?.Items ?? [];
-            _rows = items;
-        }
-        catch (FastEndpointsErrorResponse ex)
-        {
-            _error = ex.Message;
-            _rows = [];
-        }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-            _rows = [];
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-            _rows = [];
-        }
-        finally
-        {
-            _loading = false;
-        }
+            return (IReadOnlyList<BackendFeaturesAccountsAccountResponse>)(response?.Items ?? []);
+        });
     }
 
     private async Task OnIncludeArchivedChanged(bool value)
     {
         _includeArchived = value;
-        await LoadAsync();
+        await LoadAccountsAsync();
+    }
+
+    private async Task OnCategoryFilterChanged(string value)
+    {
+        _categoryIdFilter = value;
+        _accountIdsForCategory = null;
+
+        if (string.IsNullOrEmpty(value))
+            return;
+
+        _categoryFilterLoading = true;
+        try
+        {
+            var response = await Api.Api.Transactions.GetAsync(configuration =>
+            {
+                configuration.QueryParameters.CategoryId = value;
+                configuration.QueryParameters.Page = 1;
+                configuration.QueryParameters.PageSize = 500;
+            });
+
+            var items = response?.Items ?? [];
+            _accountIdsForCategory = items
+                .Select(t => t.AccountId)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .ToHashSet(StringComparer.Ordinal)!;
+        }
+        catch (Exception ex)
+        {
+            _categoryIdFilter = string.Empty;
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
+        }
+        finally
+        {
+            _categoryFilterLoading = false;
+        }
     }
 
     private async Task OpenCreateDialogAsync()
@@ -118,9 +182,8 @@ public partial class AccountsPage : ComponentBase
 
     private async Task CreateAsync(AccountFormResult form)
     {
-        _mutating = true;
-        _error = null;
-        try
+        _mutation = MutationState.Pending();
+        _mutation = await MutationState.RunAsync(async () =>
         {
             var request = new BackendFeaturesAccountsCreateCreateAccountRequest
             {
@@ -131,31 +194,23 @@ public partial class AccountsPage : ComponentBase
             };
 
             await Api.Api.Accounts.PostAsync(request);
-            await LoadAsync();
-        }
-        catch (FastEndpointsErrorResponse ex)
+        });
+
+        if (_mutation.Error is not null)
         {
-            _error = ex.Message;
+            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            return;
         }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-        finally
-        {
-            _mutating = false;
-        }
+
+        await LoadAccountsAsync();
+        if (!string.IsNullOrEmpty(_categoryIdFilter))
+            await OnCategoryFilterChanged(_categoryIdFilter);
     }
 
     private async Task UpdateAsync(string accountId, AccountFormResult form)
     {
-        _mutating = true;
-        _error = null;
-        try
+        _mutation = MutationState.Pending();
+        _mutation = await MutationState.RunAsync(async () =>
         {
             var request = new BackendFeaturesAccountsUpdateUpdateAccountRequest
             {
@@ -166,23 +221,16 @@ public partial class AccountsPage : ComponentBase
             };
 
             await Api.Api.Accounts[accountId].PutAsync(request);
-            await LoadAsync();
-        }
-        catch (FastEndpointsErrorResponse ex)
+        });
+
+        if (_mutation.Error is not null)
         {
-            _error = ex.Message;
+            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            return;
         }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-        finally
-        {
-            _mutating = false;
-        }
+
+        await LoadAccountsAsync();
+        if (!string.IsNullOrEmpty(_categoryIdFilter))
+            await OnCategoryFilterChanged(_categoryIdFilter);
     }
 }

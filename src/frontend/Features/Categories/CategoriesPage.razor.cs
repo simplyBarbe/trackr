@@ -1,5 +1,5 @@
+using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Kiota.Abstractions;
 using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
@@ -14,10 +14,13 @@ public partial class CategoriesPage : ComponentBase
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
 
-    private bool _loading = true;
-    private bool _mutating;
-    private string? _error;
-    private IReadOnlyList<BackendFeaturesCategoriesCategoryResponse> _rows = [];
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    private QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>> _query =
+        QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+
+    private MutationState _mutation = MutationState.Idle;
 
     private bool _includeArchived;
     private string _kindQuery = string.Empty;
@@ -26,9 +29,12 @@ public partial class CategoriesPage : ComponentBase
 
     private async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        _loading = true;
-        _error = null;
-        try
+        if (_query.Data is not null)
+            _query = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Fetching(_query.Data);
+        else
+            _query = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+
+        _query = await QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Categories.GetAsync(configuration =>
                 {
@@ -38,23 +44,8 @@ public partial class CategoriesPage : ComponentBase
                 },
                 cancellationToken);
 
-            var items = response?.Items ?? [];
-            _rows = items;
-        }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-            _rows = [];
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-            _rows = [];
-        }
-        finally
-        {
-            _loading = false;
-        }
+            return (IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>)(response?.Items ?? []);
+        });
     }
 
     private async Task OnKindQueryChanged(string value)
@@ -73,7 +64,7 @@ public partial class CategoriesPage : ComponentBase
     {
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _rows },
+            { x => x.ParentCandidates, _query.Data ?? [] },
             { x => x.SubmitText, "Create" }
         };
         var options = new DialogOptions
@@ -99,7 +90,7 @@ public partial class CategoriesPage : ComponentBase
 
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _rows },
+            { x => x.ParentCandidates, _query.Data ?? [] },
             { x => x.Category, category },
             { x => x.SubmitText, "Save" }
         };
@@ -121,9 +112,8 @@ public partial class CategoriesPage : ComponentBase
 
     private async Task CreateAsync(CategoryFormResult form)
     {
-        _mutating = true;
-        _error = null;
-        try
+        _mutation = MutationState.Pending();
+        _mutation = await MutationState.RunAsync(async () =>
         {
             var request = new BackendFeaturesCategoriesCreateCreateCategoryRequest
             {
@@ -134,31 +124,21 @@ public partial class CategoriesPage : ComponentBase
             };
 
             await Api.Api.Categories.PostAsync(request);
-            await LoadAsync();
-        }
-        catch (FastEndpointsErrorResponse ex)
+        });
+
+        if (_mutation.Error is not null)
         {
-            _error = ex.Message;
+            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            return;
         }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-        finally
-        {
-            _mutating = false;
-        }
+
+        await LoadAsync();
     }
 
     private async Task UpdateAsync(string categoryId, CategoryFormResult form)
     {
-        _mutating = true;
-        _error = null;
-        try
+        _mutation = MutationState.Pending();
+        _mutation = await MutationState.RunAsync(async () =>
         {
             var request = new BackendFeaturesCategoriesUpdateUpdateCategoryRequest
             {
@@ -169,23 +149,14 @@ public partial class CategoriesPage : ComponentBase
             };
 
             await Api.Api.Categories[categoryId].PutAsync(request);
-            await LoadAsync();
-        }
-        catch (FastEndpointsErrorResponse ex)
+        });
+
+        if (_mutation.Error is not null)
         {
-            _error = ex.Message;
+            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            return;
         }
-        catch (ApiException ex)
-        {
-            _error = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-        finally
-        {
-            _mutating = false;
-        }
+
+        await LoadAsync();
     }
 }
