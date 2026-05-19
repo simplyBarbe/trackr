@@ -4,9 +4,9 @@ using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
 
-namespace frontend.Pages;
+namespace frontend.Features.Categories;
 
-public partial class Categories : ComponentBase
+public partial class CategoriesPage : ComponentBase
 {
     [Inject]
     private TrackrApiClient Api { get; set; } = null!;
@@ -71,7 +71,7 @@ public partial class Categories : ComponentBase
 
     private async Task OpenCreateDialogAsync()
     {
-        var parameters = new DialogParameters<CreateCategoryDialog>
+        var parameters = new DialogParameters<CategoryFormDialog>
         {
             { x => x.ParentCandidates, _rows },
             { x => x.SubmitText, "Create" }
@@ -83,7 +83,7 @@ public partial class Categories : ComponentBase
             CloseButton = true
         };
 
-        var dialog = await DialogService.ShowAsync<CreateCategoryDialog>("New category", parameters, options);
+        var dialog = await DialogService.ShowAsync<CategoryFormDialog>("New category", parameters, options);
         var result = await dialog.Result;
 
         if (result is null || result.Canceled || result.Data is not CategoryFormResult form)
@@ -97,7 +97,7 @@ public partial class Categories : ComponentBase
         if (string.IsNullOrWhiteSpace(category.Id))
             return;
 
-        var parameters = new DialogParameters<CreateCategoryDialog>
+        var parameters = new DialogParameters<CategoryFormDialog>
         {
             { x => x.ParentCandidates, _rows },
             { x => x.Category, category },
@@ -110,7 +110,7 @@ public partial class Categories : ComponentBase
             CloseButton = true
         };
 
-        var dialog = await DialogService.ShowAsync<CreateCategoryDialog>("Edit category", parameters, options);
+        var dialog = await DialogService.ShowAsync<CategoryFormDialog>("Edit category", parameters, options);
         var result = await dialog.Result;
 
         if (result is null || result.Canceled || result.Data is not CategoryFormResult form)

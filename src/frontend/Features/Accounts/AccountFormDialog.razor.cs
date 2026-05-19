@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Trackr.Api.Models;
 
-namespace frontend.Pages;
+namespace frontend.Features.Accounts;
 
-public partial class CreateAccountDialog : ComponentBase
+public partial class AccountFormDialog : ComponentBase
 {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;

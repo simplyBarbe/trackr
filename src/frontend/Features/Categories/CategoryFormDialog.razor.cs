@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Trackr.Api.Models;
 
-namespace frontend.Pages;
+namespace frontend.Features.Categories;
 
-public partial class CreateCategoryDialog : ComponentBase
+public partial class CategoryFormDialog : ComponentBase
 {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;

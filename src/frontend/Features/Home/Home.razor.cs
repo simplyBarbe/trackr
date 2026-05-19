@@ -2,7 +2,7 @@ using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 
-namespace frontend.Pages;
+namespace frontend.Features.Home;
 
 public partial class Home : ComponentBase
 {

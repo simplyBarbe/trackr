@@ -104,3 +104,26 @@ Slice layout: endpoint, request/response, validator, handler per feature (e.g. `
 | Components | `.razor` + `.razor.cs` code-behind |
 
 OpenAPI is the contract: regenerate the Kiota client when the API surface changes.
+
+**Folder layout** — group by domain, mirroring backend `Features/<Name>/`:
+
+```
+src/frontend/
+├── Layout/              # App shell (MainLayout, NavMenu)
+├── Infrastructure/      # DI, API wiring, cross-cutting client setup
+├── TrackrApi/           # Kiota-generated client (do not hand-edit)
+└── Features/
+    ├── <Name>/          # One folder per domain (Accounts, Categories, …)
+    │   ├── <Name>Page.razor (+ .cs)   # Routable pages only (@page)
+    │   └── *Dialog.razor (+ .cs)      # Feature-specific dialogs/components
+    ├── Home/            # Landing / dashboard
+    └── Shared/          # UI used by 2+ features (e.g. NotFound)
+```
+
+Conventions:
+
+- Routable pages: `*Page` suffix (e.g. `AccountsPage.razor` with `@page "/accounts"`).
+- Create/edit dialogs: `*FormDialog` (handles both modes via parameters).
+- Namespace matches folder: `frontend.Features.Accounts`.
+- Do not put feature UI in a flat `Pages/` folder or duplicate a top-level `Components/<Name>/` tree — keep each domain self-contained under `Features/<Name>/`.
+- Extract to `Features/Shared/` only when at least two features need the same component or helper.

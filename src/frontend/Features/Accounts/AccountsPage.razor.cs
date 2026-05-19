@@ -4,9 +4,9 @@ using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
 
-namespace frontend.Pages;
+namespace frontend.Features.Accounts;
 
-public partial class Accounts : ComponentBase
+public partial class AccountsPage : ComponentBase
 {
     [Inject]
     private TrackrApiClient Api { get; set; } = null!;
@@ -70,7 +70,7 @@ public partial class Accounts : ComponentBase
 
     private async Task OpenCreateDialogAsync()
     {
-        var parameters = new DialogParameters<CreateAccountDialog>
+        var parameters = new DialogParameters<AccountFormDialog>
         {
             { x => x.SubmitText, "Create" }
         };
@@ -81,7 +81,7 @@ public partial class Accounts : ComponentBase
             CloseButton = true
         };
 
-        var dialog = await DialogService.ShowAsync<CreateAccountDialog>("New account", parameters, options);
+        var dialog = await DialogService.ShowAsync<AccountFormDialog>("New account", parameters, options);
         var result = await dialog.Result;
 
         if (result is null || result.Canceled || result.Data is not AccountFormResult form)
@@ -95,7 +95,7 @@ public partial class Accounts : ComponentBase
         if (string.IsNullOrWhiteSpace(account.Id))
             return;
 
-        var parameters = new DialogParameters<CreateAccountDialog>
+        var parameters = new DialogParameters<AccountFormDialog>
         {
             { x => x.Account, account },
             { x => x.SubmitText, "Save" }
@@ -107,7 +107,7 @@ public partial class Accounts : ComponentBase
             CloseButton = true
         };
 
-        var dialog = await DialogService.ShowAsync<CreateAccountDialog>("Edit account", parameters, options);
+        var dialog = await DialogService.ShowAsync<AccountFormDialog>("Edit account", parameters, options);
         var result = await dialog.Result;
 
         if (result is null || result.Canceled || result.Data is not AccountFormResult form)
