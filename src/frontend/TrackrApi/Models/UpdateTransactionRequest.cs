@@ -10,7 +10,7 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesTransactionsTransactionResponse : IParsable
+    public partial class UpdateTransactionRequest : IParsable
     #pragma warning restore CS1591
     {
         /// <summary>The accountId property</summary>
@@ -20,14 +20,6 @@ namespace Trackr.Api.Models
 #nullable restore
 #else
         public string AccountId { get; set; }
-#endif
-        /// <summary>The accountName property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? AccountName { get; set; }
-#nullable restore
-#else
-        public string AccountName { get; set; }
 #endif
         /// <summary>The amount property</summary>
         public decimal? Amount { get; set; }
@@ -39,16 +31,6 @@ namespace Trackr.Api.Models
 #else
         public string CategoryId { get; set; }
 #endif
-        /// <summary>The categoryName property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? CategoryName { get; set; }
-#nullable restore
-#else
-        public string CategoryName { get; set; }
-#endif
-        /// <summary>The createdAt property</summary>
-        public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The description property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -56,14 +38,6 @@ namespace Trackr.Api.Models
 #nullable restore
 #else
         public string Description { get; set; }
-#endif
-        /// <summary>The id property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? Id { get; set; }
-#nullable restore
-#else
-        public string Id { get; set; }
 #endif
         /// <summary>The occurredOn property</summary>
         public Date? OccurredOn { get; set; }
@@ -75,25 +49,17 @@ namespace Trackr.Api.Models
 #else
         public string ToAccountId { get; set; }
 #endif
-        /// <summary>The toAccountName property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? ToAccountName { get; set; }
-#nullable restore
-#else
-        public string ToAccountName { get; set; }
-#endif
         /// <summary>The type property</summary>
-        public global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType? Type { get; set; }
+        public global::Trackr.Api.Models.TransactionType? Type { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.UpdateTransactionRequest"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.UpdateTransactionRequest CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse();
+            return new global::Trackr.Api.Models.UpdateTransactionRequest();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -104,17 +70,12 @@ namespace Trackr.Api.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "accountId", n => { AccountId = n.GetStringValue(); } },
-                { "accountName", n => { AccountName = n.GetStringValue(); } },
                 { "amount", n => { Amount = n.GetDecimalValue(); } },
                 { "categoryId", n => { CategoryId = n.GetStringValue(); } },
-                { "categoryName", n => { CategoryName = n.GetStringValue(); } },
-                { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "description", n => { Description = n.GetStringValue(); } },
-                { "id", n => { Id = n.GetStringValue(); } },
                 { "occurredOn", n => { OccurredOn = n.GetDateValue(); } },
                 { "toAccountId", n => { ToAccountId = n.GetStringValue(); } },
-                { "toAccountName", n => { ToAccountName = n.GetStringValue(); } },
-                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType>(); } },
+                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.TransactionType>(); } },
             };
         }
         /// <summary>
@@ -125,17 +86,12 @@ namespace Trackr.Api.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("accountId", AccountId);
-            writer.WriteStringValue("accountName", AccountName);
             writer.WriteDecimalValue("amount", Amount);
             writer.WriteStringValue("categoryId", CategoryId);
-            writer.WriteStringValue("categoryName", CategoryName);
-            writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteStringValue("description", Description);
-            writer.WriteStringValue("id", Id);
             writer.WriteDateValue("occurredOn", OccurredOn);
             writer.WriteStringValue("toAccountId", ToAccountId);
-            writer.WriteStringValue("toAccountName", ToAccountName);
-            writer.WriteEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType>("type", Type);
+            writer.WriteEnumValue<global::Trackr.Api.Models.TransactionType>("type", Type);
         }
     }
 }

@@ -17,15 +17,15 @@
                               Immediate="true"
                               @bind-Value="_name" />
 
-                <MudSelect T="BackendDataEntitiesEnumsAccountType"
+                <MudSelect T="AccountType"
                            Label="Type"
                            Variant="Variant.Outlined"
                            Value="_type"
                            ValueChanged="@OnTypeChanged">
-                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Checking">Checking</MudSelectItem>
-                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Savings">Savings</MudSelectItem>
-                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Cash">Cash</MudSelectItem>
-                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.CreditCard">Credit card</MudSelectItem>
+                    <MudSelectItem T="AccountType" Value="AccountType.Checking">Checking</MudSelectItem>
+                    <MudSelectItem T="AccountType" Value="AccountType.Savings">Savings</MudSelectItem>
+                    <MudSelectItem T="AccountType" Value="AccountType.Cash">Cash</MudSelectItem>
+                    <MudSelectItem T="AccountType" Value="AccountType.CreditCard">Credit card</MudSelectItem>
                 </MudSelect>
 
                 <MudTextField T="string"

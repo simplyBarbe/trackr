@@ -46,47 +46,47 @@ namespace Trackr.Api.Api.Transactions
         public TransactionsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions?page={page}&pageSize={pageSize}{&accountId*,categoryId*,from*,to*,type*}", rawUrl)
         {
         }
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesTransactionsListTransactionsResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.ListTransactionsResponse"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
-        /// <exception cref="global::Trackr.Api.Models.FastEndpointsErrorResponse">When receiving a 400 status code</exception>
+        /// <exception cref="global::Trackr.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task<global::Trackr.Api.Models.BackendFeaturesTransactionsListTransactionsResponse?> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Transactions.TransactionsRequestBuilder.TransactionsRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::Trackr.Api.Models.ListTransactionsResponse?> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Transactions.TransactionsRequestBuilder.TransactionsRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task<global::Trackr.Api.Models.BackendFeaturesTransactionsListTransactionsResponse> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Transactions.TransactionsRequestBuilder.TransactionsRequestBuilderGetQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::Trackr.Api.Models.ListTransactionsResponse> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Transactions.TransactionsRequestBuilder.TransactionsRequestBuilderGetQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
-                { "400", global::Trackr.Api.Models.FastEndpointsErrorResponse.CreateFromDiscriminatorValue },
+                { "400", global::Trackr.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
             };
-            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.BackendFeaturesTransactionsListTransactionsResponse>(requestInfo, global::Trackr.Api.Models.BackendFeaturesTransactionsListTransactionsResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.ListTransactionsResponse>(requestInfo, global::Trackr.Api.Models.ListTransactionsResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.TransactionResponse"/></returns>
         /// <param name="body">The request body</param>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
-        /// <exception cref="global::Trackr.Api.Models.FastEndpointsErrorResponse">When receiving a 400 status code</exception>
+        /// <exception cref="global::Trackr.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task<global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse?> PostAsync(global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::Trackr.Api.Models.TransactionResponse?> PostAsync(global::Trackr.Api.Models.CreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task<global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse> PostAsync(global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::Trackr.Api.Models.TransactionResponse> PostAsync(global::Trackr.Api.Models.CreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));
             var requestInfo = ToPostRequestInformation(body, requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
-                { "400", global::Trackr.Api.Models.FastEndpointsErrorResponse.CreateFromDiscriminatorValue },
+                { "400", global::Trackr.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
             };
-            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse>(requestInfo, global::Trackr.Api.Models.BackendFeaturesTransactionsTransactionResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.TransactionResponse>(requestInfo, global::Trackr.Api.Models.TransactionResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
         /// <returns>A <see cref="RequestInformation"/></returns>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
@@ -109,11 +109,11 @@ namespace Trackr.Api.Api.Transactions
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public RequestInformation ToPostRequestInformation(global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
+        public RequestInformation ToPostRequestInformation(global::Trackr.Api.Models.CreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
         {
 #nullable restore
 #else
-        public RequestInformation ToPostRequestInformation(global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
+        public RequestInformation ToPostRequestInformation(global::Trackr.Api.Models.CreateTransactionRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
         {
 #endif
             if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));

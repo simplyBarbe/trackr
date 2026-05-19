@@ -9,38 +9,34 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesAccountsUpdateUpdateAccountRequest : IParsable
+    public partial class GetHealthResponse : IParsable
     #pragma warning restore CS1591
     {
-        /// <summary>The currency property</summary>
+        /// <summary>The database property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? Currency { get; set; }
+        public string? Database { get; set; }
 #nullable restore
 #else
-        public string Currency { get; set; }
+        public string Database { get; set; }
 #endif
-        /// <summary>The initialBalance property</summary>
-        public decimal? InitialBalance { get; set; }
-        /// <summary>The name property</summary>
+        /// <summary>The status property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? Name { get; set; }
+        public string? Status { get; set; }
 #nullable restore
 #else
-        public string Name { get; set; }
+        public string Status { get; set; }
 #endif
-        /// <summary>The type property</summary>
-        public global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType? Type { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesAccountsUpdateUpdateAccountRequest"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.GetHealthResponse"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesAccountsUpdateUpdateAccountRequest CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.GetHealthResponse CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesAccountsUpdateUpdateAccountRequest();
+            return new global::Trackr.Api.Models.GetHealthResponse();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -50,10 +46,8 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "currency", n => { Currency = n.GetStringValue(); } },
-                { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
-                { "name", n => { Name = n.GetStringValue(); } },
-                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType>(); } },
+                { "database", n => { Database = n.GetStringValue(); } },
+                { "status", n => { Status = n.GetStringValue(); } },
             };
         }
         /// <summary>
@@ -63,10 +57,8 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteStringValue("currency", Currency);
-            writer.WriteDecimalValue("initialBalance", InitialBalance);
-            writer.WriteStringValue("name", Name);
-            writer.WriteEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType>("type", Type);
+            writer.WriteStringValue("database", Database);
+            writer.WriteStringValue("status", Status);
         }
     }
 }

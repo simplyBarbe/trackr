@@ -9,26 +9,26 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesAccountsListAccountsResponse : IParsable
+    public partial class ListCategoriesResponse : IParsable
     #pragma warning restore CS1591
     {
         /// <summary>The items property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public List<global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse>? Items { get; set; }
+        public List<global::Trackr.Api.Models.CategoryResponse>? Items { get; set; }
 #nullable restore
 #else
-        public List<global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse> Items { get; set; }
+        public List<global::Trackr.Api.Models.CategoryResponse> Items { get; set; }
 #endif
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesAccountsListAccountsResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.ListCategoriesResponse"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesAccountsListAccountsResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.ListCategoriesResponse CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesAccountsListAccountsResponse();
+            return new global::Trackr.Api.Models.ListCategoriesResponse();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -38,7 +38,7 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "items", n => { Items = n.GetCollectionOfObjectValues<global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse>(global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "items", n => { Items = n.GetCollectionOfObjectValues<global::Trackr.Api.Models.CategoryResponse>(global::Trackr.Api.Models.CategoryResponse.CreateFromDiscriminatorValue)?.AsList(); } },
             };
         }
         /// <summary>
@@ -48,7 +48,7 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteCollectionOfObjectValues<global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse>("items", Items);
+            writer.WriteCollectionOfObjectValues<global::Trackr.Api.Models.CategoryResponse>("items", Items);
         }
     }
 }

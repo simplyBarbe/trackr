@@ -9,13 +9,9 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesAccountsAccountResponse : IParsable
+    public partial class UpdateAccountRequest : IParsable
     #pragma warning restore CS1591
     {
-        /// <summary>The balance property</summary>
-        public decimal? Balance { get; set; }
-        /// <summary>The createdAt property</summary>
-        public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The currency property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -24,18 +20,8 @@ namespace Trackr.Api.Models
 #else
         public string Currency { get; set; }
 #endif
-        /// <summary>The id property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? Id { get; set; }
-#nullable restore
-#else
-        public string Id { get; set; }
-#endif
         /// <summary>The initialBalance property</summary>
         public decimal? InitialBalance { get; set; }
-        /// <summary>The isArchived property</summary>
-        public bool? IsArchived { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -45,16 +31,16 @@ namespace Trackr.Api.Models
         public string Name { get; set; }
 #endif
         /// <summary>The type property</summary>
-        public global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType? Type { get; set; }
+        public global::Trackr.Api.Models.AccountType? Type { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.UpdateAccountRequest"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.UpdateAccountRequest CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesAccountsAccountResponse();
+            return new global::Trackr.Api.Models.UpdateAccountRequest();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -64,14 +50,10 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "balance", n => { Balance = n.GetDecimalValue(); } },
-                { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "currency", n => { Currency = n.GetStringValue(); } },
-                { "id", n => { Id = n.GetStringValue(); } },
                 { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
-                { "isArchived", n => { IsArchived = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
-                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType>(); } },
+                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.AccountType>(); } },
             };
         }
         /// <summary>
@@ -81,14 +63,10 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteDecimalValue("balance", Balance);
-            writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteStringValue("currency", Currency);
-            writer.WriteStringValue("id", Id);
             writer.WriteDecimalValue("initialBalance", InitialBalance);
-            writer.WriteBoolValue("isArchived", IsArchived);
             writer.WriteStringValue("name", Name);
-            writer.WriteEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsAccountType>("type", Type);
+            writer.WriteEnumValue<global::Trackr.Api.Models.AccountType>("type", Type);
         }
     }
 }

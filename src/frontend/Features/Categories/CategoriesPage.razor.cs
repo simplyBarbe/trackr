@@ -17,8 +17,8 @@ public partial class CategoriesPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>> _query =
-        QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+    private QueryState<IReadOnlyList<CategoryResponse>> _query =
+        QueryState<IReadOnlyList<CategoryResponse>>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
 
@@ -30,11 +30,11 @@ public partial class CategoriesPage : ComponentBase
     private async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (_query.Data is not null)
-            _query = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Fetching(_query.Data);
+            _query = QueryState<IReadOnlyList<CategoryResponse>>.Fetching(_query.Data);
         else
-            _query = QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.Loading();
+            _query = QueryState<IReadOnlyList<CategoryResponse>>.Loading();
 
-        _query = await QueryState<IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>>.RunAsync(async () =>
+        _query = await QueryState<IReadOnlyList<CategoryResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Categories.GetAsync(configuration =>
                 {
@@ -44,7 +44,7 @@ public partial class CategoriesPage : ComponentBase
                 },
                 cancellationToken);
 
-            return (IReadOnlyList<BackendFeaturesCategoriesCategoryResponse>)(response?.Items ?? []);
+            return (IReadOnlyList<CategoryResponse>)(response?.Items ?? []);
         });
     }
 
@@ -83,7 +83,7 @@ public partial class CategoriesPage : ComponentBase
         await CreateAsync(form);
     }
 
-    private async Task OpenEditDialogAsync(BackendFeaturesCategoriesCategoryResponse category)
+    private async Task OpenEditDialogAsync(CategoryResponse category)
     {
         if (string.IsNullOrWhiteSpace(category.Id))
             return;
@@ -115,7 +115,7 @@ public partial class CategoriesPage : ComponentBase
         _mutation = MutationState.Pending();
         _mutation = await MutationState.RunAsync(async () =>
         {
-            var request = new BackendFeaturesCategoriesCreateCreateCategoryRequest
+            var request = new CreateCategoryRequest
             {
                 Name = form.Name,
                 Kind = form.Kind,
@@ -140,7 +140,7 @@ public partial class CategoriesPage : ComponentBase
         _mutation = MutationState.Pending();
         _mutation = await MutationState.RunAsync(async () =>
         {
-            var request = new BackendFeaturesCategoriesUpdateUpdateCategoryRequest
+            var request = new UpdateCategoryRequest
             {
                 Name = form.Name,
                 Kind = form.Kind,

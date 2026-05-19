@@ -5,7 +5,7 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public enum BackendDataEntitiesEnumsTransactionType
+    public enum CategoryKind
     #pragma warning restore CS1591
     {
         [EnumMember(Value = "Income")]
@@ -15,10 +15,6 @@ namespace Trackr.Api.Models
         [EnumMember(Value = "Expense")]
         #pragma warning disable CS1591
         Expense,
-        #pragma warning restore CS1591
-        [EnumMember(Value = "Transfer")]
-        #pragma warning disable CS1591
-        Transfer,
         #pragma warning restore CS1591
     }
 }

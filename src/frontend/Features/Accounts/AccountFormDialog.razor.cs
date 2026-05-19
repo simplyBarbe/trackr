@@ -10,7 +10,7 @@ public partial class AccountFormDialog : ComponentBase
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public BackendFeaturesAccountsAccountResponse? Account { get; set; }
+    public AccountResponse? Account { get; set; }
 
     [Parameter]
     public string SubmitText { get; set; } = "Create";
@@ -18,7 +18,7 @@ public partial class AccountFormDialog : ComponentBase
     private MudForm? _form;
     private string? _currencyError;
     private string _name = string.Empty;
-    private BackendDataEntitiesEnumsAccountType _type = BackendDataEntitiesEnumsAccountType.Checking;
+    private AccountType _type = AccountType.Checking;
     private string _currency = "EUR";
     private decimal _initialBalance;
 
@@ -30,12 +30,12 @@ public partial class AccountFormDialog : ComponentBase
             return;
 
         _name = Account.Name ?? string.Empty;
-        _type = Account.Type ?? BackendDataEntitiesEnumsAccountType.Checking;
+        _type = Account.Type ?? AccountType.Checking;
         _currency = Account.Currency ?? "EUR";
         _initialBalance = Account.InitialBalance ?? 0m;
     }
 
-    private void OnTypeChanged(BackendDataEntitiesEnumsAccountType type)
+    private void OnTypeChanged(AccountType type)
     {
         _type = type;
     }
@@ -75,6 +75,6 @@ public partial class AccountFormDialog : ComponentBase
 
 public sealed record AccountFormResult(
     string Name,
-    BackendDataEntitiesEnumsAccountType Type,
+    AccountType Type,
     string Currency,
     decimal InitialBalance);

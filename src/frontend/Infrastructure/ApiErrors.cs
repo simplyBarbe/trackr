@@ -7,7 +7,7 @@ public static class ApiErrors
 {
     public static string GetMessage(Exception ex) => ex switch
     {
-        FastEndpointsErrorResponse fe => fe.Message,
+        ErrorResponse fe => fe.Message,
         ApiException api => api.Message,
         _ => ex.Message
     };

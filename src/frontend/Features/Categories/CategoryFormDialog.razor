@@ -12,13 +12,13 @@
                               Immediate="true"
                               @bind-Value="_name" />
 
-                <MudSelect T="BackendDataEntitiesEnumsCategoryKind"
+                <MudSelect T="CategoryKind"
                            Label="Kind"
                            Variant="Variant.Outlined"
                            Value="_kind"
                            ValueChanged="@OnKindChanged">
-                    <MudSelectItem T="BackendDataEntitiesEnumsCategoryKind" Value="BackendDataEntitiesEnumsCategoryKind.Income">Income</MudSelectItem>
-                    <MudSelectItem T="BackendDataEntitiesEnumsCategoryKind" Value="BackendDataEntitiesEnumsCategoryKind.Expense">Expense</MudSelectItem>
+                    <MudSelectItem T="CategoryKind" Value="CategoryKind.Income">Income</MudSelectItem>
+                    <MudSelectItem T="CategoryKind" Value="CategoryKind.Expense">Expense</MudSelectItem>
                 </MudSelect>
 
                 <MudSelect T="string"

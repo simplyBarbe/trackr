@@ -10,21 +10,21 @@ public partial class CategoryFormDialog : ComponentBase
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public IReadOnlyList<BackendFeaturesCategoriesCategoryResponse> ParentCandidates { get; set; } = [];
+    public IReadOnlyList<CategoryResponse> ParentCandidates { get; set; } = [];
 
     [Parameter]
-    public BackendFeaturesCategoriesCategoryResponse? Category { get; set; }
+    public CategoryResponse? Category { get; set; }
 
     [Parameter]
     public string SubmitText { get; set; } = "Create";
 
     private MudForm? _form;
     private string _name = string.Empty;
-    private BackendDataEntitiesEnumsCategoryKind _kind = BackendDataEntitiesEnumsCategoryKind.Expense;
+    private CategoryKind _kind = CategoryKind.Expense;
     private string _parentId = string.Empty;
     private int _sortOrder;
 
-    private IEnumerable<BackendFeaturesCategoriesCategoryResponse> ParentOptions =>
+    private IEnumerable<CategoryResponse> ParentOptions =>
         ParentCandidates
             .Where(c => c.IsArchived != true && c.Kind == _kind)
             .Where(c => c.Id != Category?.Id)
@@ -37,12 +37,12 @@ public partial class CategoryFormDialog : ComponentBase
             return;
 
         _name = Category.Name ?? string.Empty;
-        _kind = Category.Kind ?? BackendDataEntitiesEnumsCategoryKind.Expense;
+        _kind = Category.Kind ?? CategoryKind.Expense;
         _parentId = Category.ParentId ?? string.Empty;
         _sortOrder = Category.SortOrder ?? 0;
     }
 
-    private void OnKindChanged(BackendDataEntitiesEnumsCategoryKind kind)
+    private void OnKindChanged(CategoryKind kind)
     {
         _kind = kind;
         if (!ParentOptions.Any(c => c.Id == _parentId))
@@ -80,6 +80,6 @@ public partial class CategoryFormDialog : ComponentBase
 
 public sealed record CategoryFormResult(
     string Name,
-    BackendDataEntitiesEnumsCategoryKind Kind,
+    CategoryKind Kind,
     string? ParentId,
     int SortOrder);

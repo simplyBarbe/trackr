@@ -9,26 +9,38 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesCategoriesListCategoriesResponse : IParsable
+    public partial class CreateAccountRequest : IParsable
     #pragma warning restore CS1591
     {
-        /// <summary>The items property</summary>
+        /// <summary>The currency property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public List<global::Trackr.Api.Models.BackendFeaturesCategoriesCategoryResponse>? Items { get; set; }
+        public string? Currency { get; set; }
 #nullable restore
 #else
-        public List<global::Trackr.Api.Models.BackendFeaturesCategoriesCategoryResponse> Items { get; set; }
+        public string Currency { get; set; }
 #endif
+        /// <summary>The initialBalance property</summary>
+        public decimal? InitialBalance { get; set; }
+        /// <summary>The name property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? Name { get; set; }
+#nullable restore
+#else
+        public string Name { get; set; }
+#endif
+        /// <summary>The type property</summary>
+        public global::Trackr.Api.Models.AccountType? Type { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesCategoriesListCategoriesResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.CreateAccountRequest"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesCategoriesListCategoriesResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.CreateAccountRequest CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesCategoriesListCategoriesResponse();
+            return new global::Trackr.Api.Models.CreateAccountRequest();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -38,7 +50,10 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "items", n => { Items = n.GetCollectionOfObjectValues<global::Trackr.Api.Models.BackendFeaturesCategoriesCategoryResponse>(global::Trackr.Api.Models.BackendFeaturesCategoriesCategoryResponse.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "currency", n => { Currency = n.GetStringValue(); } },
+                { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
+                { "name", n => { Name = n.GetStringValue(); } },
+                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.AccountType>(); } },
             };
         }
         /// <summary>
@@ -48,7 +63,10 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteCollectionOfObjectValues<global::Trackr.Api.Models.BackendFeaturesCategoriesCategoryResponse>("items", Items);
+            writer.WriteStringValue("currency", Currency);
+            writer.WriteDecimalValue("initialBalance", InitialBalance);
+            writer.WriteStringValue("name", Name);
+            writer.WriteEnumValue<global::Trackr.Api.Models.AccountType>("type", Type);
         }
     }
 }

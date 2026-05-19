@@ -17,8 +17,8 @@ public partial class AccountsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>> _query =
-        QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
+    private QueryState<IReadOnlyList<AccountResponse>> _query =
+        QueryState<IReadOnlyList<AccountResponse>>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
 
@@ -32,11 +32,11 @@ public partial class AccountsPage : ComponentBase
     private async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (_query.Data is not null)
-            _query = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Fetching(_query.Data);
+            _query = QueryState<IReadOnlyList<AccountResponse>>.Fetching(_query.Data);
         else
-            _query = QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.Loading();
+            _query = QueryState<IReadOnlyList<AccountResponse>>.Loading();
 
-        _query = await QueryState<IReadOnlyList<BackendFeaturesAccountsAccountResponse>>.RunAsync(async () =>
+        _query = await QueryState<IReadOnlyList<AccountResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Accounts.GetAsync(configuration =>
                 {
@@ -44,7 +44,7 @@ public partial class AccountsPage : ComponentBase
                 },
                 cancellationToken);
 
-            return (IReadOnlyList<BackendFeaturesAccountsAccountResponse>)(response?.Items ?? []);
+            return (IReadOnlyList<AccountResponse>)(response?.Items ?? []);
         });
     }
 
@@ -76,7 +76,7 @@ public partial class AccountsPage : ComponentBase
         await CreateAsync(form);
     }
 
-    private async Task OpenEditDialogAsync(BackendFeaturesAccountsAccountResponse account)
+    private async Task OpenEditDialogAsync(AccountResponse account)
     {
         if (string.IsNullOrWhiteSpace(account.Id))
             return;
@@ -107,7 +107,7 @@ public partial class AccountsPage : ComponentBase
         _mutation = MutationState.Pending();
         _mutation = await MutationState.RunAsync(async () =>
         {
-            var request = new BackendFeaturesAccountsCreateCreateAccountRequest
+            var request = new CreateAccountRequest
             {
                 Name = form.Name,
                 Type = form.Type,
@@ -132,7 +132,7 @@ public partial class AccountsPage : ComponentBase
         _mutation = MutationState.Pending();
         _mutation = await MutationState.RunAsync(async () =>
         {
-            var request = new BackendFeaturesAccountsUpdateUpdateAccountRequest
+            var request = new UpdateAccountRequest
             {
                 Name = form.Name,
                 Type = form.Type,

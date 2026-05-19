@@ -10,7 +10,7 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class BackendFeaturesTransactionsCreateCreateTransactionRequest : IParsable
+    public partial class CreateTransactionRequest : IParsable
     #pragma warning restore CS1591
     {
         /// <summary>The accountId property</summary>
@@ -50,16 +50,16 @@ namespace Trackr.Api.Models
         public string ToAccountId { get; set; }
 #endif
         /// <summary>The type property</summary>
-        public global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType? Type { get; set; }
+        public global::Trackr.Api.Models.TransactionType? Type { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.CreateTransactionRequest"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.CreateTransactionRequest CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.BackendFeaturesTransactionsCreateCreateTransactionRequest();
+            return new global::Trackr.Api.Models.CreateTransactionRequest();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -75,7 +75,7 @@ namespace Trackr.Api.Models
                 { "description", n => { Description = n.GetStringValue(); } },
                 { "occurredOn", n => { OccurredOn = n.GetDateValue(); } },
                 { "toAccountId", n => { ToAccountId = n.GetStringValue(); } },
-                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType>(); } },
+                { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.TransactionType>(); } },
             };
         }
         /// <summary>
@@ -91,7 +91,7 @@ namespace Trackr.Api.Models
             writer.WriteStringValue("description", Description);
             writer.WriteDateValue("occurredOn", OccurredOn);
             writer.WriteStringValue("toAccountId", ToAccountId);
-            writer.WriteEnumValue<global::Trackr.Api.Models.BackendDataEntitiesEnumsTransactionType>("type", Type);
+            writer.WriteEnumValue<global::Trackr.Api.Models.TransactionType>("type", Type);
         }
     }
 }

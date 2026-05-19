@@ -8,22 +8,23 @@ using System.IO;
 using System;
 namespace Trackr.Api.Models
 {
+    /// <summary>
+    /// the dto used to send an error response to the client
+    /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-    #pragma warning disable CS1591
-    public partial class FastEndpointsErrorResponse : ApiException, IParsable
-    #pragma warning restore CS1591
+    public partial class ErrorResponse : ApiException, IParsable
     {
-        /// <summary>The errors property</summary>
+        /// <summary>the collection of errors for the current context</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::Trackr.Api.Models.FastEndpointsErrorResponse_errors? Errors { get; set; }
+        public global::Trackr.Api.Models.ErrorResponse_errors? Errors { get; set; }
 #nullable restore
 #else
-        public global::Trackr.Api.Models.FastEndpointsErrorResponse_errors Errors { get; set; }
+        public global::Trackr.Api.Models.ErrorResponse_errors Errors { get; set; }
 #endif
         /// <summary>The primary error message.</summary>
         public override string Message { get => MessageEscaped ?? string.Empty; }
-        /// <summary>The message property</summary>
+        /// <summary>the message for the error response</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public string? MessageEscaped { get; set; }
@@ -31,24 +32,24 @@ namespace Trackr.Api.Models
 #else
         public string MessageEscaped { get; set; }
 #endif
-        /// <summary>The statusCode property</summary>
+        /// <summary>the http status code sent to the client. default is 400.</summary>
         public int? StatusCode { get; set; }
         /// <summary>
-        /// Instantiates a new <see cref="global::Trackr.Api.Models.FastEndpointsErrorResponse"/> and sets the default values.
+        /// Instantiates a new <see cref="global::Trackr.Api.Models.ErrorResponse"/> and sets the default values.
         /// </summary>
-        public FastEndpointsErrorResponse()
+        public ErrorResponse()
         {
             MessageEscaped = "One or more errors occurred!";
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Trackr.Api.Models.FastEndpointsErrorResponse"/></returns>
+        /// <returns>A <see cref="global::Trackr.Api.Models.ErrorResponse"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.FastEndpointsErrorResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Trackr.Api.Models.ErrorResponse CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Trackr.Api.Models.FastEndpointsErrorResponse();
+            return new global::Trackr.Api.Models.ErrorResponse();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -58,7 +59,7 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "errors", n => { Errors = n.GetObjectValue<global::Trackr.Api.Models.FastEndpointsErrorResponse_errors>(global::Trackr.Api.Models.FastEndpointsErrorResponse_errors.CreateFromDiscriminatorValue); } },
+                { "errors", n => { Errors = n.GetObjectValue<global::Trackr.Api.Models.ErrorResponse_errors>(global::Trackr.Api.Models.ErrorResponse_errors.CreateFromDiscriminatorValue); } },
                 { "message", n => { MessageEscaped = n.GetStringValue(); } },
                 { "statusCode", n => { StatusCode = n.GetIntValue(); } },
             };
@@ -70,7 +71,7 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteObjectValue<global::Trackr.Api.Models.FastEndpointsErrorResponse_errors>("errors", Errors);
+            writer.WriteObjectValue<global::Trackr.Api.Models.ErrorResponse_errors>("errors", Errors);
             writer.WriteStringValue("message", MessageEscaped);
             writer.WriteIntValue("statusCode", StatusCode);
         }

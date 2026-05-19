@@ -34,6 +34,7 @@ try
         .AddFastEndpoints()
         .SwaggerDocument(o =>
         {
+            o.ShortSchemaNames = true;
             o.AutoTagPathSegmentIndex = 0;
             o.DocumentSettings = s =>
             {
