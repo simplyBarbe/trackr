@@ -1,0 +1,89 @@
+@page "/categories"
+
+<PageTitle>Categories</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Categories</MudText>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+    }
+
+    <MudStack Row="true"
+              AlignItems="AlignItems.Center"
+              Spacing="2"
+              Class="mb-4"
+              Style="flex-wrap: wrap;">
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Disabled="@_mutating"
+                   OnClick="OpenCreateDialogAsync">
+            New category
+        </MudButton>
+
+        <MudSelect T="string"
+                   Label="Kind"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Style="min-width: 12rem;"
+                   Value="_kindQuery"
+                   ValueChanged="@OnKindQueryChanged">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+        </MudSelect>
+
+        <MudCheckBox T="bool"
+                     Value="@_includeArchived"
+                     Label="Include archived"
+                     Dense="true"
+                     ValueChanged="@OnIncludeArchivedChanged"/>
+    </MudStack>
+
+    @if (_error is null)
+    {
+        @if (_rows.Count == 0)
+        {
+            <MudText>No categories found.</MudText>
+        }
+        else
+        {
+            <MudTable Items="@_rows"
+                      Hover="true"
+                      Striped="true"
+                      Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Kind</MudTh>
+                    <MudTh>Parent id</MudTh>
+                    <MudTh>Sort order</MudTh>
+                    <MudTh>Archived</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Kind">@(context.Kind?.ToString() ?? "")</MudTd>
+                    <MudTd DataLabel="Parent id">@(context.ParentId ?? "-")</MudTd>
+                    <MudTd DataLabel="Sort order">@context.SortOrder</MudTd>
+                    <MudTd DataLabel="Archived">
+                        @(context.IsArchived switch { true => "Yes", false => "No", _ => "" })
+                    </MudTd>
+                    <MudTd DataLabel="Actions">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Disabled="@(_mutating || context.IsArchived == true)"
+                                       OnClick="@(() => OpenEditDialogAsync(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    }
+}

@@ -1,0 +1,9 @@
+<Project>
+  <!-- Set before SDK props so NuGet/project.assets paths stay consistent (avoids MSB3539). -->
+  <PropertyGroup>
+    <!-- Non-Windows builds (e.g. Linux containers / Rider Docker) must not reuse Windows
+         absolute NuGet paths from project.assets.json (breaks Blazor dev server resolution). -->
+    <BaseIntermediateOutputPath Condition="'$(OS)' != 'Windows_NT'">$(MSBuildThisFileDirectory)obj/unix/</BaseIntermediateOutputPath>
+    <BaseOutputPath Condition="'$(OS)' != 'Windows_NT'">$(MSBuildThisFileDirectory)bin/unix/</BaseOutputPath>
+  </PropertyGroup>
+</Project>

@@ -15,15 +15,11 @@ public partial class Home : ComponentBase
     private bool _loading = true;
     private HealthProbeResult? _health;
     private string _apiBaseUrl = string.Empty;
-    private string _clientMode = "HttpClient (run scripts/generate-api.ps1 for Kiota)";
+    private string _clientMode = "Kiota";
 
     protected override async Task OnInitializedAsync()
     {
         _apiBaseUrl = Configuration["ApiBaseUrl"] ?? string.Empty;
-
-#if KIOTA_GENERATED
-        _clientMode = "Kiota";
-#endif
 
         _health = await HealthProbe.GetAsync();
         _loading = false;

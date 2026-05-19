@@ -1,12 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Alpine (musl) matches JetBrains Rider's LinuxMusl64 debugger in Docker "fast" mode; the non-alpine SDK is glibc
+# and cannot exec Rider's linux-musl-x64/dotnet inside the container ("no such file or directory").
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 # Browser-reachable API URL (host port mapped to the api service).
 ARG API_BASE_URL=http://localhost:5080
 WORKDIR /src
 
 COPY ["src/frontend/frontend.csproj", "frontend/"]
+COPY ["src/frontend/Directory.Build.props", "frontend/"]
 RUN dotnet restore "frontend/frontend.csproj"
 
 COPY ["src/frontend/", "frontend/"]

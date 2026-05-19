@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <DefineConstants Condition="Exists('Generated\Api\TrackrApiClient.cs')">$(DefineConstants);KIOTA_GENERATED</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

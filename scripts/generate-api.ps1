@@ -7,12 +7,12 @@
   1. Start the backend: dotnet run --project src/backend
   2. Run this script from the repository root: ./scripts/generate-api.ps1
 
-  Output: src/frontend/Generated/Api (gitignored)
-  Rebuild the frontend to enable KIOTA_GENERATED and the Kiota health probe.
+  Output: src/frontend/TrackrApi
+  Rebuild the frontend after regenerating the client.
 #>
 param(
-    [string]$OpenApiUrl = "https://localhost:7120/swagger/v1/swagger.json",
-    [string]$OutputPath = "src/frontend/Generated/Api",
+    [string]$OpenApiUrl = "http://localhost:5080/openapi/v1.json",
+    [string]$OutputPath = "src/frontend/TrackrApi",
     [string]$ClientClassName = "TrackrApiClient",
     [string]$Namespace = "Trackr.Api"
 )

@@ -6,7 +6,7 @@ services:
     healthcheck:
       disable: true
     labels:
-      com.microsoft.visualstudio.project: "src\backend\backend.csproj"
+      com.microsoft.visualstudio.project: "src/backend/backend.csproj"
       com.microsoft.visualstudio.debugging.tcp.port: "8080"
       com.microsoft.visualstudio.debugging.tcp.local: "5080"
 

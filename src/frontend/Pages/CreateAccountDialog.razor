@@ -1,0 +1,57 @@
+@using Trackr.Api.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                @if (_currencyError is not null)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true">@_currencyError</MudAlert>
+                }
+
+                <MudTextField T="string"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              MaxLength="100"
+                              Immediate="true"
+                              @bind-Value="_name" />
+
+                <MudSelect T="BackendDataEntitiesEnumsAccountType"
+                           Label="Type"
+                           Variant="Variant.Outlined"
+                           Value="_type"
+                           ValueChanged="@OnTypeChanged">
+                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Checking">Checking</MudSelectItem>
+                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Savings">Savings</MudSelectItem>
+                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.Cash">Cash</MudSelectItem>
+                    <MudSelectItem T="BackendDataEntitiesEnumsAccountType" Value="BackendDataEntitiesEnumsAccountType.CreditCard">Credit card</MudSelectItem>
+                </MudSelect>
+
+                <MudTextField T="string"
+                              Label="Currency"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              MaxLength="3"
+                              Immediate="true"
+                              Style="text-transform: uppercase;"
+                              @bind-Value="_currency" />
+
+                <MudNumericField T="decimal"
+                                 Label="Initial balance"
+                                 Variant="Variant.Outlined"
+                                 Step="@(0.01m)"
+                                 Format="N2"
+                                 @bind-Value="_initialBalance" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SubmitAsync">
+            @SubmitText
+        </MudButton>
+    </DialogActions>
+</MudDialog>

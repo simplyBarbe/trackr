@@ -1,4 +1,3 @@
-#if KIOTA_GENERATED
 using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Http.HttpClientLibrary;
 using Trackr.Api;
@@ -24,4 +23,3 @@ public static class KiotaClientExtensions
         return services;
     }
 }
-#endif

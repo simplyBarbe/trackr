@@ -358,9 +358,6 @@ healthchecksdb
 *.db-shm
 *.db-wal
 
-# Kiota-generated API client (frontend)
-src/frontend/Generated/
-
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 

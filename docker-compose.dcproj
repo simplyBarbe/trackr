@@ -8,7 +8,7 @@
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>http://localhost:5081</DockerServiceUrl>
     <DockerServiceName>web</DockerServiceName>
-    <DockerComposeProjectsToIgnore>src\frontend\frontend.csproj</DockerComposeProjectsToIgnore>
+    <DockerComposeProjectsToIgnore>src/frontend/frontend.csproj</DockerComposeProjectsToIgnore>
     <AdditionalComposeFilePaths>docker-compose.web.yml</AdditionalComposeFilePaths>
   </PropertyGroup>
   <ItemGroup>
@@ -22,6 +22,6 @@
     <None Include=".dockerignore" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="src\backend\backend.csproj" />
+    <ProjectReference Include="src/backend/backend.csproj" />
   </ItemGroup>
 </Project>

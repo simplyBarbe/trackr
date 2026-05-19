@@ -1,4 +1,3 @@
-#if KIOTA_GENERATED
 using Trackr.Api;
 
 namespace frontend.Infrastructure;
@@ -20,4 +19,3 @@ public sealed class KiotaHealthProbe(TrackrApiClient apiClient) : IHealthProbe
         }
     }
 }
-#endif

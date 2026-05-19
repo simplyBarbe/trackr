@@ -1,0 +1,52 @@
+@using Trackr.Api.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                <MudTextField T="string"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              MaxLength="100"
+                              Immediate="true"
+                              @bind-Value="_name" />
+
+                <MudSelect T="BackendDataEntitiesEnumsCategoryKind"
+                           Label="Kind"
+                           Variant="Variant.Outlined"
+                           Value="_kind"
+                           ValueChanged="@OnKindChanged">
+                    <MudSelectItem T="BackendDataEntitiesEnumsCategoryKind" Value="BackendDataEntitiesEnumsCategoryKind.Income">Income</MudSelectItem>
+                    <MudSelectItem T="BackendDataEntitiesEnumsCategoryKind" Value="BackendDataEntitiesEnumsCategoryKind.Expense">Expense</MudSelectItem>
+                </MudSelect>
+
+                <MudSelect T="string"
+                           Label="Parent"
+                           Variant="Variant.Outlined"
+                           Value="_parentId"
+                           ValueChanged="@OnParentIdChanged">
+                    <MudSelectItem T="string" Value="@("")">No parent</MudSelectItem>
+                    @foreach (var category in ParentOptions)
+                    {
+                        <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudNumericField T="int"
+                                 Label="Sort order"
+                                 Variant="Variant.Outlined"
+                                 Min="0"
+                                 @bind-Value="_sortOrder" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SubmitAsync">
+            @SubmitText
+        </MudButton>
+    </DialogActions>
+</MudDialog>

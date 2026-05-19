@@ -17,11 +17,7 @@ public static class ApiClientExtensions
             client.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
         });
 
-#if KIOTA_GENERATED
         services.AddKiotaTrackrApiClient();
-#else
-        services.AddScoped<IHealthProbe, HttpHealthProbe>();
-#endif
 
         return services;
     }

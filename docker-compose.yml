@@ -12,6 +12,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Data Source=/data/trackr.db
       Cors__AllowedOrigins__0: http://localhost:5081
+      Cors__AllowedOrigins__1: http://localhost:5247
+      Cors__AllowedOrigins__2: https://localhost:7205
     volumes:
       - trackr-data:/data
     healthcheck:

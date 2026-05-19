@@ -81,7 +81,9 @@ try
     {
         app.MapScalarApiReference(options =>
         {
-            options.WithTitle("trackr API");
+            options.WithTitle("Trackr API");
+            options.DarkMode = true;
+            options.Theme = ScalarTheme.BluePlanet;
         });
     }
 
