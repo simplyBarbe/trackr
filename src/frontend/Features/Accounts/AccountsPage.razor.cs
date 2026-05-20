@@ -18,33 +18,40 @@ public partial class AccountsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<AccountResponse>> _query =
-        QueryState<IReadOnlyList<AccountResponse>>.Loading();
+    private QueryState<PagedList<AccountResponse>> _query =
+        QueryState<PagedList<AccountResponse>>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
+    private MudTable<AccountResponse>? _table;
+    private int _tableVersion;
 
     private bool _includeArchived;
     private string _typeQuery = string.Empty;
     private string _nameDraft = string.Empty;
     private string _nameFilter = string.Empty;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
-
     private static string FormatCreatedAt(DateTimeOffset? createdAt) =>
         createdAt?.ToLocalTime().ToString("g") ?? "";
 
-    private async Task LoadAsync(CancellationToken cancellationToken = default)
+    private async Task<TableData<AccountResponse>> LoadServerDataAsync(
+        TableState state,
+        CancellationToken cancellationToken)
     {
         if (_query.Data is not null)
-            _query = QueryState<IReadOnlyList<AccountResponse>>.Fetching(_query.Data);
+            _query = QueryState<PagedList<AccountResponse>>.Fetching(_query.Data);
         else
-            _query = QueryState<IReadOnlyList<AccountResponse>>.Loading();
+            _query = QueryState<PagedList<AccountResponse>>.Loading();
 
-        _query = await QueryState<IReadOnlyList<AccountResponse>>.RunAsync(async () =>
+        var page = state.Page + 1;
+        var pageSize = state.PageSize > 0 ? state.PageSize : 50;
+
+        _query = await QueryState<PagedList<AccountResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Accounts.GetAsync(configuration =>
                 {
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
+                    configuration.QueryParameters.Page = page;
+                    configuration.QueryParameters.PageSize = pageSize;
                     if (!string.IsNullOrEmpty(_nameFilter))
                         configuration.QueryParameters.Name = _nameFilter;
                     if (!string.IsNullOrEmpty(_typeQuery))
@@ -52,20 +59,33 @@ public partial class AccountsPage : ComponentBase
                 },
                 cancellationToken);
 
-            return (IReadOnlyList<AccountResponse>)(response?.Items ?? []);
+            return new PagedList<AccountResponse>(
+                response?.Items ?? [],
+                response?.Page ?? page,
+                response?.PageSize ?? pageSize,
+                response?.TotalCount ?? 0);
         });
+
+        if (_query.Data is null)
+            return new TableData<AccountResponse> { Items = [], TotalItems = 0 };
+
+        return new TableData<AccountResponse>
+        {
+            Items = _query.Data.Items,
+            TotalItems = _query.Data.TotalCount
+        };
     }
 
     private async Task OnIncludeArchivedChanged(bool value)
     {
         _includeArchived = value;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private async Task OnTypeQueryChanged(string value)
     {
         _typeQuery = value;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private async Task CommitNameFilterAsync()
@@ -75,7 +95,7 @@ public partial class AccountsPage : ComponentBase
             return;
 
         _nameFilter = trimmed;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private Task ApplyNameFilterOnBlur(FocusEventArgs _) => CommitNameFilterAsync();
@@ -158,7 +178,8 @@ public partial class AccountsPage : ComponentBase
             return;
         }
 
-        await LoadAsync();
+        if (_table is not null)
+            await _table.ReloadServerData();
     }
 
     private async Task UpdateAsync(string accountId, AccountFormResult form)
@@ -183,6 +204,13 @@ public partial class AccountsPage : ComponentBase
             return;
         }
 
-        await LoadAsync();
+        if (_table is not null)
+            await _table.ReloadServerData();
+    }
+
+    private Task ResetToFirstPageAndReloadAsync()
+    {
+        _tableVersion++;
+        return InvokeAsync(StateHasChanged);
     }
 }

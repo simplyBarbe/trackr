@@ -136,6 +136,14 @@ Conventions:
 - New list pages should follow `AccountsPage` / `CategoriesPage` (query + mutation, refetch after successful mutation).
 - Do not reference MudBlazor from `Infrastructure/`.
 
+**Pagination standard**:
+
+- Backend list requests should inherit `PagedRequest`; list responses should inherit `PagedResponse<T>`.
+- Apply shared pagination validation via `PaginationValidationExtensions.AddPaginationRules()`.
+- List handlers must paginate at DB level (`CountAsync` + `Skip` + `Take`), never in-memory.
+- Frontend pages with `MudTablePager` must use `MudTable` `ServerData` and pass `page`/`pageSize` to API requests.
+- Keep default page size aligned with backend defaults (currently `50`) unless product requirements say otherwise.
+
 **Multiple queries on one page** — only when the page has a real, API-backed filter or auxiliary data (do not add a second query until then):
 
 - Use separate `QueryState<T>` fields (e.g. `_accountsQuery`, `_categoriesQuery`), each with its own `Load*Async`.

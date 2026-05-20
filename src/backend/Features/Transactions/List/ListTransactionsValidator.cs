@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
+using backend.Common.Pagination;
 
 namespace backend.Features.Transactions.List;
 
@@ -7,8 +8,7 @@ public sealed class ListTransactionsValidator : Validator<ListTransactionsReques
 {
     public ListTransactionsValidator()
     {
-        RuleFor(x => x.Page).GreaterThan(0);
-        RuleFor(x => x.PageSize).InclusiveBetween(1, 200);
+        this.AddPaginationRules();
 
         RuleFor(x => x.Type)
             .IsInEnum()

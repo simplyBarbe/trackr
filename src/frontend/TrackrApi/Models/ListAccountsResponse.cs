@@ -20,6 +20,12 @@ namespace Trackr.Api.Models
 #else
         public List<global::Trackr.Api.Models.AccountResponse> Items { get; set; }
 #endif
+        /// <summary>The page property</summary>
+        public int? Page { get; set; }
+        /// <summary>The pageSize property</summary>
+        public int? PageSize { get; set; }
+        /// <summary>The totalCount property</summary>
+        public int? TotalCount { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -39,6 +45,9 @@ namespace Trackr.Api.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "items", n => { Items = n.GetCollectionOfObjectValues<global::Trackr.Api.Models.AccountResponse>(global::Trackr.Api.Models.AccountResponse.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "page", n => { Page = n.GetIntValue(); } },
+                { "pageSize", n => { PageSize = n.GetIntValue(); } },
+                { "totalCount", n => { TotalCount = n.GetIntValue(); } },
             };
         }
         /// <summary>
@@ -49,6 +58,9 @@ namespace Trackr.Api.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteCollectionOfObjectValues<global::Trackr.Api.Models.AccountResponse>("items", Items);
+            writer.WriteIntValue("page", Page);
+            writer.WriteIntValue("pageSize", PageSize);
+            writer.WriteIntValue("totalCount", TotalCount);
         }
     }
 }

@@ -18,30 +18,34 @@ public partial class CategoriesPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<CategoryResponse>> _query =
-        QueryState<IReadOnlyList<CategoryResponse>>.Loading();
+    private QueryState<PagedList<CategoryResponse>> _query = QueryState<PagedList<CategoryResponse>>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
+    private MudTable<CategoryResponse>? _table;
+    private int _tableVersion;
 
     private bool _includeArchived;
     private string _kindQuery = string.Empty;
     private string _nameDraft = string.Empty;
     private string _nameFilter = string.Empty;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
-
-    private async Task LoadAsync(CancellationToken cancellationToken = default)
+    private async Task<TableData<CategoryResponse>> LoadServerDataAsync(TableState state, CancellationToken cancellationToken)
     {
         if (_query.Data is not null)
-            _query = QueryState<IReadOnlyList<CategoryResponse>>.Fetching(_query.Data);
+            _query = QueryState<PagedList<CategoryResponse>>.Fetching(_query.Data);
         else
-            _query = QueryState<IReadOnlyList<CategoryResponse>>.Loading();
+            _query = QueryState<PagedList<CategoryResponse>>.Loading();
 
-        _query = await QueryState<IReadOnlyList<CategoryResponse>>.RunAsync(async () =>
+        var page = state.Page + 1;
+        var pageSize = state.PageSize > 0 ? state.PageSize : 50;
+
+        _query = await QueryState<PagedList<CategoryResponse>>.RunAsync(async () =>
         {
             var response = await Api.Api.Categories.GetAsync(configuration =>
                 {
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
+                    configuration.QueryParameters.Page = page;
+                    configuration.QueryParameters.PageSize = pageSize;
                     if (!string.IsNullOrEmpty(_kindQuery))
                         configuration.QueryParameters.Kind = _kindQuery;
                     if (!string.IsNullOrEmpty(_nameFilter))
@@ -49,20 +53,33 @@ public partial class CategoriesPage : ComponentBase
                 },
                 cancellationToken);
 
-            return (IReadOnlyList<CategoryResponse>)(response?.Items ?? []);
+            return new PagedList<CategoryResponse>(
+                response?.Items ?? [],
+                response?.Page ?? page,
+                response?.PageSize ?? pageSize,
+                response?.TotalCount ?? 0);
         });
+
+        if (_query.Data is null)
+            return new TableData<CategoryResponse> { Items = [], TotalItems = 0 };
+
+        return new TableData<CategoryResponse>
+        {
+            Items = _query.Data.Items,
+            TotalItems = _query.Data.TotalCount
+        };
     }
 
     private async Task OnKindQueryChanged(string value)
     {
         _kindQuery = value;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private async Task OnIncludeArchivedChanged(bool value)
     {
         _includeArchived = value;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private async Task CommitNameFilterAsync()
@@ -72,7 +89,7 @@ public partial class CategoriesPage : ComponentBase
             return;
 
         _nameFilter = trimmed;
-        await LoadAsync();
+        await ResetToFirstPageAndReloadAsync();
     }
 
     private Task ApplyNameFilterOnBlur(FocusEventArgs _) => CommitNameFilterAsync();
@@ -89,7 +106,7 @@ public partial class CategoriesPage : ComponentBase
     {
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _query.Data ?? [] },
+            { x => x.ParentCandidates, _query.Data?.Items ?? [] },
             { x => x.SubmitText, "Create" }
         };
         var options = new DialogOptions
@@ -115,7 +132,7 @@ public partial class CategoriesPage : ComponentBase
 
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _query.Data ?? [] },
+            { x => x.ParentCandidates, _query.Data?.Items ?? [] },
             { x => x.Category, category },
             { x => x.SubmitText, "Save" }
         };
@@ -157,7 +174,8 @@ public partial class CategoriesPage : ComponentBase
             return;
         }
 
-        await LoadAsync();
+        if (_table is not null)
+            await _table.ReloadServerData();
     }
 
     private async Task UpdateAsync(string categoryId, CategoryFormResult form)
@@ -182,6 +200,13 @@ public partial class CategoriesPage : ComponentBase
             return;
         }
 
-        await LoadAsync();
+        if (_table is not null)
+            await _table.ReloadServerData();
+    }
+
+    private Task ResetToFirstPageAndReloadAsync()
+    {
+        _tableVersion++;
+        return InvokeAsync(StateHasChanged);
     }
 }

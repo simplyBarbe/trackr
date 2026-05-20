@@ -1,5 +1,6 @@
 using backend.Data.Entities;
 using backend.Data.Entities.Enums;
+using backend.Common.Pagination;
 
 namespace backend.Features.Categories;
 
@@ -11,7 +12,12 @@ public sealed record CategoryResponse(
     int SortOrder,
     bool IsArchived);
 
-public sealed record ListCategoriesResponse(IReadOnlyList<CategoryResponse> Items);
+public sealed record ListCategoriesResponse(
+    IReadOnlyList<CategoryResponse> Items,
+    int Page,
+    int PageSize,
+    int TotalCount)
+    : PagedResponse<CategoryResponse>(Items, Page, PageSize, TotalCount);
 
 public static class CategoryMapping
 {

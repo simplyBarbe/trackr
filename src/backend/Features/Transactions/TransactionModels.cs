@@ -1,5 +1,6 @@
 using backend.Data.Entities;
 using backend.Data.Entities.Enums;
+using backend.Common.Pagination;
 
 namespace backend.Features.Transactions;
 
@@ -21,7 +22,8 @@ public sealed record ListTransactionsResponse(
     IReadOnlyList<TransactionResponse> Items,
     int Page,
     int PageSize,
-    int TotalCount);
+    int TotalCount)
+    : PagedResponse<TransactionResponse>(Items, Page, PageSize, TotalCount);
 
 public static class TransactionMapping
 {

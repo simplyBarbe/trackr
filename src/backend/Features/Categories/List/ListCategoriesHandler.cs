@@ -21,12 +21,17 @@ public sealed class ListCategoriesHandler(AppDbContext db)
             .OfKind(request.Kind)
             .MatchingName(request.Name);
 
+        var totalCount = await query.CountAsync(cancellationToken);
+
         var categories = await query
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
         var items = categories.Select(CategoryMapping.ToResponse).ToList();
-        return Result<ListCategoriesResponse>.Success(new ListCategoriesResponse(items));
+        return Result<ListCategoriesResponse>.Success(
+            new ListCategoriesResponse(items, request.Page, request.PageSize, totalCount));
     }
 }

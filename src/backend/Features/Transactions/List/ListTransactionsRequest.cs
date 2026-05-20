@@ -1,8 +1,9 @@
 using backend.Data.Entities.Enums;
+using backend.Common.Pagination;
 
 namespace backend.Features.Transactions.List;
 
-public sealed class ListTransactionsRequest
+public sealed class ListTransactionsRequest : PagedRequest
 {
     public Guid? AccountId { get; set; }
 
@@ -13,8 +14,4 @@ public sealed class ListTransactionsRequest
     public DateOnly? From { get; set; }
 
     public DateOnly? To { get; set; }
-
-    public int Page { get; set; } = 1;
-
-    public int PageSize { get; set; } = 50;
 }

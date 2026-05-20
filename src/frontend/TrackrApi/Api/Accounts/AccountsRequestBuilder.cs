@@ -35,7 +35,7 @@ namespace Trackr.Api.Api.Accounts
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AccountsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}{&name*,type*}", pathParameters)
+        public AccountsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}&page={page}&pageSize={pageSize}{&name*,type*}", pathParameters)
         {
         }
         /// <summary>
@@ -43,7 +43,7 @@ namespace Trackr.Api.Api.Accounts
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AccountsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}{&name*,type*}", rawUrl)
+        public AccountsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}&page={page}&pageSize={pageSize}{&name*,type*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.ListAccountsResponse"/></returns>
@@ -148,6 +148,10 @@ namespace Trackr.Api.Api.Accounts
             [QueryParameter("name")]
             public string Name { get; set; }
 #endif
+            [QueryParameter("page")]
+            public int? Page { get; set; }
+            [QueryParameter("pageSize")]
+            public int? PageSize { get; set; }
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
             [QueryParameter("type")]

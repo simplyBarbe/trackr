@@ -22,8 +22,12 @@ public sealed class ListAccountsHandler(AppDbContext db, IAccountBalanceService 
             .WithType(request.Type)
             .MatchingName(request.Name);
 
+        var totalCount = await query.CountAsync(cancellationToken);
+
         var accounts = await query
             .OrderBy(a => a.Name)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
         var balances = await balanceService.GetBalancesAsync(
@@ -34,6 +38,7 @@ public sealed class ListAccountsHandler(AppDbContext db, IAccountBalanceService 
             .Select(a => AccountMapping.ToResponse(a, balances.GetValueOrDefault(a.Id, a.InitialBalance)))
             .ToList();
 
-        return Result<ListAccountsResponse>.Success(new ListAccountsResponse(items));
+        return Result<ListAccountsResponse>.Success(
+            new ListAccountsResponse(items, request.Page, request.PageSize, totalCount));
     }
 }
