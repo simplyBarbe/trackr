@@ -8,7 +8,7 @@ public sealed class KiotaHealthProbe(TrackrApiClient apiClient) : IHealthProbe
     {
         try
         {
-            var response = await apiClient.Api.Health.GetAsync(cancellationToken: cancellationToken);
+            var response = await apiClient.Health.GetAsync(cancellationToken: cancellationToken);
             return response is null
                 ? null
                 : new HealthProbeResult(response.Status ?? "unknown", response.Database ?? "unknown");

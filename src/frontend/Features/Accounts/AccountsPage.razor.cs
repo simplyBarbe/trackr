@@ -10,7 +10,7 @@ namespace frontend.Features.Accounts;
 public partial class AccountsPage : ComponentBase
 {
     [Inject]
-    private TrackrApiClient Api { get; set; } = null!;
+    private TrackrApiClient TrackrApi { get; set; } = null!;
 
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
@@ -47,7 +47,7 @@ public partial class AccountsPage : ComponentBase
 
         _query = await QueryState<PagedList<AccountResponse>>.RunAsync(async () =>
         {
-            var response = await Api.Api.Accounts.GetAsync(configuration =>
+            var response = await TrackrApi.Accounts.GetAsync(configuration =>
                 {
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
                     configuration.QueryParameters.Page = page;
@@ -169,7 +169,7 @@ public partial class AccountsPage : ComponentBase
                 InitialBalance = form.InitialBalance
             };
 
-            await Api.Api.Accounts.PostAsync(request);
+            await TrackrApi.Accounts.PostAsync(request);
         });
 
         if (_mutation.Error is not null)
@@ -195,7 +195,7 @@ public partial class AccountsPage : ComponentBase
                 InitialBalance = form.InitialBalance
             };
 
-            await Api.Api.Accounts[accountId].PutAsync(request);
+            await TrackrApi.Accounts[accountId].PutAsync(request);
         });
 
         if (_mutation.Error is not null)

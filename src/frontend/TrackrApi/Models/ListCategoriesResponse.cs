@@ -9,29 +9,24 @@ namespace Trackr.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class ListCategoriesResponse : IParsable
+    public partial class ListCategoriesResponse : global::Trackr.Api.Models.PagedResponseOfCategoryResponse, IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
-        /// <summary>The items property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public List<global::Trackr.Api.Models.CategoryResponse>? Items { get; set; }
-#nullable restore
-#else
-        public List<global::Trackr.Api.Models.CategoryResponse> Items { get; set; }
-#endif
-        /// <summary>The page property</summary>
-        public int? Page { get; set; }
-        /// <summary>The pageSize property</summary>
-        public int? PageSize { get; set; }
-        /// <summary>The totalCount property</summary>
-        public int? TotalCount { get; set; }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
+        /// <summary>
+        /// Instantiates a new <see cref="global::Trackr.Api.Models.ListCategoriesResponse"/> and sets the default values.
+        /// </summary>
+        public ListCategoriesResponse() : base()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <returns>A <see cref="global::Trackr.Api.Models.ListCategoriesResponse"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Trackr.Api.Models.ListCategoriesResponse CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static new global::Trackr.Api.Models.ListCategoriesResponse CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::Trackr.Api.Models.ListCategoriesResponse();
@@ -40,27 +35,21 @@ namespace Trackr.Api.Models
         /// The deserialization information for the current model
         /// </summary>
         /// <returns>A IDictionary&lt;string, Action&lt;IParseNode&gt;&gt;</returns>
-        public virtual IDictionary<string, Action<IParseNode>> GetFieldDeserializers()
+        public override IDictionary<string, Action<IParseNode>> GetFieldDeserializers()
         {
-            return new Dictionary<string, Action<IParseNode>>
+            return new Dictionary<string, Action<IParseNode>>(base.GetFieldDeserializers())
             {
-                { "items", n => { Items = n.GetCollectionOfObjectValues<global::Trackr.Api.Models.CategoryResponse>(global::Trackr.Api.Models.CategoryResponse.CreateFromDiscriminatorValue)?.AsList(); } },
-                { "page", n => { Page = n.GetIntValue(); } },
-                { "pageSize", n => { PageSize = n.GetIntValue(); } },
-                { "totalCount", n => { TotalCount = n.GetIntValue(); } },
             };
         }
         /// <summary>
         /// Serializes information the current object
         /// </summary>
         /// <param name="writer">Serialization writer to use to serialize this model</param>
-        public virtual void Serialize(ISerializationWriter writer)
+        public override void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteCollectionOfObjectValues<global::Trackr.Api.Models.CategoryResponse>("items", Items);
-            writer.WriteIntValue("page", Page);
-            writer.WriteIntValue("pageSize", PageSize);
-            writer.WriteIntValue("totalCount", TotalCount);
+            base.Serialize(writer);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

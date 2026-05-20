@@ -10,7 +10,7 @@ namespace frontend.Features.Categories;
 public partial class CategoriesPage : ComponentBase
 {
     [Inject]
-    private TrackrApiClient Api { get; set; } = null!;
+    private TrackrApiClient TrackrApi { get; set; } = null!;
 
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
@@ -41,7 +41,7 @@ public partial class CategoriesPage : ComponentBase
 
         _query = await QueryState<PagedList<CategoryResponse>>.RunAsync(async () =>
         {
-            var response = await Api.Api.Categories.GetAsync(configuration =>
+            var response = await TrackrApi.Categories.GetAsync(configuration =>
                 {
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
                     configuration.QueryParameters.Page = page;
@@ -165,7 +165,7 @@ public partial class CategoriesPage : ComponentBase
                 SortOrder = form.SortOrder
             };
 
-            await Api.Api.Categories.PostAsync(request);
+            await TrackrApi.Categories.PostAsync(request);
         });
 
         if (_mutation.Error is not null)
@@ -191,7 +191,7 @@ public partial class CategoriesPage : ComponentBase
                 SortOrder = form.SortOrder
             };
 
-            await Api.Api.Categories[categoryId].PutAsync(request);
+            await TrackrApi.Categories[categoryId].PutAsync(request);
         });
 
         if (_mutation.Error is not null)
