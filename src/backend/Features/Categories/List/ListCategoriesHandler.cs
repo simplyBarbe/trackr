@@ -14,7 +14,7 @@ public sealed class ListCategoriesHandler(AppDbContext db)
     {
         var query = db.Categories.AsNoTracking();
 
-        if (!request.IncludeArchived)
+        if (request.IncludeArchived != true)
             query = query.Active();
 
         query = query

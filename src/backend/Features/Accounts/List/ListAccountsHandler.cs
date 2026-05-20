@@ -15,7 +15,7 @@ public sealed class ListAccountsHandler(AppDbContext db, IAccountBalanceService 
     {
         var query = db.Accounts.AsNoTracking();
 
-        if (!request.IncludeArchived)
+        if (request.IncludeArchived != true)
             query = query.Active();
 
         query = query

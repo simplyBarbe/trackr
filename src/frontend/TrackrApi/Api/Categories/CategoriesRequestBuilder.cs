@@ -35,7 +35,7 @@ namespace Trackr.Api.Api.Categories
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public CategoriesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}&page={page}&pageSize={pageSize}{&kind*,name*}", pathParameters)
+        public CategoriesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?page={page}&pageSize={pageSize}{&includeArchived*,kind*,name*}", pathParameters)
         {
         }
         /// <summary>
@@ -43,7 +43,7 @@ namespace Trackr.Api.Api.Categories
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public CategoriesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}&page={page}&pageSize={pageSize}{&kind*,name*}", rawUrl)
+        public CategoriesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?page={page}&pageSize={pageSize}{&includeArchived*,kind*,name*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.ListCategoriesResponse"/></returns>

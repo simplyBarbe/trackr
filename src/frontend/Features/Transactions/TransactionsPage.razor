@@ -1,0 +1,131 @@
+@page "/transactions"
+@using Trackr.Api.Models
+
+<PageTitle>Transactions</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Transactions</MudText>
+
+@if (_accountsQuery.IsLoading || _categoriesQuery.IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+
+@if (_query.IsError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
+}
+
+<MudStack Row="true"
+          AlignItems="AlignItems.Center"
+          Spacing="2"
+          Class="mb-4"
+          Style="flex-wrap: wrap;">
+    <MudStack Spacing="0">
+        <MudSelect T="string"
+                   Label="Account"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Style="min-width: 14rem;"
+                   Value="_accountIdFilter"
+                   ValueChanged="@OnAccountFilterChanged"
+                   Disabled="@(_accountsQuery.IsLoading || _accountsQuery.IsError)"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            @if (_accountsQuery.HasData)
+            {
+                @foreach (var account in _accountsQuery.Data!)
+                {
+                    <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        @if (_accountsQuery.IsError)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Error">@_accountsQuery.Error</MudText>
+        }
+    </MudStack>
+
+    <MudStack Spacing="0">
+        <MudSelect T="string"
+                   Label="Category"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Style="min-width: 14rem;"
+                   Value="_categoryIdFilter"
+                   ValueChanged="@OnCategoryFilterChanged"
+                   Disabled="@(_categoriesQuery.IsLoading || _categoriesQuery.IsError)"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            @if (_categoriesQuery.HasData)
+            {
+                @foreach (var category in _categoriesQuery.Data!)
+                {
+                    <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        @if (_categoriesQuery.IsError)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
+        }
+    </MudStack>
+
+    <MudSelect T="string"
+               Label="Type"
+               Variant="Variant.Outlined"
+               Margin="Margin.Dense"
+               Style="min-width: 12rem;"
+               Value="_typeFilter"
+               ValueChanged="@OnTypeFilterChanged">
+        <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+        <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
+        <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+        <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
+    </MudSelect>
+
+    <MudDatePicker Label="From"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Date="_fromPicker"
+                   DateChanged="@OnFromPickerChanged"
+                   Clearable="true" />
+
+    <MudDatePicker Label="To"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Date="_toPicker"
+                   DateChanged="@OnToPickerChanged"
+                   Clearable="true" />
+</MudStack>
+
+<MudTable T="TransactionResponse"
+          @ref="_table"
+          @key="_tableVersion"
+          ServerData="LoadServerDataAsync"
+          RowsPerPage="50"
+          Hover="true"
+          Striped="true"
+          Breakpoint="Breakpoint.Sm"
+          Loading="_query.IsFetching">
+    <HeaderContent>
+        <MudTh>Date</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Account</MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Amount</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>Created</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">@FormatOccurredOn(context.OccurredOn)</MudTd>
+        <MudTd DataLabel="Type">@(context.Type?.ToString() ?? "")</MudTd>
+        <MudTd DataLabel="Account">@FormatAccount(context)</MudTd>
+        <MudTd DataLabel="Category">@(string.IsNullOrEmpty(context.CategoryName) ? "—" : context.CategoryName)</MudTd>
+        <MudTd DataLabel="Amount">@context.Amount</MudTd>
+        <MudTd DataLabel="Description">@(context.Description ?? "")</MudTd>
+        <MudTd DataLabel="Created">@FormatCreatedAt(context.CreatedAt)</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

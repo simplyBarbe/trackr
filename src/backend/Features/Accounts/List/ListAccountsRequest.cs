@@ -5,7 +5,7 @@ namespace backend.Features.Accounts.List;
 
 public sealed class ListAccountsRequest : PagedRequest
 {
-    public bool IncludeArchived { get; set; }
+    public bool? IncludeArchived { get; set; }
 
     public string? Name { get; set; }
 
