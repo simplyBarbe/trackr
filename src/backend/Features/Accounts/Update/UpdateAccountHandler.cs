@@ -1,6 +1,7 @@
 using backend.Application.Services;
 using backend.Common.Results;
 using backend.Features.Accounts;
+using backend.Features.Accounts.Shared;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,8 +35,9 @@ public sealed class UpdateAccountHandler(AppDbContext db, IAccountBalanceService
         }
 
         var nameTaken = await db.Accounts
+            .Active()
             .AnyAsync(
-                a => !a.IsArchived && a.Id != account.Id && a.Name == request.Name,
+                a => a.Id != account.Id && a.Name == request.Name,
                 cancellationToken);
 
         if (nameTaken)

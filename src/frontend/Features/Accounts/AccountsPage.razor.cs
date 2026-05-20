@@ -1,5 +1,6 @@
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
@@ -23,6 +24,9 @@ public partial class AccountsPage : ComponentBase
     private MutationState _mutation = MutationState.Idle;
 
     private bool _includeArchived;
+    private string _typeQuery = string.Empty;
+    private string _nameDraft = string.Empty;
+    private string _nameFilter = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -41,6 +45,10 @@ public partial class AccountsPage : ComponentBase
             var response = await Api.Api.Accounts.GetAsync(configuration =>
                 {
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
+                    if (!string.IsNullOrEmpty(_nameFilter))
+                        configuration.QueryParameters.Name = _nameFilter;
+                    if (!string.IsNullOrEmpty(_typeQuery))
+                        configuration.QueryParameters.Type = _typeQuery;
                 },
                 cancellationToken);
 
@@ -52,6 +60,32 @@ public partial class AccountsPage : ComponentBase
     {
         _includeArchived = value;
         await LoadAsync();
+    }
+
+    private async Task OnTypeQueryChanged(string value)
+    {
+        _typeQuery = value;
+        await LoadAsync();
+    }
+
+    private async Task CommitNameFilterAsync()
+    {
+        var trimmed = (_nameDraft ?? string.Empty).Trim();
+        if (string.Equals(trimmed, _nameFilter, StringComparison.Ordinal))
+            return;
+
+        _nameFilter = trimmed;
+        await LoadAsync();
+    }
+
+    private Task ApplyNameFilterOnBlur(FocusEventArgs _) => CommitNameFilterAsync();
+
+    private async Task OnNameFilterKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter")
+            return;
+
+        await CommitNameFilterAsync();
     }
 
     private async Task OpenCreateDialogAsync()

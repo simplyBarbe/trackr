@@ -1,6 +1,7 @@
 using backend.Application.Services;
 using backend.Common.Results;
 using backend.Features.Accounts;
+using backend.Features.Accounts.Shared;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,11 @@ public sealed class ListAccountsHandler(AppDbContext db, IAccountBalanceService 
         var query = db.Accounts.AsNoTracking();
 
         if (!request.IncludeArchived)
-            query = query.Where(a => !a.IsArchived);
+            query = query.Active();
+
+        query = query
+            .WithType(request.Type)
+            .MatchingName(request.Name);
 
         var accounts = await query
             .OrderBy(a => a.Name)

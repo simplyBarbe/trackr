@@ -35,7 +35,7 @@ namespace Trackr.Api.Api.Categories
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public CategoriesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}{&kind*}", pathParameters)
+        public CategoriesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}{&kind*,name*}", pathParameters)
         {
         }
         /// <summary>
@@ -43,12 +43,13 @@ namespace Trackr.Api.Api.Categories
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public CategoriesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}{&kind*}", rawUrl)
+        public CategoriesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/categories?includeArchived={includeArchived}{&kind*,name*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.ListCategoriesResponse"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::Trackr.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task<global::Trackr.Api.Models.ListCategoriesResponse?> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Categories.CategoriesRequestBuilder.CategoriesRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -59,7 +60,11 @@ namespace Trackr.Api.Api.Categories
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
-            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.ListCategoriesResponse>(requestInfo, global::Trackr.Api.Models.ListCategoriesResponse.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
+            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
+            {
+                { "400", global::Trackr.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
+            };
+            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.ListCategoriesResponse>(requestInfo, global::Trackr.Api.Models.ListCategoriesResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.CategoryResponse"/></returns>
         /// <param name="body">The request body</param>
@@ -142,6 +147,15 @@ namespace Trackr.Api.Api.Categories
 #else
             [QueryParameter("kind")]
             public string Kind { get; set; }
+#endif
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            [QueryParameter("name")]
+            public string? Name { get; set; }
+#nullable restore
+#else
+            [QueryParameter("name")]
+            public string Name { get; set; }
 #endif
         }
         /// <summary>

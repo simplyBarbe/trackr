@@ -1,6 +1,7 @@
 using backend.Common.Results;
 using backend.Data;
 using backend.Features.Categories;
+using backend.Features.Categories.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Categories.List;
@@ -13,11 +14,12 @@ public sealed class ListCategoriesHandler(AppDbContext db)
     {
         var query = db.Categories.AsNoTracking();
 
-        if (request.Kind is not null)
-            query = query.Where(c => c.Kind == request.Kind);
-
         if (!request.IncludeArchived)
-            query = query.Where(c => !c.IsArchived);
+            query = query.Active();
+
+        query = query
+            .OfKind(request.Kind)
+            .MatchingName(request.Name);
 
         var categories = await query
             .OrderBy(c => c.SortOrder)

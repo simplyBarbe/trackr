@@ -40,6 +40,16 @@ else
             <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
         </MudSelect>
 
+        <MudTextField T="string"
+                      Label="Name contains"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Style="min-width: 14rem;"
+                      Immediate="true"
+                      @bind-Value="_nameDraft"
+                      OnBlur="@ApplyNameFilterOnBlur"
+                      @onkeydown="OnNameFilterKeyDown" />
+
         <MudCheckBox T="bool"
                      Value="@_includeArchived"
                      Label="Include archived"

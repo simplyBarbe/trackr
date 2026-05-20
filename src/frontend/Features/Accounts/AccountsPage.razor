@@ -28,6 +28,30 @@ else
             New account
         </MudButton>
 
+        <MudSelect T="string"
+                   Label="Type"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Style="min-width: 12rem;"
+                   Value="_typeQuery"
+                   ValueChanged="@OnTypeQueryChanged">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Checking")">Checking</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Savings")">Savings</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Cash")">Cash</MudSelectItem>
+            <MudSelectItem T="string" Value="@("CreditCard")">Credit card</MudSelectItem>
+        </MudSelect>
+
+        <MudTextField T="string"
+                      Label="Name contains"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Style="min-width: 14rem;"
+                      Immediate="true"
+                      @bind-Value="_nameDraft"
+                      OnBlur="@ApplyNameFilterOnBlur"
+                      @onkeydown="OnNameFilterKeyDown" />
+
         <MudCheckBox T="bool"
                      Value="@_includeArchived"
                      Label="Include archived"

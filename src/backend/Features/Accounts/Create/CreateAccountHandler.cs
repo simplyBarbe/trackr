@@ -1,6 +1,7 @@
 using backend.Application.Services;
 using backend.Common.Results;
 using backend.Features.Accounts;
+using backend.Features.Accounts.Shared;
 using backend.Data;
 using backend.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,8 @@ public sealed class CreateAccountHandler(AppDbContext db, IAccountBalanceService
         CancellationToken cancellationToken)
     {
         var nameExists = await db.Accounts
-            .AnyAsync(a => !a.IsArchived && a.Name == request.Name, cancellationToken);
+            .Active()
+            .AnyAsync(a => a.Name == request.Name, cancellationToken);
 
         if (nameExists)
             return Result<AccountResponse>.Failure(Error.Conflict("An active account with this name already exists."));

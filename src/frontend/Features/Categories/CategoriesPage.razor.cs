@@ -1,5 +1,6 @@
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using Trackr.Api;
 using Trackr.Api.Models;
@@ -24,6 +25,8 @@ public partial class CategoriesPage : ComponentBase
 
     private bool _includeArchived;
     private string _kindQuery = string.Empty;
+    private string _nameDraft = string.Empty;
+    private string _nameFilter = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -41,6 +44,8 @@ public partial class CategoriesPage : ComponentBase
                     configuration.QueryParameters.IncludeArchived = _includeArchived;
                     if (!string.IsNullOrEmpty(_kindQuery))
                         configuration.QueryParameters.Kind = _kindQuery;
+                    if (!string.IsNullOrEmpty(_nameFilter))
+                        configuration.QueryParameters.Name = _nameFilter;
                 },
                 cancellationToken);
 
@@ -58,6 +63,26 @@ public partial class CategoriesPage : ComponentBase
     {
         _includeArchived = value;
         await LoadAsync();
+    }
+
+    private async Task CommitNameFilterAsync()
+    {
+        var trimmed = (_nameDraft ?? string.Empty).Trim();
+        if (string.Equals(trimmed, _nameFilter, StringComparison.Ordinal))
+            return;
+
+        _nameFilter = trimmed;
+        await LoadAsync();
+    }
+
+    private Task ApplyNameFilterOnBlur(FocusEventArgs _) => CommitNameFilterAsync();
+
+    private async Task OnNameFilterKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter")
+            return;
+
+        await CommitNameFilterAsync();
     }
 
     private async Task OpenCreateDialogAsync()

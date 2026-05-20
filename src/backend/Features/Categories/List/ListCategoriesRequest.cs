@@ -7,4 +7,6 @@ public sealed class ListCategoriesRequest
     public CategoryKind? Kind { get; set; }
 
     public bool IncludeArchived { get; set; }
+
+    public string? Name { get; set; }
 }

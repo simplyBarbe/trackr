@@ -1,6 +1,6 @@
-using backend.Application.Rules;
 using backend.Common.Results;
 using backend.Data;
+using backend.Features.Categories.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Categories.Archive;
@@ -19,7 +19,9 @@ public sealed class ArchiveCategoryHandler(AppDbContext db)
             return Result.Success();
 
         var hasActiveChildren = await db.Categories
-            .AnyAsync(c => c.ParentId == category.Id && !c.IsArchived, cancellationToken);
+            .Where(c => c.ParentId == category.Id)
+            .Active()
+            .AnyAsync(cancellationToken);
 
         if (hasActiveChildren)
             return Result.Failure(Error.Validation("Cannot archive a category with active child categories."));

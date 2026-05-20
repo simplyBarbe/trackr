@@ -35,7 +35,7 @@ namespace Trackr.Api.Api.Accounts
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AccountsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}", pathParameters)
+        public AccountsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}{&name*,type*}", pathParameters)
         {
         }
         /// <summary>
@@ -43,12 +43,13 @@ namespace Trackr.Api.Api.Accounts
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AccountsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}", rawUrl)
+        public AccountsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/accounts?includeArchived={includeArchived}{&name*,type*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.ListAccountsResponse"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::Trackr.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task<global::Trackr.Api.Models.ListAccountsResponse?> GetAsync(Action<RequestConfiguration<global::Trackr.Api.Api.Accounts.AccountsRequestBuilder.AccountsRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -59,7 +60,11 @@ namespace Trackr.Api.Api.Accounts
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
-            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.ListAccountsResponse>(requestInfo, global::Trackr.Api.Models.ListAccountsResponse.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
+            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
+            {
+                { "400", global::Trackr.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
+            };
+            return await RequestAdapter.SendAsync<global::Trackr.Api.Models.ListAccountsResponse>(requestInfo, global::Trackr.Api.Models.ListAccountsResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.AccountResponse"/></returns>
         /// <param name="body">The request body</param>
@@ -134,6 +139,24 @@ namespace Trackr.Api.Api.Accounts
         {
             [QueryParameter("includeArchived")]
             public bool? IncludeArchived { get; set; }
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            [QueryParameter("name")]
+            public string? Name { get; set; }
+#nullable restore
+#else
+            [QueryParameter("name")]
+            public string Name { get; set; }
+#endif
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            [QueryParameter("type")]
+            public string? Type { get; set; }
+#nullable restore
+#else
+            [QueryParameter("type")]
+            public string Type { get; set; }
+#endif
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.
