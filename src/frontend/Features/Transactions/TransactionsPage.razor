@@ -15,87 +15,105 @@
     <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
 }
 
-<MudStack Row="true"
-          AlignItems="AlignItems.Center"
-          Spacing="2"
-          Class="mb-4"
-          Style="flex-wrap: wrap;">
-    <MudStack Spacing="0">
-        <MudSelect T="string"
-                   Label="Account"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Style="min-width: 14rem;"
-                   Value="_accountIdFilter"
-                   ValueChanged="@OnAccountFilterChanged"
-                   Disabled="@(_accountsQuery.IsLoading || _accountsQuery.IsError)"
-                   Clearable="true">
-            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            @if (_accountsQuery.HasData)
-            {
-                @foreach (var account in _accountsQuery.Data!)
+<MudStack Spacing="3" Class="mb-4" AlignItems="AlignItems.Start">
+    <MudButton Color="Color.Primary"
+               Variant="Variant.Filled"
+               StartIcon="@Icons.Material.Filled.Add"
+               Disabled="@(_mutation.IsPending || !CanMutate)"
+               OnClick="OpenCreateDialogAsync">
+        New transaction
+    </MudButton>
+
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudStack Spacing="0">
+                <MudSelect T="string"
+                           Label="Account"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           FullWidth="true"
+                           Value="_accountIdFilter"
+                           ValueChanged="@OnAccountFilterChanged"
+                           Disabled="@(_accountsQuery.IsLoading || _accountsQuery.IsError)"
+                           Clearable="true">
+                    <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+                    @if (_accountsQuery.HasData)
+                    {
+                        @foreach (var account in _accountsQuery.Data!)
+                        {
+                            <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+                @if (_accountsQuery.IsError)
                 {
-                    <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
+                    <MudText Typo="Typo.caption" Color="Color.Error">@_accountsQuery.Error</MudText>
                 }
-            }
-        </MudSelect>
-        @if (_accountsQuery.IsError)
-        {
-            <MudText Typo="Typo.caption" Color="Color.Error">@_accountsQuery.Error</MudText>
-        }
-    </MudStack>
+            </MudStack>
+        </MudItem>
 
-    <MudStack Spacing="0">
-        <MudSelect T="string"
-                   Label="Category"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Style="min-width: 14rem;"
-                   Value="_categoryIdFilter"
-                   ValueChanged="@OnCategoryFilterChanged"
-                   Disabled="@(_categoriesQuery.IsLoading || _categoriesQuery.IsError)"
-                   Clearable="true">
-            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            @if (_categoriesQuery.HasData)
-            {
-                @foreach (var category in _categoriesQuery.Data!)
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudStack Spacing="0">
+                <MudSelect T="string"
+                           Label="Category"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           FullWidth="true"
+                           Value="_categoryIdFilter"
+                           ValueChanged="@OnCategoryFilterChanged"
+                           Disabled="@(_categoriesQuery.IsLoading || _categoriesQuery.IsError)"
+                           Clearable="true">
+                    <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+                    @if (_categoriesQuery.HasData)
+                    {
+                        @foreach (var category in _categoriesQuery.Data!)
+                        {
+                            <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+                @if (_categoriesQuery.IsError)
                 {
-                    <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+                    <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
                 }
-            }
-        </MudSelect>
-        @if (_categoriesQuery.IsError)
-        {
-            <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
-        }
-    </MudStack>
+            </MudStack>
+        </MudItem>
 
-    <MudSelect T="string"
-               Label="Type"
-               Variant="Variant.Outlined"
-               Margin="Margin.Dense"
-               Style="min-width: 12rem;"
-               Value="_typeFilter"
-               ValueChanged="@OnTypeFilterChanged">
-        <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-        <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
-        <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
-        <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
-    </MudSelect>
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudSelect T="string"
+                       Label="Type"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       FullWidth="true"
+                       Value="_typeFilter"
+                       ValueChanged="@OnTypeFilterChanged">
+                <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
+            </MudSelect>
+        </MudItem>
 
-    <MudDatePicker Label="From"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Date="_fromPicker"
-                   DateChanged="@OnFromPickerChanged"
-                   Clearable="true" />
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudDatePicker Label="From"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Style="width: 100%;"
+                           Date="_fromPicker"
+                           DateChanged="@OnFromPickerChanged"
+                           Clearable="true" />
+        </MudItem>
 
-    <MudDatePicker Label="To"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Date="_toPicker"
-                   DateChanged="@OnToPickerChanged"
-                   Clearable="true" />
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudDatePicker Label="To"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Style="width: 100%;"
+                           Date="_toPicker"
+                           DateChanged="@OnToPickerChanged"
+                           Clearable="true" />
+        </MudItem>
+    </MudGrid>
 </MudStack>
 
 <MudTable T="TransactionResponse"
@@ -115,6 +133,7 @@
         <MudTh>Amount</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Created</MudTh>
+        <MudTh Style="width: 4rem;">Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Date">@FormatOccurredOn(context.OccurredOn)</MudTd>
@@ -124,6 +143,13 @@
         <MudTd DataLabel="Amount">@context.Amount</MudTd>
         <MudTd DataLabel="Description">@(context.Description ?? "")</MudTd>
         <MudTd DataLabel="Created">@FormatCreatedAt(context.CreatedAt)</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           Disabled="@(_mutation.IsPending || !CanMutate)"
+                           OnClick="@(() => OpenEditDialogAsync(context))" />
+        </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager />

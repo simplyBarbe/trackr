@@ -1,0 +1,125 @@
+@using Trackr.Api.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_formError is not null)
+            {
+                <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-3">@_formError</MudAlert>
+            }
+
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="TransactionType"
+                               Label="Type"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               FullWidth="true"
+                               Value="_type"
+                               ValueChanged="@OnTypeChanged">
+                        <MudSelectItem T="TransactionType" Value="TransactionType.Income">Income</MudSelectItem>
+                        <MudSelectItem T="TransactionType" Value="TransactionType.Expense">Expense</MudSelectItem>
+                        <MudSelectItem T="TransactionType" Value="TransactionType.Transfer">Transfer</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField T="decimal"
+                                     Label="Amount"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     FullWidth="true"
+                                     Required="true"
+                                     Min="@(0.01m)"
+                                     Step="@(0.01m)"
+                                     Format="N2"
+                                     @bind-Value="_amount" />
+                </MudItem>
+
+                <MudItem xs="12" sm="@(ShowToAccount ? 6 : 12)">
+                    <MudSelect T="string"
+                               Label="@(ShowToAccount ? "From account" : "Account")"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               FullWidth="true"
+                               Required="true"
+                               Value="_accountId"
+                               ValueChanged="@OnAccountIdChanged">
+                        @foreach (var account in ActiveAccounts)
+                        {
+                            <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                @if (ShowToAccount)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="string"
+                                   Label="To account"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   FullWidth="true"
+                                   Required="true"
+                                   Value="_toAccountId"
+                                   ValueChanged="@OnToAccountIdChanged">
+                            @foreach (var account in DestinationAccounts)
+                            {
+                                <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+
+                @if (ShowCategory)
+                {
+                    <MudItem xs="12">
+                        <MudSelect T="string"
+                                   Label="Category"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   FullWidth="true"
+                                   Value="_categoryId"
+                                   ValueChanged="@OnCategoryIdChanged"
+                                   Clearable="true">
+                            <MudSelectItem T="string" Value="@("")">None</MudSelectItem>
+                            @foreach (var category in CategoryOptions)
+                            {
+                                <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker Label="Date"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Style="width: 100%;"
+                                   Required="true"
+                                   Date="_occurredPicker"
+                                   DateChanged="@(v => _occurredPicker = v)" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField T="string"
+                                  Label="Description"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  FullWidth="true"
+                                  MaxLength="500"
+                                  Lines="2"
+                                  @bind-Value="_description" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SubmitAsync">
+            @SubmitText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
