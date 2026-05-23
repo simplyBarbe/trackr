@@ -38,7 +38,7 @@ public partial class CategoryFormDialog : ComponentBase
 
         _name = Category.Name ?? string.Empty;
         _kind = Category.Kind ?? CategoryKind.Expense;
-        _parentId = Category.ParentId ?? string.Empty;
+        _parentId = Category.Parent?.Id ?? string.Empty;
         _sortOrder = Category.SortOrder ?? 0;
     }
 

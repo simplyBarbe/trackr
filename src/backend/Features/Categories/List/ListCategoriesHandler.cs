@@ -24,6 +24,7 @@ public sealed class ListCategoriesHandler(AppDbContext db)
         var totalCount = await query.CountAsync(cancellationToken);
 
         var categories = await query
+            .Include(c => c.Parent)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
             .Skip((request.Page - 1) * request.PageSize)

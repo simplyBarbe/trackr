@@ -4,11 +4,13 @@ using backend.Common.Pagination;
 
 namespace backend.Features.Categories;
 
+public sealed record CategorySummary(Guid Id, string Name);
+
 public sealed record CategoryResponse(
     Guid Id,
     string Name,
     CategoryKind Kind,
-    Guid? ParentId,
+    CategorySummary? Parent,
     int SortOrder,
     bool IsArchived);
 
@@ -26,7 +28,9 @@ public static class CategoryMapping
             category.Id,
             category.Name,
             category.Kind,
-            category.ParentId,
+            category.ParentId is null
+                ? null
+                : new CategorySummary(category.ParentId.Value, category.Parent!.Name),
             category.SortOrder,
             category.IsArchived);
 }

@@ -13,6 +13,7 @@ public sealed class GetCategoryHandler(AppDbContext db)
     {
         var category = await db.Categories
             .AsNoTracking()
+            .Include(c => c.Parent)
             .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (category is null)

@@ -63,7 +63,7 @@
     <HeaderContent>
         <MudTh>Name</MudTh>
         <MudTh>Kind</MudTh>
-        <MudTh>Parent id</MudTh>
+        <MudTh>Parent</MudTh>
         <MudTh>Sort order</MudTh>
         <MudTh>Archived</MudTh>
         <MudTh>Actions</MudTh>
@@ -71,7 +71,7 @@
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Kind">@(context.Kind?.ToString() ?? "")</MudTd>
-        <MudTd DataLabel="Parent id">@(context.ParentId ?? "-")</MudTd>
+        <MudTd DataLabel="Parent">@(context.Parent?.Name is { Length: > 0 } name ? name : "—")</MudTd>
         <MudTd DataLabel="Sort order">@context.SortOrder</MudTd>
         <MudTd DataLabel="Archived">
             @(context.IsArchived switch { true => "Yes", false => "No", _ => "" })

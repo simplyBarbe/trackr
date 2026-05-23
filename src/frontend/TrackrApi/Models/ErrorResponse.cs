@@ -8,12 +8,13 @@ using System.IO;
 using System;
 namespace Trackr.Api.Models
 {
+    /// <summary>
+    /// the dto used to send an error response to the client
+    /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-    #pragma warning disable CS1591
     public partial class ErrorResponse : ApiException, IParsable
-    #pragma warning restore CS1591
     {
-        /// <summary>The errors property</summary>
+        /// <summary>the collection of errors for the current context</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public global::Trackr.Api.Models.ErrorResponse_errors? Errors { get; set; }
@@ -23,7 +24,7 @@ namespace Trackr.Api.Models
 #endif
         /// <summary>The primary error message.</summary>
         public override string Message { get => MessageEscaped ?? string.Empty; }
-        /// <summary>The message property</summary>
+        /// <summary>the message for the error response</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public string? MessageEscaped { get; set; }
@@ -31,7 +32,7 @@ namespace Trackr.Api.Models
 #else
         public string MessageEscaped { get; set; }
 #endif
-        /// <summary>The statusCode property</summary>
+        /// <summary>the http status code sent to the client. default is 400.</summary>
         public int? StatusCode { get; set; }
         /// <summary>
         /// Instantiates a new <see cref="global::Trackr.Api.Models.ErrorResponse"/> and sets the default values.

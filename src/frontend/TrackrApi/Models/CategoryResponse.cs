@@ -32,13 +32,13 @@ namespace Trackr.Api.Models
 #else
         public string Name { get; set; }
 #endif
-        /// <summary>The parentId property</summary>
+        /// <summary>The parent property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? ParentId { get; set; }
+        public global::Trackr.Api.Models.CategorySummary? Parent { get; set; }
 #nullable restore
 #else
-        public string ParentId { get; set; }
+        public global::Trackr.Api.Models.CategorySummary Parent { get; set; }
 #endif
         /// <summary>The sortOrder property</summary>
         public int? SortOrder { get; set; }
@@ -64,7 +64,7 @@ namespace Trackr.Api.Models
                 { "isArchived", n => { IsArchived = n.GetBoolValue(); } },
                 { "kind", n => { Kind = n.GetEnumValue<global::Trackr.Api.Models.CategoryKind>(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
-                { "parentId", n => { ParentId = n.GetStringValue(); } },
+                { "parent", n => { Parent = n.GetObjectValue<global::Trackr.Api.Models.CategorySummary>(global::Trackr.Api.Models.CategorySummary.CreateFromDiscriminatorValue); } },
                 { "sortOrder", n => { SortOrder = n.GetIntValue(); } },
             };
         }
@@ -79,7 +79,7 @@ namespace Trackr.Api.Models
             writer.WriteBoolValue("isArchived", IsArchived);
             writer.WriteEnumValue<global::Trackr.Api.Models.CategoryKind>("kind", Kind);
             writer.WriteStringValue("name", Name);
-            writer.WriteStringValue("parentId", ParentId);
+            writer.WriteObjectValue<global::Trackr.Api.Models.CategorySummary>("parent", Parent);
             writer.WriteIntValue("sortOrder", SortOrder);
         }
     }

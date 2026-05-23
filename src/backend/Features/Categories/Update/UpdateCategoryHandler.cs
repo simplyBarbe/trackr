@@ -38,6 +38,10 @@ public sealed class UpdateCategoryHandler(AppDbContext db)
         category.SortOrder = request.SortOrder;
 
         await db.SaveChangesAsync(cancellationToken);
+
+        if (category.ParentId is not null)
+            await db.Entry(category).Reference(c => c.Parent).LoadAsync(cancellationToken);
+
         return Result<CategoryResponse>.Success(CategoryMapping.ToResponse(category));
     }
 }

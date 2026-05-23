@@ -37,6 +37,9 @@ public sealed class CreateCategoryHandler(AppDbContext db)
         db.Categories.Add(category);
         await db.SaveChangesAsync(cancellationToken);
 
+        if (category.ParentId is not null)
+            await db.Entry(category).Reference(c => c.Parent).LoadAsync(cancellationToken);
+
         return Result<CategoryResponse>.Success(CategoryMapping.ToResponse(category));
     }
 }
