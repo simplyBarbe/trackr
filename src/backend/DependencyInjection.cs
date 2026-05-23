@@ -1,4 +1,5 @@
 using backend.Application.Services;
+using backend.Data;
 using backend.Features.Accounts.Archive;
 using backend.Features.Accounts.Create;
 using backend.Features.Accounts.Get;
@@ -23,6 +24,7 @@ public static class DependencyInjection
     public static IServiceCollection AddTrackrApplication(this IServiceCollection services)
     {
         services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+        services.AddScoped<DataSeeder>();
 
         services.AddScoped<GetHealthHandler>();
 
