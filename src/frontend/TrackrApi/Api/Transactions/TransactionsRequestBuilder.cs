@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using Trackr.Api.Api.Transactions.Item;
+using Trackr.Api.Api.Transactions.Summary;
 using Trackr.Api.Models;
 namespace Trackr.Api.Api.Transactions
 {
@@ -18,6 +19,11 @@ namespace Trackr.Api.Api.Transactions
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class TransactionsRequestBuilder : BaseRequestBuilder
     {
+        /// <summary>The summary property</summary>
+        public global::Trackr.Api.Api.Transactions.Summary.SummaryRequestBuilder Summary
+        {
+            get => new global::Trackr.Api.Api.Transactions.Summary.SummaryRequestBuilder(PathParameters, RequestAdapter);
+        }
         /// <summary>Gets an item from the Trackr.Api.api.transactions.item collection</summary>
         /// <param name="position">Unique identifier of the item</param>
         /// <returns>A <see cref="global::Trackr.Api.Api.Transactions.Item.TransactionsItemRequestBuilder"/></returns>

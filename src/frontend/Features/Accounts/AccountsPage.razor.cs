@@ -165,6 +165,7 @@ public partial class AccountsPage : ComponentBase
             {
                 Name = form.Name,
                 Type = form.Type,
+                Color = form.Color,
                 Currency = form.Currency,
                 InitialBalance = form.InitialBalance
             };
@@ -191,6 +192,7 @@ public partial class AccountsPage : ComponentBase
             {
                 Name = form.Name,
                 Type = form.Type,
+                Color = form.Color,
                 Currency = form.Currency,
                 InitialBalance = form.InitialBalance
             };

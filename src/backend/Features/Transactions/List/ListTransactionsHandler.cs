@@ -16,25 +16,12 @@ public sealed class ListTransactionsHandler(AppDbContext db)
             .Include(t => t.Account)
             .Include(t => t.ToAccount)
             .Include(t => t.Category)
-            .AsQueryable();
-
-        if (request.AccountId is not null)
-        {
-            query = query.Where(t =>
-                t.AccountId == request.AccountId || t.ToAccountId == request.AccountId);
-        }
-
-        if (request.CategoryId is not null)
-            query = query.Where(t => t.CategoryId == request.CategoryId);
-
-        if (request.Type is not null)
-            query = query.Where(t => t.Type == request.Type);
-
-        if (request.From is not null)
-            query = query.Where(t => t.OccurredOn >= request.From);
-
-        if (request.To is not null)
-            query = query.Where(t => t.OccurredOn <= request.To);
+            .ApplyListFilters(
+                request.AccountId,
+                request.CategoryId,
+                request.Type,
+                request.From,
+                request.To);
 
         var totalCount = await query.CountAsync(cancellationToken);
 

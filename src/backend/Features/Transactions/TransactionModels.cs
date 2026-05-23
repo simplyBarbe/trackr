@@ -25,6 +25,8 @@ public sealed record ListTransactionsResponse(
     int TotalCount)
     : PagedResponse<TransactionResponse>(Items, Page, PageSize, TotalCount);
 
+public sealed record GetTransactionSummaryResponse(decimal TotalIncome, decimal TotalExpense);
+
 public static class TransactionMapping
 {
     public static TransactionResponse ToResponse(Transaction transaction) =>

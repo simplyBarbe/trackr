@@ -94,27 +94,76 @@
             </MudSelect>
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudDatePicker Label="From"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           Style="width: 100%;"
-                           Date="_fromPicker"
-                           DateChanged="@OnFromPickerChanged"
-                           Clearable="true" />
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudDatePicker Label="To"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           Style="width: 100%;"
-                           Date="_toPicker"
-                           DateChanged="@OnToPickerChanged"
-                           Clearable="true" />
+        <MudItem xs="12" sm="auto">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start" Style="flex-wrap: nowrap;">
+                <MudDatePicker Label="From"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Style="min-width: 9rem;"
+                               Date="_fromPicker"
+                               DateChanged="@OnFromPickerChanged"
+                               Clearable="true" />
+                <MudDatePicker Label="To"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Style="min-width: 9rem;"
+                               Date="_toPicker"
+                               DateChanged="@OnToPickerChanged"
+                               Clearable="true" />
+            </MudStack>
         </MudItem>
     </MudGrid>
 </MudStack>
+
+@if (_summaryQuery.IsError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_summaryQuery.Error</MudAlert>
+}
+
+<MudGrid Class="mb-4" Spacing="2">
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Income</MudText>
+                @if (_summaryQuery.IsLoading && !_summaryQuery.HasData)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5" Color="Color.Success">
+                        @FormatAmount(_summaryQuery.Data?.TotalIncome)
+                    </MudText>
+                    @if (_summaryQuery.IsFetching)
+                    {
+                        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Expense</MudText>
+                @if (_summaryQuery.IsLoading && !_summaryQuery.HasData)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5" Color="Color.Error">
+                        @FormatAmount(_summaryQuery.Data?.TotalExpense)
+                    </MudText>
+                    @if (_summaryQuery.IsFetching)
+                    {
+                        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
 <MudTable T="TransactionResponse"
           @ref="_table"

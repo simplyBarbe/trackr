@@ -19,6 +19,7 @@ public partial class AccountFormDialog : ComponentBase
     private string? _currencyError;
     private string _name = string.Empty;
     private AccountType _type = AccountType.Checking;
+    private AccountColor _color = AccountColor.Primary;
     private string _currency = "EUR";
     private decimal _initialBalance;
 
@@ -31,6 +32,7 @@ public partial class AccountFormDialog : ComponentBase
 
         _name = Account.Name ?? string.Empty;
         _type = Account.Type ?? AccountType.Checking;
+        _color = Account.Color ?? AccountColor.Primary;
         _currency = Account.Currency ?? "EUR";
         _initialBalance = Account.InitialBalance ?? 0m;
     }
@@ -61,6 +63,7 @@ public partial class AccountFormDialog : ComponentBase
         var result = new AccountFormResult(
             _name.Trim(),
             _type,
+            _color,
             currency,
             _initialBalance);
 
@@ -76,5 +79,6 @@ public partial class AccountFormDialog : ComponentBase
 public sealed record AccountFormResult(
     string Name,
     AccountType Type,
+    AccountColor Color,
     string Currency,
     decimal InitialBalance);

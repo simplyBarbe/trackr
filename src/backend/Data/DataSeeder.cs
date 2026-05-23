@@ -24,6 +24,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Main Checking",
             Type = AccountType.Checking,
+            Color = AccountColor.Primary,
             Currency = "EUR",
             InitialBalance = 2_500m,
             CreatedAt = now
@@ -34,6 +35,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Emergency Savings",
             Type = AccountType.Savings,
+            Color = AccountColor.Success,
             Currency = "EUR",
             InitialBalance = 15_000m,
             CreatedAt = now
@@ -44,6 +46,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Wallet",
             Type = AccountType.Cash,
+            Color = AccountColor.Warning,
             Currency = "EUR",
             InitialBalance = 120m,
             CreatedAt = now
@@ -54,6 +57,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Visa Credit Card",
             Type = AccountType.CreditCard,
+            Color = AccountColor.Info,
             Currency = "EUR",
             InitialBalance = 0m,
             CreatedAt = now

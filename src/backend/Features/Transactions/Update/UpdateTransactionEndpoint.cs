@@ -8,7 +8,7 @@ public sealed class UpdateTransactionEndpoint(UpdateTransactionHandler handler)
 {
     public override void Configure()
     {
-        Put("/api/transactions/{id}");
+        Put("/api/transactions/{id:guid}");
         AllowAnonymous();
         Description(b => b.WithTags("Transactions"));
     }

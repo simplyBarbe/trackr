@@ -7,7 +7,7 @@ public sealed class DeleteTransactionEndpoint(DeleteTransactionHandler handler)
 {
     public override void Configure()
     {
-        Delete("/api/transactions/{id}");
+        Delete("/api/transactions/{id:guid}");
         AllowAnonymous();
         Description(b => b.WithTags("Transactions"));
     }

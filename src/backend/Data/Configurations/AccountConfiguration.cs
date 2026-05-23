@@ -21,6 +21,11 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .HasMaxLength(32)
             .IsRequired();
 
+        builder.Property(a => a.Color)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
+
         builder.Property(a => a.Currency)
             .HasMaxLength(3)
             .IsRequired();

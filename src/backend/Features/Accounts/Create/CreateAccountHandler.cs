@@ -26,6 +26,7 @@ public sealed class CreateAccountHandler(AppDbContext db, IAccountBalanceService
             Id = Guid.NewGuid(),
             Name = request.Name,
             Type = request.Type,
+            Color = request.Color,
             Currency = request.Currency.ToUpperInvariant(),
             InitialBalance = request.InitialBalance,
             CreatedAt = DateTime.UtcNow

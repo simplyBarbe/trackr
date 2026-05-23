@@ -12,6 +12,8 @@ namespace Trackr.Api.Models
     public partial class CreateAccountRequest : IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>The color property</summary>
+        public global::Trackr.Api.Models.AccountColor? Color { get; set; }
         /// <summary>The currency property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -50,6 +52,7 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "color", n => { Color = n.GetEnumValue<global::Trackr.Api.Models.AccountColor>(); } },
                 { "currency", n => { Currency = n.GetStringValue(); } },
                 { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
@@ -63,6 +66,7 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
+            writer.WriteEnumValue<global::Trackr.Api.Models.AccountColor>("color", Color);
             writer.WriteStringValue("currency", Currency);
             writer.WriteDecimalValue("initialBalance", InitialBalance);
             writer.WriteStringValue("name", Name);

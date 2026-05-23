@@ -15,6 +15,7 @@ using backend.Features.Transactions.Create;
 using backend.Features.Transactions.Delete;
 using backend.Features.Transactions.Get;
 using backend.Features.Transactions.List;
+using backend.Features.Transactions.Summary;
 using backend.Features.Transactions.Update;
 
 namespace backend;
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<ArchiveCategoryHandler>();
 
         services.AddScoped<ListTransactionsHandler>();
+        services.AddScoped<GetTransactionSummaryHandler>();
         services.AddScoped<GetTransactionHandler>();
         services.AddScoped<CreateTransactionHandler>();
         services.AddScoped<UpdateTransactionHandler>();

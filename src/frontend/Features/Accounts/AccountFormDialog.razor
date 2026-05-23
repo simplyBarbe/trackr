@@ -28,6 +28,21 @@
                     <MudSelectItem T="AccountType" Value="AccountType.CreditCard">Credit card</MudSelectItem>
                 </MudSelect>
 
+                <MudSelect T="AccountColor"
+                           Label="Color"
+                           Variant="Variant.Outlined"
+                           @bind-Value="_color">
+                    @foreach (var color in Enum.GetValues<AccountColor>())
+                    {
+                        <MudSelectItem T="AccountColor" Value="@color">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <span style="display:inline-block;width:1rem;height:1rem;border-radius:50%;@AccountCardStyles.GetCardStyle(color)"></span>
+                                <span>@color</span>
+                            </MudStack>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
                 <MudTextField T="string"
                               Label="Currency"
                               Variant="Variant.Outlined"

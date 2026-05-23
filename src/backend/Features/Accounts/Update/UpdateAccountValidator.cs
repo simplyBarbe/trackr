@@ -16,6 +16,9 @@ public sealed class UpdateAccountValidator : Validator<UpdateAccountRequest>
         RuleFor(x => x.Type)
             .IsInEnum();
 
+        RuleFor(x => x.Color)
+            .IsInEnum();
+
         RuleFor(x => x.Currency)
             .NotEmpty()
             .Length(3);

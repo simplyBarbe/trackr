@@ -14,6 +14,8 @@ namespace Trackr.Api.Models
     {
         /// <summary>The balance property</summary>
         public decimal? Balance { get; set; }
+        /// <summary>The color property</summary>
+        public global::Trackr.Api.Models.AccountColor? Color { get; set; }
         /// <summary>The createdAt property</summary>
         public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The currency property</summary>
@@ -65,6 +67,7 @@ namespace Trackr.Api.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "balance", n => { Balance = n.GetDecimalValue(); } },
+                { "color", n => { Color = n.GetEnumValue<global::Trackr.Api.Models.AccountColor>(); } },
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "currency", n => { Currency = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetStringValue(); } },
@@ -82,6 +85,7 @@ namespace Trackr.Api.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteDecimalValue("balance", Balance);
+            writer.WriteEnumValue<global::Trackr.Api.Models.AccountColor>("color", Color);
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteStringValue("currency", Currency);
             writer.WriteStringValue("id", Id);

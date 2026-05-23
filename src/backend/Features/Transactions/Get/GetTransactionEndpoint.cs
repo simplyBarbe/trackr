@@ -8,7 +8,7 @@ public sealed class GetTransactionEndpoint(GetTransactionHandler handler)
 {
     public override void Configure()
     {
-        Get("/api/transactions/{id}");
+        Get("/api/transactions/{id:guid}");
         AllowAnonymous();
         Description(b => b.WithTags("Transactions"));
     }
