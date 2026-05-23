@@ -18,14 +18,6 @@ namespace Trackr.Api.Models
         public global::Trackr.Api.Models.AccountColor? Color { get; set; }
         /// <summary>The createdAt property</summary>
         public DateTimeOffset? CreatedAt { get; set; }
-        /// <summary>The currency property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? Currency { get; set; }
-#nullable restore
-#else
-        public string Currency { get; set; }
-#endif
         /// <summary>The id property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -69,7 +61,6 @@ namespace Trackr.Api.Models
                 { "balance", n => { Balance = n.GetDecimalValue(); } },
                 { "color", n => { Color = n.GetEnumValue<global::Trackr.Api.Models.AccountColor>(); } },
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
-                { "currency", n => { Currency = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetStringValue(); } },
                 { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
                 { "isArchived", n => { IsArchived = n.GetBoolValue(); } },
@@ -87,7 +78,6 @@ namespace Trackr.Api.Models
             writer.WriteDecimalValue("balance", Balance);
             writer.WriteEnumValue<global::Trackr.Api.Models.AccountColor>("color", Color);
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
-            writer.WriteStringValue("currency", Currency);
             writer.WriteStringValue("id", Id);
             writer.WriteDecimalValue("initialBalance", InitialBalance);
             writer.WriteBoolValue("isArchived", IsArchived);

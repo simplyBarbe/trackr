@@ -4,11 +4,6 @@
     <DialogContent>
         <MudForm @ref="_form">
             <MudStack Spacing="3">
-                @if (_currencyError is not null)
-                {
-                    <MudAlert Severity="Severity.Warning" Dense="true">@_currencyError</MudAlert>
-                }
-
                 <MudTextField T="string"
                               Label="Name"
                               Variant="Variant.Outlined"
@@ -42,15 +37,6 @@
                         </MudSelectItem>
                     }
                 </MudSelect>
-
-                <MudTextField T="string"
-                              Label="Currency"
-                              Variant="Variant.Outlined"
-                              Required="true"
-                              MaxLength="3"
-                              Immediate="true"
-                              Style="text-transform: uppercase;"
-                              @bind-Value="_currency" />
 
                 <MudNumericField T="decimal"
                                  Label="Initial balance"

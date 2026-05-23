@@ -46,7 +46,6 @@ public sealed class UpdateAccountHandler(AppDbContext db, IAccountBalanceService
         account.Name = request.Name;
         account.Type = request.Type;
         account.Color = request.Color;
-        account.Currency = request.Currency.ToUpperInvariant();
         account.InitialBalance = request.InitialBalance;
 
         try

@@ -17,10 +17,6 @@ public sealed class CreateAccountValidator : Validator<CreateAccountRequest>
         RuleFor(x => x.Color)
             .IsInEnum();
 
-        RuleFor(x => x.Currency)
-            .NotEmpty()
-            .Length(3);
-
         RuleFor(x => x.InitialBalance)
             .PrecisionScale(18, 2, true);
     }

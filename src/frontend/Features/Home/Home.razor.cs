@@ -1,3 +1,4 @@
+using frontend.Features.Shared;
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
@@ -56,10 +57,6 @@ public partial class Home : ComponentBase
         });
     }
 
-    private static string FormatBalance(AccountResponse account)
-    {
-        var balance = account.Balance ?? 0m;
-        var currency = account.Currency ?? "";
-        return string.IsNullOrEmpty(currency) ? balance.ToString() : $"{balance} {currency}";
-    }
+    private static string FormatBalance(AccountResponse account) =>
+        MoneyFormat.Format(account.Balance);
 }

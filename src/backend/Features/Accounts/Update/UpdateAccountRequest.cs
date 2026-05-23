@@ -12,7 +12,5 @@ public sealed class UpdateAccountRequest
 
     public AccountColor Color { get; set; } = AccountColor.Primary;
 
-    public string Currency { get; set; } = "EUR";
-
     public decimal InitialBalance { get; set; }
 }

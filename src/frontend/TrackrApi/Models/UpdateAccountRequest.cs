@@ -14,14 +14,6 @@ namespace Trackr.Api.Models
     {
         /// <summary>The color property</summary>
         public global::Trackr.Api.Models.AccountColor? Color { get; set; }
-        /// <summary>The currency property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? Currency { get; set; }
-#nullable restore
-#else
-        public string Currency { get; set; }
-#endif
         /// <summary>The initialBalance property</summary>
         public decimal? InitialBalance { get; set; }
         /// <summary>The name property</summary>
@@ -53,7 +45,6 @@ namespace Trackr.Api.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "color", n => { Color = n.GetEnumValue<global::Trackr.Api.Models.AccountColor>(); } },
-                { "currency", n => { Currency = n.GetStringValue(); } },
                 { "initialBalance", n => { InitialBalance = n.GetDecimalValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.AccountType>(); } },
@@ -67,7 +58,6 @@ namespace Trackr.Api.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteEnumValue<global::Trackr.Api.Models.AccountColor>("color", Color);
-            writer.WriteStringValue("currency", Currency);
             writer.WriteDecimalValue("initialBalance", InitialBalance);
             writer.WriteStringValue("name", Name);
             writer.WriteEnumValue<global::Trackr.Api.Models.AccountType>("type", Type);

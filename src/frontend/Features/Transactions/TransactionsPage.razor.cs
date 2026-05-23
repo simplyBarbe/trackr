@@ -1,3 +1,4 @@
+using frontend.Features.Shared;
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Kiota.Abstractions;
@@ -62,7 +63,7 @@ public partial class TransactionsPage : ComponentBase
         occurredOn?.ToString() ?? "";
 
     private static string FormatAmount(decimal? amount) =>
-        (amount ?? 0m).ToString();
+        MoneyFormat.Format(amount);
 
     private static string FormatAccount(TransactionResponse transaction)
     {
