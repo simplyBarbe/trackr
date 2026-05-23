@@ -38,6 +38,7 @@ public partial class TransactionsPage : ComponentBase
     private string _accountIdFilter = string.Empty;
     private string _categoryIdFilter = string.Empty;
     private string _typeFilter = string.Empty;
+    private string _priorityFilter = string.Empty;
     private Date? _fromFilter;
     private Date? _toFilter;
     private DateTime? _fromPicker;
@@ -141,6 +142,7 @@ public partial class TransactionsPage : ComponentBase
                         v => configuration.QueryParameters.AccountId = v,
                         v => configuration.QueryParameters.CategoryId = v,
                         v => configuration.QueryParameters.Type = v,
+                        v => configuration.QueryParameters.Priority = v,
                         v => configuration.QueryParameters.From = v,
                         v => configuration.QueryParameters.To = v);
                 },
@@ -178,6 +180,7 @@ public partial class TransactionsPage : ComponentBase
                     v => configuration.QueryParameters.AccountId = v,
                     v => configuration.QueryParameters.CategoryId = v,
                     v => configuration.QueryParameters.Type = v,
+                    v => configuration.QueryParameters.Priority = v,
                     v => configuration.QueryParameters.From = v,
                     v => configuration.QueryParameters.To = v);
             });
@@ -190,6 +193,7 @@ public partial class TransactionsPage : ComponentBase
         Action<string?> setAccountId,
         Action<string?> setCategoryId,
         Action<string?> setType,
+        Action<string?> setPriority,
         Action<Date?> setFrom,
         Action<Date?> setTo)
     {
@@ -201,6 +205,9 @@ public partial class TransactionsPage : ComponentBase
 
         if (!string.IsNullOrEmpty(_typeFilter))
             setType(_typeFilter);
+
+        if (!string.IsNullOrEmpty(_priorityFilter))
+            setPriority(_priorityFilter);
 
         if (_fromFilter is not null)
             setFrom(_fromFilter);
@@ -224,6 +231,12 @@ public partial class TransactionsPage : ComponentBase
     private async Task OnTypeFilterChanged(string value)
     {
         _typeFilter = value;
+        await ReloadFiltersAsync();
+    }
+
+    private async Task OnPriorityFilterChanged(string value)
+    {
+        _priorityFilter = value;
         await ReloadFiltersAsync();
     }
 
@@ -319,6 +332,7 @@ public partial class TransactionsPage : ComponentBase
                 AccountId = form.AccountId,
                 ToAccountId = form.ToAccountId,
                 CategoryId = form.CategoryId,
+                Priority = form.Priority,
                 Amount = form.Amount,
                 OccurredOn = form.OccurredOn,
                 Description = form.Description
@@ -347,6 +361,7 @@ public partial class TransactionsPage : ComponentBase
                 AccountId = form.AccountId,
                 ToAccountId = form.ToAccountId,
                 CategoryId = form.CategoryId,
+                Priority = form.Priority,
                 Amount = form.Amount,
                 OccurredOn = form.OccurredOn,
                 Description = form.Description

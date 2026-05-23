@@ -91,6 +91,23 @@
                     </MudItem>
                 }
 
+                @if (ShowPriority)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="ExpensePriority"
+                                   Label="Priority"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   FullWidth="true"
+                                   Value="_priority"
+                                   ValueChanged="@OnPriorityChanged">
+                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Essential">Essential</MudSelectItem>
+                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Important">Important</MudSelectItem>
+                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Discretionary">Discretionary</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                }
+
                 <MudItem xs="12" sm="6">
                     <MudDatePicker Label="Date"
                                    Variant="Variant.Outlined"

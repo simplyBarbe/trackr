@@ -11,6 +11,8 @@ public sealed class ListTransactionsRequest : PagedRequest
 
     public TransactionType? Type { get; set; }
 
+    public ExpensePriority? Priority { get; set; }
+
     public DateOnly? From { get; set; }
 
     public DateOnly? To { get; set; }

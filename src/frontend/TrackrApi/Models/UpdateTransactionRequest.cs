@@ -41,6 +41,8 @@ namespace Trackr.Api.Models
 #endif
         /// <summary>The occurredOn property</summary>
         public Date? OccurredOn { get; set; }
+        /// <summary>The priority property</summary>
+        public global::Trackr.Api.Models.ExpensePriority? Priority { get; set; }
         /// <summary>The toAccountId property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -74,6 +76,7 @@ namespace Trackr.Api.Models
                 { "categoryId", n => { CategoryId = n.GetStringValue(); } },
                 { "description", n => { Description = n.GetStringValue(); } },
                 { "occurredOn", n => { OccurredOn = n.GetDateValue(); } },
+                { "priority", n => { Priority = n.GetEnumValue<global::Trackr.Api.Models.ExpensePriority>(); } },
                 { "toAccountId", n => { ToAccountId = n.GetStringValue(); } },
                 { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.TransactionType>(); } },
             };
@@ -90,6 +93,7 @@ namespace Trackr.Api.Models
             writer.WriteStringValue("categoryId", CategoryId);
             writer.WriteStringValue("description", Description);
             writer.WriteDateValue("occurredOn", OccurredOn);
+            writer.WriteEnumValue<global::Trackr.Api.Models.ExpensePriority>("priority", Priority);
             writer.WriteStringValue("toAccountId", ToAccountId);
             writer.WriteEnumValue<global::Trackr.Api.Models.TransactionType>("type", Type);
         }

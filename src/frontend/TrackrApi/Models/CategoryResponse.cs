@@ -40,6 +40,8 @@ namespace Trackr.Api.Models
 #else
         public global::Trackr.Api.Models.CategorySummary Parent { get; set; }
 #endif
+        /// <summary>The priority property</summary>
+        public global::Trackr.Api.Models.ExpensePriority? Priority { get; set; }
         /// <summary>The sortOrder property</summary>
         public int? SortOrder { get; set; }
         /// <summary>
@@ -65,6 +67,7 @@ namespace Trackr.Api.Models
                 { "kind", n => { Kind = n.GetEnumValue<global::Trackr.Api.Models.CategoryKind>(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "parent", n => { Parent = n.GetObjectValue<global::Trackr.Api.Models.CategorySummary>(global::Trackr.Api.Models.CategorySummary.CreateFromDiscriminatorValue); } },
+                { "priority", n => { Priority = n.GetEnumValue<global::Trackr.Api.Models.ExpensePriority>(); } },
                 { "sortOrder", n => { SortOrder = n.GetIntValue(); } },
             };
         }
@@ -80,6 +83,7 @@ namespace Trackr.Api.Models
             writer.WriteEnumValue<global::Trackr.Api.Models.CategoryKind>("kind", Kind);
             writer.WriteStringValue("name", Name);
             writer.WriteObjectValue<global::Trackr.Api.Models.CategorySummary>("parent", Parent);
+            writer.WriteEnumValue<global::Trackr.Api.Models.ExpensePriority>("priority", Priority);
             writer.WriteIntValue("sortOrder", SortOrder);
         }
     }

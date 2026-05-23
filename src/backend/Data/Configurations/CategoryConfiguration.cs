@@ -21,6 +21,11 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasMaxLength(16)
             .IsRequired();
 
+        builder.Property(c => c.Priority)
+            .HasConversion<string>()
+            .HasMaxLength(16)
+            .IsRequired();
+
         builder.HasOne(c => c.Parent)
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentId)

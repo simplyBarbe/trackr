@@ -34,6 +34,7 @@ public sealed class UpdateCategoryHandler(AppDbContext db)
 
         category.Name = request.Name;
         category.Kind = request.Kind;
+        category.Priority = request.Priority;
         category.ParentId = request.ParentId;
         category.SortOrder = request.SortOrder;
 

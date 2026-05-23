@@ -1,5 +1,6 @@
 using backend.Common.Results;
 using backend.Data;
+using backend.Data.Entities;
 using backend.Data.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -92,4 +93,14 @@ public static class TransactionRules
 
         return Result.Success();
     }
+
+    public static ExpensePriority? ResolvePriority(
+        TransactionType type,
+        ExpensePriority? requestPriority,
+        Category? category) =>
+        type switch
+        {
+            TransactionType.Expense => requestPriority ?? category?.Priority ?? ExpensePriority.Discretionary,
+            _ => null
+        };
 }

@@ -41,7 +41,7 @@ namespace Trackr.Api.Api.Transactions
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public TransactionsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions?page={page}&pageSize={pageSize}{&accountId*,categoryId*,from*,to*,type*}", pathParameters)
+        public TransactionsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions?page={page}&pageSize={pageSize}{&accountId*,categoryId*,from*,priority*,to*,type*}", pathParameters)
         {
         }
         /// <summary>
@@ -49,7 +49,7 @@ namespace Trackr.Api.Api.Transactions
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public TransactionsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions?page={page}&pageSize={pageSize}{&accountId*,categoryId*,from*,to*,type*}", rawUrl)
+        public TransactionsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions?page={page}&pageSize={pageSize}{&accountId*,categoryId*,from*,priority*,to*,type*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.ListTransactionsResponse"/></returns>
@@ -167,6 +167,15 @@ namespace Trackr.Api.Api.Transactions
             public int? Page { get; set; }
             [QueryParameter("pageSize")]
             public int? PageSize { get; set; }
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            [QueryParameter("priority")]
+            public string? Priority { get; set; }
+#nullable restore
+#else
+            [QueryParameter("priority")]
+            public string Priority { get; set; }
+#endif
             [QueryParameter("to")]
             public Date? To { get; set; }
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER

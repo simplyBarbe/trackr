@@ -28,6 +28,8 @@ public partial class TransactionFormDialog : ComponentBase
     private string _accountId = string.Empty;
     private string _toAccountId = string.Empty;
     private string _categoryId = string.Empty;
+    private ExpensePriority _priority = ExpensePriority.Discretionary;
+    private bool _priorityManuallySet;
     private decimal _amount;
     private DateTime? _occurredPicker = DateTime.Today;
     private string _description = string.Empty;
@@ -56,17 +58,25 @@ public partial class TransactionFormDialog : ComponentBase
 
     private bool ShowCategory => _type is TransactionType.Income or TransactionType.Expense;
 
+    private bool ShowPriority => _type == TransactionType.Expense;
+
     protected override void OnParametersSet()
     {
         _formError = null;
 
         if (Transaction is null)
+        {
+            _priorityManuallySet = false;
+            _priority = ExpensePriority.Discretionary;
             return;
+        }
 
         _type = Transaction.Type ?? TransactionType.Expense;
         _accountId = Transaction.AccountId ?? string.Empty;
         _toAccountId = Transaction.ToAccountId ?? string.Empty;
         _categoryId = Transaction.CategoryId ?? string.Empty;
+        _priority = Transaction.Priority ?? ExpensePriority.Discretionary;
+        _priorityManuallySet = Transaction.Priority is not null;
         _amount = Transaction.Amount ?? 0m;
         _occurredPicker = FromApiDate(Transaction.OccurredOn) ?? DateTime.Today;
         _description = Transaction.Description ?? string.Empty;
@@ -79,6 +89,7 @@ public partial class TransactionFormDialog : ComponentBase
         if (type == TransactionType.Transfer)
         {
             _categoryId = string.Empty;
+            _priorityManuallySet = false;
             if (_toAccountId == _accountId)
                 _toAccountId = string.Empty;
             return;
@@ -88,6 +99,12 @@ public partial class TransactionFormDialog : ComponentBase
 
         if (!CategoryOptions.Any(c => c.Id == _categoryId))
             _categoryId = string.Empty;
+
+        if (type == TransactionType.Expense)
+        {
+            _priorityManuallySet = false;
+            ApplyCategoryPriority();
+        }
     }
 
     private void OnAccountIdChanged(string accountId)
@@ -99,7 +116,24 @@ public partial class TransactionFormDialog : ComponentBase
 
     private void OnToAccountIdChanged(string toAccountId) => _toAccountId = toAccountId;
 
-    private void OnCategoryIdChanged(string categoryId) => _categoryId = categoryId;
+    private void OnCategoryIdChanged(string categoryId)
+    {
+        _categoryId = categoryId;
+        if (!_priorityManuallySet)
+            ApplyCategoryPriority();
+    }
+
+    private void OnPriorityChanged(ExpensePriority priority)
+    {
+        _priority = priority;
+        _priorityManuallySet = true;
+    }
+
+    private void ApplyCategoryPriority()
+    {
+        var category = CategoryOptions.FirstOrDefault(c => c.Id == _categoryId);
+        _priority = category?.Priority ?? ExpensePriority.Discretionary;
+    }
 
     private async Task SubmitAsync()
     {
@@ -132,6 +166,7 @@ public partial class TransactionFormDialog : ComponentBase
 
         string? toAccountId = null;
         string? categoryId = null;
+        ExpensePriority? priority = null;
 
         switch (_type)
         {
@@ -154,6 +189,8 @@ public partial class TransactionFormDialog : ComponentBase
             case TransactionType.Income:
             case TransactionType.Expense:
                 categoryId = string.IsNullOrWhiteSpace(_categoryId) ? null : _categoryId;
+                if (_type == TransactionType.Expense)
+                    priority = _priority;
                 break;
         }
 
@@ -164,6 +201,7 @@ public partial class TransactionFormDialog : ComponentBase
             _accountId,
             toAccountId,
             categoryId,
+            priority,
             _amount,
             occurredOn,
             description);
@@ -191,6 +229,7 @@ public sealed record TransactionFormResult(
     string AccountId,
     string? ToAccountId,
     string? CategoryId,
+    ExpensePriority? Priority,
     decimal Amount,
     Date OccurredOn,
     string? Description);

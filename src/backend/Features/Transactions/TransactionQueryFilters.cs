@@ -10,6 +10,7 @@ public static class TransactionQueryFilters
         Guid? accountId,
         Guid? categoryId,
         TransactionType? type,
+        ExpensePriority? priority,
         DateOnly? from,
         DateOnly? to)
     {
@@ -24,6 +25,9 @@ public static class TransactionQueryFilters
 
         if (type is not null)
             query = query.Where(t => t.Type == type);
+
+        if (priority is not null)
+            query = query.Where(t => t.Priority == priority);
 
         if (from is not null)
             query = query.Where(t => t.OccurredOn >= from);

@@ -22,7 +22,7 @@ namespace Trackr.Api.Api.Transactions.Summary
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public SummaryRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions/summary{?accountId*,categoryId*,from*,to*,type*}", pathParameters)
+        public SummaryRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions/summary{?accountId*,categoryId*,from*,priority*,to*,type*}", pathParameters)
         {
         }
         /// <summary>
@@ -30,7 +30,7 @@ namespace Trackr.Api.Api.Transactions.Summary
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public SummaryRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions/summary{?accountId*,categoryId*,from*,to*,type*}", rawUrl)
+        public SummaryRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/api/transactions/summary{?accountId*,categoryId*,from*,priority*,to*,type*}", rawUrl)
         {
         }
         /// <returns>A <see cref="global::Trackr.Api.Models.GetTransactionSummaryResponse"/></returns>
@@ -103,6 +103,15 @@ namespace Trackr.Api.Api.Transactions.Summary
 #endif
             [QueryParameter("from")]
             public Date? From { get; set; }
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            [QueryParameter("priority")]
+            public string? Priority { get; set; }
+#nullable restore
+#else
+            [QueryParameter("priority")]
+            public string Priority { get; set; }
+#endif
             [QueryParameter("to")]
             public Date? To { get; set; }
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER

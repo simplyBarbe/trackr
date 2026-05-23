@@ -14,6 +14,8 @@ public sealed class UpdateTransactionRequest
 
     public Guid? CategoryId { get; set; }
 
+    public ExpensePriority? Priority { get; set; }
+
     public decimal Amount { get; set; }
 
     public DateOnly OccurredOn { get; set; }

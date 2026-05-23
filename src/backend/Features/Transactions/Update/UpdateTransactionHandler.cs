@@ -1,6 +1,7 @@
 using backend.Application.Rules;
 using backend.Common.Results;
 using backend.Data;
+using backend.Data.Entities;
 using backend.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,10 +34,19 @@ public sealed class UpdateTransactionHandler(AppDbContext db)
         if (!validation.IsSuccess)
             return Result<TransactionResponse>.Failure(validation.Error!);
 
+        Category? category = null;
+        if (request.CategoryId is not null)
+        {
+            category = await db.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == request.CategoryId, cancellationToken);
+        }
+
         transaction.Type = request.Type;
         transaction.AccountId = request.AccountId;
         transaction.ToAccountId = request.ToAccountId;
         transaction.CategoryId = request.CategoryId;
+        transaction.Priority = TransactionRules.ResolvePriority(request.Type, request.Priority, category);
         transaction.Amount = request.Amount;
         transaction.OccurredOn = request.OccurredOn;
         transaction.Description = request.Description;

@@ -30,6 +30,7 @@ public sealed class CreateCategoryHandler(AppDbContext db)
             Id = categoryId,
             Name = request.Name,
             Kind = request.Kind,
+            Priority = request.Priority,
             ParentId = request.ParentId,
             SortOrder = request.SortOrder
         };

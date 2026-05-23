@@ -1,5 +1,6 @@
 @page "/transactions"
 @using Trackr.Api.Models
+@using frontend.Features.Shared
 
 <PageTitle>Transactions</PageTitle>
 
@@ -94,6 +95,22 @@
             </MudSelect>
         </MudItem>
 
+        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+            <MudSelect T="string"
+                       Label="Priority"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       FullWidth="true"
+                       Value="_priorityFilter"
+                       ValueChanged="@OnPriorityFilterChanged"
+                       Clearable="true">
+                <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Essential")">Essential</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Important")">Important</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Discretionary")">Discretionary</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+
         <MudItem xs="12" sm="6">
             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start" Style="flex-wrap: nowrap;">
                 <MudDatePicker Label="From"
@@ -121,7 +138,7 @@
 }
 
 <MudGrid Class="mb-4" Spacing="2">
-    <MudItem xs="12" sm="6">
+    <MudItem xs="12" sm="6" md="3">
         <MudCard Elevation="2">
             <MudCardContent>
                 <MudText Typo="Typo.subtitle2" Class="mb-1">Income</MudText>
@@ -142,10 +159,10 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-    <MudItem xs="12" sm="6">
+    <MudItem xs="12" sm="6" md="3">
         <MudCard Elevation="2">
             <MudCardContent>
-                <MudText Typo="Typo.subtitle2" Class="mb-1">Expense</MudText>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Essential</MudText>
                 @if (_summaryQuery.IsLoading && !_summaryQuery.HasData)
                 {
                     <MudProgressLinear Indeterminate="true" Class="mt-2" />
@@ -153,7 +170,49 @@
                 else
                 {
                     <MudText Typo="Typo.h5" Color="Color.Error">
-                        @FormatAmount(_summaryQuery.Data?.TotalExpense)
+                        @FormatAmount(_summaryQuery.Data?.TotalEssentialExpense)
+                    </MudText>
+                    @if (_summaryQuery.IsFetching)
+                    {
+                        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Important</MudText>
+                @if (_summaryQuery.IsLoading && !_summaryQuery.HasData)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5" Color="Color.Warning">
+                        @FormatAmount(_summaryQuery.Data?.TotalImportantExpense)
+                    </MudText>
+                    @if (_summaryQuery.IsFetching)
+                    {
+                        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Discretionary</MudText>
+                @if (_summaryQuery.IsLoading && !_summaryQuery.HasData)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">
+                        @FormatAmount(_summaryQuery.Data?.TotalDiscretionaryExpense)
                     </MudText>
                     @if (_summaryQuery.IsFetching)
                     {
@@ -179,6 +238,7 @@
         <MudTh>Type</MudTh>
         <MudTh>Account</MudTh>
         <MudTh>Category</MudTh>
+        <MudTh>Priority</MudTh>
         <MudTh>Amount</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Created</MudTh>
@@ -189,6 +249,20 @@
         <MudTd DataLabel="Type">@(context.Type?.ToString() ?? "")</MudTd>
         <MudTd DataLabel="Account">@FormatAccount(context)</MudTd>
         <MudTd DataLabel="Category">@(string.IsNullOrEmpty(context.CategoryName) ? "—" : context.CategoryName)</MudTd>
+        <MudTd DataLabel="Priority">
+            @if (context.Type == TransactionType.Expense && context.Priority is not null)
+            {
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@ExpensePriorityFormat.GetChipColor(context.Priority)">
+                    @ExpensePriorityFormat.GetLabel(context.Priority)
+                </MudChip>
+            }
+            else
+            {
+                <text>—</text>
+            }
+        </MudTd>
         <MudTd DataLabel="Amount">@FormatAmount(context.Amount)</MudTd>
         <MudTd DataLabel="Description">@(context.Description ?? "")</MudTd>
         <MudTd DataLabel="Created">@FormatCreatedAt(context.CreatedAt)</MudTd>

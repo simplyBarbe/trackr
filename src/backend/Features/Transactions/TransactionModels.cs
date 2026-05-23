@@ -13,6 +13,7 @@ public sealed record TransactionResponse(
     string? ToAccountName,
     Guid? CategoryId,
     string? CategoryName,
+    ExpensePriority? Priority,
     decimal Amount,
     DateOnly OccurredOn,
     string? Description,
@@ -25,7 +26,12 @@ public sealed record ListTransactionsResponse(
     int TotalCount)
     : PagedResponse<TransactionResponse>(Items, Page, PageSize, TotalCount);
 
-public sealed record GetTransactionSummaryResponse(decimal TotalIncome, decimal TotalExpense);
+public sealed record GetTransactionSummaryResponse(
+    decimal TotalIncome,
+    decimal TotalExpense,
+    decimal TotalEssentialExpense,
+    decimal TotalImportantExpense,
+    decimal TotalDiscretionaryExpense);
 
 public static class TransactionMapping
 {
@@ -39,6 +45,7 @@ public static class TransactionMapping
             transaction.ToAccount?.Name,
             transaction.CategoryId,
             transaction.Category?.Name,
+            transaction.Priority,
             transaction.Amount,
             transaction.OccurredOn,
             transaction.Description,

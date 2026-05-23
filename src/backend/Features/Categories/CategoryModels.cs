@@ -10,6 +10,7 @@ public sealed record CategoryResponse(
     Guid Id,
     string Name,
     CategoryKind Kind,
+    ExpensePriority Priority,
     CategorySummary? Parent,
     int SortOrder,
     bool IsArchived);
@@ -28,6 +29,7 @@ public static class CategoryMapping
             category.Id,
             category.Name,
             category.Kind,
+            category.Priority,
             category.ParentId is null
                 ? null
                 : new CategorySummary(category.ParentId.Value, category.Parent!.Name),

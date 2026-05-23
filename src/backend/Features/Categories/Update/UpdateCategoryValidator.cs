@@ -15,5 +15,8 @@ public sealed class UpdateCategoryValidator : Validator<UpdateCategoryRequest>
 
         RuleFor(x => x.Kind)
             .IsInEnum();
+
+        RuleFor(x => x.Priority)
+            .IsInEnum();
     }
 }

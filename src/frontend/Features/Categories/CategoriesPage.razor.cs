@@ -161,6 +161,7 @@ public partial class CategoriesPage : ComponentBase
             {
                 Name = form.Name,
                 Kind = form.Kind,
+                Priority = form.Priority,
                 ParentId = form.ParentId,
                 SortOrder = form.SortOrder
             };
@@ -187,6 +188,7 @@ public partial class CategoriesPage : ComponentBase
             {
                 Name = form.Name,
                 Kind = form.Kind,
+                Priority = form.Priority,
                 ParentId = form.ParentId,
                 SortOrder = form.SortOrder
             };

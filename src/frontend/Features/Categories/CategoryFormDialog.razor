@@ -21,6 +21,19 @@
                     <MudSelectItem T="CategoryKind" Value="CategoryKind.Expense">Expense</MudSelectItem>
                 </MudSelect>
 
+                @if (_kind == CategoryKind.Expense)
+                {
+                    <MudSelect T="ExpensePriority"
+                               Label="Priority"
+                               Variant="Variant.Outlined"
+                               Value="_priority"
+                               ValueChanged="@OnPriorityChanged">
+                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Essential">Essential</MudSelectItem>
+                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Important">Important</MudSelectItem>
+                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Discretionary">Discretionary</MudSelectItem>
+                    </MudSelect>
+                }
+
                 <MudSelect T="string"
                            Label="Parent"
                            Variant="Variant.Outlined"

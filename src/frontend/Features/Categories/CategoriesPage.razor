@@ -1,5 +1,6 @@
 @page "/categories"
 @using Trackr.Api.Models
+@using frontend.Features.Shared
 
 <PageTitle>Categories</PageTitle>
 
@@ -63,6 +64,7 @@
     <HeaderContent>
         <MudTh>Name</MudTh>
         <MudTh>Kind</MudTh>
+        <MudTh>Priority</MudTh>
         <MudTh>Parent</MudTh>
         <MudTh>Sort order</MudTh>
         <MudTh>Archived</MudTh>
@@ -71,6 +73,20 @@
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Kind">@(context.Kind?.ToString() ?? "")</MudTd>
+        <MudTd DataLabel="Priority">
+            @if (context.Kind == CategoryKind.Expense && context.Priority is not null)
+            {
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@ExpensePriorityFormat.GetChipColor(context.Priority)">
+                    @ExpensePriorityFormat.GetLabel(context.Priority)
+                </MudChip>
+            }
+            else
+            {
+                <text>—</text>
+            }
+        </MudTd>
         <MudTd DataLabel="Parent">@(context.Parent?.Name is { Length: > 0 } name ? name : "—")</MudTd>
         <MudTd DataLabel="Sort order">@context.SortOrder</MudTd>
         <MudTd DataLabel="Archived">

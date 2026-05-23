@@ -13,5 +13,8 @@ public sealed class CreateCategoryValidator : Validator<CreateCategoryRequest>
 
         RuleFor(x => x.Kind)
             .IsInEnum();
+
+        RuleFor(x => x.Priority)
+            .IsInEnum();
     }
 }

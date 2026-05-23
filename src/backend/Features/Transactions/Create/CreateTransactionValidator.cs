@@ -12,5 +12,9 @@ public sealed class CreateTransactionValidator : Validator<CreateTransactionRequ
         RuleFor(x => x.Amount).GreaterThan(0).PrecisionScale(18, 2, true);
         RuleFor(x => x.OccurredOn).NotEmpty();
         RuleFor(x => x.Description).MaximumLength(500);
+
+        RuleFor(x => x.Priority)
+            .IsInEnum()
+            .When(x => x.Priority is not null);
     }
 }

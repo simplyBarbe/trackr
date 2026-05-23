@@ -20,6 +20,7 @@ public sealed class ListTransactionsHandler(AppDbContext db)
                 request.AccountId,
                 request.CategoryId,
                 request.Type,
+                request.Priority,
                 request.From,
                 request.To);
 

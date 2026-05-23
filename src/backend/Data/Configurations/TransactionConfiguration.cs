@@ -17,6 +17,10 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
             .HasMaxLength(16)
             .IsRequired();
 
+        builder.Property(t => t.Priority)
+            .HasConversion<string>()
+            .HasMaxLength(16);
+
         builder.Property(t => t.Amount)
             .HasPrecision(18, 2);
 

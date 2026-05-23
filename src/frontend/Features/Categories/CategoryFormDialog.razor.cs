@@ -21,6 +21,7 @@ public partial class CategoryFormDialog : ComponentBase
     private MudForm? _form;
     private string _name = string.Empty;
     private CategoryKind _kind = CategoryKind.Expense;
+    private ExpensePriority _priority = ExpensePriority.Discretionary;
     private string _parentId = string.Empty;
     private int _sortOrder;
 
@@ -38,6 +39,7 @@ public partial class CategoryFormDialog : ComponentBase
 
         _name = Category.Name ?? string.Empty;
         _kind = Category.Kind ?? CategoryKind.Expense;
+        _priority = Category.Priority ?? ExpensePriority.Discretionary;
         _parentId = Category.Parent?.Id ?? string.Empty;
         _sortOrder = Category.SortOrder ?? 0;
     }
@@ -48,6 +50,8 @@ public partial class CategoryFormDialog : ComponentBase
         if (!ParentOptions.Any(c => c.Id == _parentId))
             _parentId = string.Empty;
     }
+
+    private void OnPriorityChanged(ExpensePriority priority) => _priority = priority;
 
     private void OnParentIdChanged(string parentId)
     {
@@ -66,6 +70,7 @@ public partial class CategoryFormDialog : ComponentBase
         var result = new CategoryFormResult(
             _name.Trim(),
             _kind,
+            _priority,
             string.IsNullOrWhiteSpace(_parentId) ? null : _parentId,
             _sortOrder);
 
@@ -81,5 +86,6 @@ public partial class CategoryFormDialog : ComponentBase
 public sealed record CategoryFormResult(
     string Name,
     CategoryKind Kind,
+    ExpensePriority Priority,
     string? ParentId,
     int SortOrder);

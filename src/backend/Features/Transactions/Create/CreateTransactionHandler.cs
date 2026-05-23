@@ -3,8 +3,8 @@ using backend.Common.Results;
 using backend.Data;
 using backend.Data.Entities;
 using backend.Features.Transactions;
-using Transaction = backend.Data.Entities.Transaction;
 using Microsoft.EntityFrameworkCore;
+using Transaction = backend.Data.Entities.Transaction;
 
 namespace backend.Features.Transactions.Create;
 
@@ -26,6 +26,14 @@ public sealed class CreateTransactionHandler(AppDbContext db)
         if (!validation.IsSuccess)
             return Result<TransactionResponse>.Failure(validation.Error!);
 
+        Category? category = null;
+        if (request.CategoryId is not null)
+        {
+            category = await db.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == request.CategoryId, cancellationToken);
+        }
+
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
@@ -33,6 +41,7 @@ public sealed class CreateTransactionHandler(AppDbContext db)
             AccountId = request.AccountId,
             ToAccountId = request.ToAccountId,
             CategoryId = request.CategoryId,
+            Priority = TransactionRules.ResolvePriority(request.Type, request.Priority, category),
             Amount = request.Amount,
             OccurredOn = request.OccurredOn,
             Description = request.Description,

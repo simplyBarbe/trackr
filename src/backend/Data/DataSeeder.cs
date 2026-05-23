@@ -82,6 +82,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Housing",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Essential,
             SortOrder = 1
         };
 
@@ -90,6 +91,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Food",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Important,
             SortOrder = 2
         };
 
@@ -98,6 +100,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Groceries",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Important,
             ParentId = food.Id,
             SortOrder = 1
         };
@@ -107,6 +110,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Dining Out",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Discretionary,
             ParentId = food.Id,
             SortOrder = 2
         };
@@ -116,6 +120,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Transport",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Important,
             SortOrder = 3
         };
 
@@ -124,6 +129,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Id = Guid.NewGuid(),
             Name = "Utilities",
             Kind = CategoryKind.Expense,
+            Priority = ExpensePriority.Essential,
             SortOrder = 4
         };
 
@@ -132,23 +138,23 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
 
         db.Transactions.AddRange(
             Income(checking.Id, salary.Id, 3_200m, today.AddMonths(-2), "January salary", now),
-            Expense(checking.Id, housing.Id, 950m, today.AddMonths(-2).AddDays(2), "Rent", now),
-            Expense(checking.Id, groceries.Id, 142.50m, today.AddMonths(-2).AddDays(5), "Supermarket", now),
-            Expense(wallet.Id, diningOut.Id, 28m, today.AddMonths(-2).AddDays(8), "Lunch", now),
+            Expense(checking.Id, housing.Id, housing.Priority, 950m, today.AddMonths(-2).AddDays(2), "Rent", now),
+            Expense(checking.Id, groceries.Id, groceries.Priority, 142.50m, today.AddMonths(-2).AddDays(5), "Supermarket", now),
+            Expense(wallet.Id, diningOut.Id, diningOut.Priority, 28m, today.AddMonths(-2).AddDays(8), "Lunch", now),
             Transfer(checking.Id, savings.Id, 500m, today.AddMonths(-2).AddDays(10), "Monthly savings", now),
 
             Income(checking.Id, salary.Id, 3_200m, today.AddMonths(-1), "February salary", now),
-            Expense(checking.Id, housing.Id, 950m, today.AddMonths(-1).AddDays(1), "Rent", now),
-            Expense(checking.Id, utilities.Id, 89.20m, today.AddMonths(-1).AddDays(4), "Electricity", now),
-            Expense(creditCard.Id, transport.Id, 45m, today.AddMonths(-1).AddDays(6), "Transit pass", now),
-            Expense(checking.Id, groceries.Id, 118.30m, today.AddMonths(-1).AddDays(12), "Supermarket", now),
+            Expense(checking.Id, housing.Id, housing.Priority, 950m, today.AddMonths(-1).AddDays(1), "Rent", now),
+            Expense(checking.Id, utilities.Id, utilities.Priority, 89.20m, today.AddMonths(-1).AddDays(4), "Electricity", now),
+            Expense(creditCard.Id, transport.Id, transport.Priority, 45m, today.AddMonths(-1).AddDays(6), "Transit pass", now),
+            Expense(checking.Id, groceries.Id, groceries.Priority, 118.30m, today.AddMonths(-1).AddDays(12), "Supermarket", now),
             Transfer(checking.Id, creditCard.Id, 320m, today.AddMonths(-1).AddDays(15), "Card payment", now),
 
             Income(checking.Id, salary.Id, 3_200m, today.AddDays(-14), "March salary", now),
             Income(checking.Id, freelance.Id, 450m, today.AddDays(-10), "Side project", now),
-            Expense(checking.Id, housing.Id, 950m, today.AddDays(-12), "Rent", now),
-            Expense(checking.Id, diningOut.Id, 62m, today.AddDays(-7), "Dinner with friends", now),
-            Expense(wallet.Id, transport.Id, 12.50m, today.AddDays(-3), "Taxi", now),
+            Expense(checking.Id, housing.Id, housing.Priority, 950m, today.AddDays(-12), "Rent", now),
+            Expense(checking.Id, diningOut.Id, diningOut.Priority, 62m, today.AddDays(-7), "Dinner with friends", now),
+            Expense(wallet.Id, transport.Id, transport.Priority, 12.50m, today.AddDays(-3), "Taxi", now),
             Transfer(checking.Id, savings.Id, 500m, today.AddDays(-1), "Monthly savings", now));
 
         await db.SaveChangesAsync(cancellationToken);
@@ -177,6 +183,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
     private static Transaction Expense(
         Guid accountId,
         Guid categoryId,
+        ExpensePriority priority,
         decimal amount,
         DateOnly occurredOn,
         string description,
@@ -187,6 +194,7 @@ public sealed class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
             Type = TransactionType.Expense,
             AccountId = accountId,
             CategoryId = categoryId,
+            Priority = priority,
             Amount = amount,
             OccurredOn = occurredOn,
             Description = description,

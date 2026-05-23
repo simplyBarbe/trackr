@@ -12,8 +12,14 @@ namespace Trackr.Api.Models
     public partial class GetTransactionSummaryResponse : IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>The totalDiscretionaryExpense property</summary>
+        public decimal? TotalDiscretionaryExpense { get; set; }
+        /// <summary>The totalEssentialExpense property</summary>
+        public decimal? TotalEssentialExpense { get; set; }
         /// <summary>The totalExpense property</summary>
         public decimal? TotalExpense { get; set; }
+        /// <summary>The totalImportantExpense property</summary>
+        public decimal? TotalImportantExpense { get; set; }
         /// <summary>The totalIncome property</summary>
         public decimal? TotalIncome { get; set; }
         /// <summary>
@@ -34,7 +40,10 @@ namespace Trackr.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "totalDiscretionaryExpense", n => { TotalDiscretionaryExpense = n.GetDecimalValue(); } },
+                { "totalEssentialExpense", n => { TotalEssentialExpense = n.GetDecimalValue(); } },
                 { "totalExpense", n => { TotalExpense = n.GetDecimalValue(); } },
+                { "totalImportantExpense", n => { TotalImportantExpense = n.GetDecimalValue(); } },
                 { "totalIncome", n => { TotalIncome = n.GetDecimalValue(); } },
             };
         }
@@ -45,7 +54,10 @@ namespace Trackr.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
+            writer.WriteDecimalValue("totalDiscretionaryExpense", TotalDiscretionaryExpense);
+            writer.WriteDecimalValue("totalEssentialExpense", TotalEssentialExpense);
             writer.WriteDecimalValue("totalExpense", TotalExpense);
+            writer.WriteDecimalValue("totalImportantExpense", TotalImportantExpense);
             writer.WriteDecimalValue("totalIncome", TotalIncome);
         }
     }
