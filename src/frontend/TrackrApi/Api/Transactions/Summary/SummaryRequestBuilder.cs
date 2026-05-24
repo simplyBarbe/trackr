@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Trackr.Api.Api.Transactions.Summary.ExpensesByCategory;
 using Trackr.Api.Models;
 namespace Trackr.Api.Api.Transactions.Summary
 {
@@ -17,6 +18,11 @@ namespace Trackr.Api.Api.Transactions.Summary
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class SummaryRequestBuilder : BaseRequestBuilder
     {
+        /// <summary>The expensesByCategory property</summary>
+        public global::Trackr.Api.Api.Transactions.Summary.ExpensesByCategory.ExpensesByCategoryRequestBuilder ExpensesByCategory
+        {
+            get => new global::Trackr.Api.Api.Transactions.Summary.ExpensesByCategory.ExpensesByCategoryRequestBuilder(PathParameters, RequestAdapter);
+        }
         /// <summary>
         /// Instantiates a new <see cref="global::Trackr.Api.Api.Transactions.Summary.SummaryRequestBuilder"/> and sets the default values.
         /// </summary>

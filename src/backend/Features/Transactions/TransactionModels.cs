@@ -33,6 +33,14 @@ public sealed record GetTransactionSummaryResponse(
     decimal TotalImportantExpense,
     decimal TotalDiscretionaryExpense);
 
+public sealed record ExpenseByCategoryItem(
+    Guid? CategoryId,
+    string CategoryName,
+    decimal TotalAmount);
+
+public sealed record GetExpensesByCategoryResponse(
+    IReadOnlyList<ExpenseByCategoryItem> Items);
+
 public static class TransactionMapping
 {
     public static TransactionResponse ToResponse(Transaction transaction) =>

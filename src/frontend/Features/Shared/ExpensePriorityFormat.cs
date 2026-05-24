@@ -22,4 +22,14 @@ public static class ExpensePriorityFormat
             ExpensePriority.Discretionary => Color.Default,
             _ => Color.Default
         };
+
+    /// <summary>Hex colors for charts; aligned with <see cref="GetChipColor"/> (Error / Warning / Default).</summary>
+    public static string GetChartColor(ExpensePriority priority) =>
+        priority switch
+        {
+            ExpensePriority.Essential => Colors.Red.Default,
+            ExpensePriority.Important => Colors.Orange.Default,
+            ExpensePriority.Discretionary => Colors.Gray.Default,
+            _ => Colors.Gray.Lighten1
+        };
 }
