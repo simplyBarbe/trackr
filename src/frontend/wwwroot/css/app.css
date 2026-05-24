@@ -1,5 +1,238 @@
 html, body {
-    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Financial figures — tabular alignment */
+.font-mono-numbers {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+/* Glass surfaces — use Mud palette so light/dark stay in sync */
+.trackr-glass {
+    background-color: var(--mud-palette-appbar-background) !important;
+    color: var(--mud-palette-appbar-text) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--mud-palette-divider) !important;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--mud-palette-text-primary) 6%, transparent);
+}
+
+.trackr-drawer-glass {
+    background-color: var(--mud-palette-drawer-background) !important;
+    color: var(--mud-palette-drawer-text) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid var(--mud-palette-divider) !important;
+    box-shadow: none !important;
+}
+
+.trackr-drawer-glass .mud-nav-link {
+    color: var(--mud-palette-drawer-text);
+}
+
+.trackr-drawer-glass .mud-nav-link .mud-icon-root {
+    color: var(--mud-palette-drawer-icon);
+}
+
+/* Bento / metric tiles */
+.trackr-metric-tile {
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 1rem;
+    background: var(--mud-palette-surface);
+    box-shadow: 0 20px 40px -15px color-mix(in srgb, var(--mud-palette-black) 6%, transparent);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trackr-metric-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 48px -12px color-mix(in srgb, var(--mud-palette-black) 10%, transparent);
+}
+
+.trackr-metric-tile:active {
+    transform: translateY(0) scale(0.995);
+}
+
+.trackr-metric-tile--featured {
+    border-left: 4px solid var(--mud-palette-primary);
+}
+
+.trackr-metric-tile--income {
+    border-left: 4px solid var(--mud-palette-success);
+}
+
+.trackr-metric-tile--essential {
+    border-left: 4px solid var(--mud-palette-error);
+}
+
+.trackr-metric-tile--important {
+    border-left: 4px solid var(--mud-palette-warning);
+}
+
+.trackr-metric-tile--discretionary {
+    border-left: 4px solid var(--mud-palette-text-secondary);
+}
+
+/* Account balance cards */
+.trackr-account-card {
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 1rem;
+    background: var(--mud-palette-surface);
+    box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--mud-palette-black) 6%, transparent);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trackr-account-card:hover {
+    transform: translateY(-2px);
+}
+
+.trackr-account-card:active {
+    transform: scale(0.99);
+}
+
+/* Chart / content panels */
+.trackr-panel {
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 1.25rem;
+    background: var(--mud-palette-surface);
+    box-shadow: 0 20px 40px -15px color-mix(in srgb, var(--mud-palette-black) 5%, transparent);
+}
+
+/* Page chrome */
+.trackr-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.trackr-page-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mud-palette-primary);
+    margin-bottom: 0.35rem;
+}
+
+.trackr-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    max-width: 100%;
+}
+
+/* Dashboard header: presets + dates sit on the right of the title row */
+.trackr-page-header .trackr-toolbar {
+    flex: 0 1 auto;
+    justify-content: flex-end;
+}
+
+.trackr-toolbar > .mud-button-group {
+    flex: 0 0 auto;
+}
+
+/* Uniform filter control width in toolbars */
+.trackr-filter-field {
+    flex: 0 0 12rem;
+    width: 12rem;
+    max-width: 12rem;
+    min-width: 12rem;
+}
+
+.trackr-filter-field--wide {
+    flex: 0 0 14rem;
+    width: 14rem;
+    max-width: 14rem;
+    min-width: 14rem;
+}
+
+.trackr-filter-field .mud-input-control,
+.trackr-filter-field .mud-select,
+.trackr-filter-field .mud-picker {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Nav */
+.trackr-nav .mud-nav-link {
+    border-radius: 0.625rem;
+    margin: 0.125rem 0.5rem;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trackr-nav .mud-nav-link.active {
+    background: color-mix(in srgb, var(--mud-palette-primary) 14%, transparent);
+    color: var(--mud-palette-primary);
+    font-weight: 600;
+}
+
+.trackr-nav .mud-nav-link.active .mud-icon-root {
+    color: var(--mud-palette-primary);
+}
+
+/* Priority chips */
+.trackr-priority-chip--essential {
+    border-color: color-mix(in srgb, var(--mud-palette-error) 40%, transparent);
+    color: var(--mud-palette-error);
+    background: color-mix(in srgb, var(--mud-palette-error) 10%, transparent);
+}
+
+.trackr-priority-chip--important {
+    border-color: color-mix(in srgb, var(--mud-palette-warning) 40%, transparent);
+    color: var(--mud-palette-warning);
+    background: color-mix(in srgb, var(--mud-palette-warning) 10%, transparent);
+}
+
+.trackr-priority-chip--discretionary {
+    border-color: color-mix(in srgb, var(--mud-palette-text-secondary) 40%, transparent);
+    color: var(--mud-palette-text-secondary);
+    background: color-mix(in srgb, var(--mud-palette-text-secondary) 10%, transparent);
+}
+
+/* Shimmer skeleton */
+.trackr-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--mud-palette-text-primary) 8%, transparent);
+    border-radius: 0.5rem;
+}
+
+.trackr-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--mud-palette-text-primary) 12%, transparent),
+        transparent
+    );
+    animation: trackr-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes trackr-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Inner wrapper only — do not set margin on .mud-main-content (MudBlazor shifts it for the drawer) */
+.trackr-main {
+    max-width: 87.5rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #blazor-error-ui {
@@ -23,7 +256,7 @@ html, body {
 }
 
     #blazor-error-ui .reload {
-        color: #594AE2;
+        color: #10b981;
         font-weight: 600;
         margin-left: 0.5rem;
         text-decoration: none;
@@ -80,7 +313,7 @@ html, body {
     }
 
         .loading-progress circle:last-child {
-            stroke: #594AE2;
+            stroke: #10b981;
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }

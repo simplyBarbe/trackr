@@ -4,50 +4,53 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">trackr</MudText>
+<div class="trackr-page-header">
+    <div>
+        <span class="trackr-page-badge">Overview</span>
+        <MudText Typo="Typo.h4" Style="font-weight: 600; letter-spacing: -0.02em;">Dashboard</MudText>
+    </div>
+    <div class="trackr-toolbar">
+        <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="trackr-preset-group">
+            <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.ThisMonth))"
+                       Color="@(_activePreset == DateRangePreset.ThisMonth ? Color.Primary : Color.Default)">
+                This month
+            </MudButton>
+            <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.LastMonth))"
+                       Color="@(_activePreset == DateRangePreset.LastMonth ? Color.Primary : Color.Default)">
+                Last month
+            </MudButton>
+            <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.Last30Days))"
+                       Color="@(_activePreset == DateRangePreset.Last30Days ? Color.Primary : Color.Default)">
+                Last 30 days
+            </MudButton>
+            <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.YearToDate))"
+                       Color="@(_activePreset == DateRangePreset.YearToDate ? Color.Primary : Color.Default)">
+                Year to date
+            </MudButton>
+        </MudButtonGroup>
+        <div class="trackr-filter-field">
+            <MudDatePicker Label="From"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Date="_fromPicker"
+                           DateChanged="OnFromPickerChanged"
+                           Clearable="true" />
+        </div>
+        <div class="trackr-filter-field">
+            <MudDatePicker Label="To"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Date="_toPicker"
+                           DateChanged="OnToPickerChanged"
+                           Clearable="true" />
+        </div>
+    </div>
+</div>
 
 @if (IsInitialLoading)
 {
-    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
 }
-
-<MudStack Spacing="2" Class="mb-4">
-    <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
-        <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.ThisMonth))"
-                   Color="@(_activePreset == DateRangePreset.ThisMonth ? Color.Primary : Color.Default)">
-            This month
-        </MudButton>
-        <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.LastMonth))"
-                   Color="@(_activePreset == DateRangePreset.LastMonth ? Color.Primary : Color.Default)">
-            Last month
-        </MudButton>
-        <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.Last30Days))"
-                   Color="@(_activePreset == DateRangePreset.Last30Days ? Color.Primary : Color.Default)">
-            Last 30 days
-        </MudButton>
-        <MudButton OnClick="@(() => ApplyPresetAsync(DateRangePreset.YearToDate))"
-                   Color="@(_activePreset == DateRangePreset.YearToDate ? Color.Primary : Color.Default)">
-            Year to date
-        </MudButton>
-    </MudButtonGroup>
-
-    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start" Style="flex-wrap: wrap;">
-        <MudDatePicker Label="From"
-                       Variant="Variant.Outlined"
-                       Margin="Margin.Dense"
-                       Style="min-width: 9rem;"
-                       Date="_fromPicker"
-                       DateChanged="OnFromPickerChanged"
-                       Clearable="true" />
-        <MudDatePicker Label="To"
-                       Variant="Variant.Outlined"
-                       Margin="Margin.Dense"
-                       Style="min-width: 9rem;"
-                       Date="_toPicker"
-                       DateChanged="OnToPickerChanged"
-                       Clearable="true" />
-    </MudStack>
-</MudStack>
 
 @if (_summaryQuery.IsError)
 {
@@ -56,12 +59,12 @@
 
 <TransactionSummaryCards SummaryQuery="_summaryQuery" />
 
-<MudText Typo="Typo.h5" Class="mb-3">Charts</MudText>
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Visual insights</MudText>
 
 <MudGrid Class="mb-4" Spacing="2">
     <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.subtitle1" Class="mb-2">Expenses by category</MudText>
+        <MudPaper Class="trackr-panel pa-4" Elevation="0">
+            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by category</MudText>
             @if (_expensesByCategoryQuery.IsError)
             {
                 <MudText Color="Color.Error">@_expensesByCategoryQuery.Error</MudText>
@@ -81,14 +84,14 @@
                           Height="280px" />
                 @if (_expensesByCategoryQuery.IsFetching || _summaryQuery.IsFetching)
                 {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Primary" />
                 }
             }
         </MudPaper>
     </MudItem>
     <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.subtitle1" Class="mb-2">Expenses by priority</MudText>
+        <MudPaper Class="trackr-panel pa-4" Elevation="0">
+            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by priority</MudText>
             @if (_summaryQuery.IsError)
             {
                 <MudText Color="Color.Error">@_summaryQuery.Error</MudText>
@@ -108,14 +111,14 @@
                           Height="280px" />
                 @if (_summaryQuery.IsFetching)
                 {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Primary" />
                 }
             }
         </MudPaper>
     </MudItem>
 </MudGrid>
 
-<MudText Typo="Typo.h5" Class="mb-3">Expenses by category</MudText>
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Expenses by category</MudText>
 
 @if (_expensesByCategoryQuery.IsError)
 {
@@ -132,7 +135,7 @@ else if (_expensesByCategoryQuery.HasData)
               Items="_expensesByCategoryQuery.Data"
               Hover="true"
               Dense="true"
-              Class="mb-4"
+              Class="mb-4 trackr-table"
               Loading="_expensesByCategoryQuery.IsFetching">
         <HeaderContent>
             <MudTh>Category</MudTh>
@@ -141,17 +144,17 @@ else if (_expensesByCategoryQuery.HasData)
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Category">@(context.CategoryName ?? "")</MudTd>
-            <MudTd DataLabel="Amount" Style="text-align: right;">
+            <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
                 @MoneyFormat.Format(context.TotalAmount)
             </MudTd>
-            <MudTd DataLabel="Share" Style="text-align: right;">
+            <MudTd DataLabel="Share" Style="text-align: right;" Class="font-mono-numbers">
                 @FormatPercent(context.TotalAmount ?? 0m, expenseTotal)
             </MudTd>
         </RowTemplate>
     </MudTable>
 }
 
-<MudText Typo="Typo.h5" Class="mb-3">Balances</MudText>
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Balances</MudText>
 
 @if (_accountsQuery.IsError)
 {
@@ -159,28 +162,28 @@ else if (_expensesByCategoryQuery.HasData)
 }
 else if (_accountsQuery.HasData && _accountsQuery.Data!.Count == 0)
 {
-    <MudText Class="mb-2">No accounts yet.</MudText>
+    <MudText Class="mb-2" Color="Color.Secondary">No accounts yet.</MudText>
     <MudButton Href="/accounts" Variant="Variant.Filled" Color="Color.Primary">
         Create an account
     </MudButton>
 }
 else if (_accountsQuery.HasData)
 {
-    <MudGrid Class="mb-4">
+    <MudGrid Class="mb-4" Spacing="2">
         @foreach (var account in _accountsQuery.Data!)
         {
             <MudItem xs="12" sm="6" md="4" lg="3">
-                <MudCard Style="@AccountCardStyles.GetCardStyle(account.Color)" Elevation="2">
-                    <MudCardContent>
-                        <MudText Typo="Typo.h6">@(account.Name ?? "")</MudText>
-                        <MudText Typo="Typo.caption" Class="mb-2" Style="opacity: 0.85">
-                            @(account.Type?.ToString() ?? "")
-                        </MudText>
-                        <MudText Typo="Typo.h5" Style="@AccountCardStyles.GetBalanceStyle(account)">
-                            @FormatBalance(account)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
+                <MudPaper Class="trackr-account-card pa-4" Elevation="0" Style="@AccountCardStyles.GetBorderLeftStyle(account.Color)">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@(account.Name ?? "")</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
+                        @(account.Type?.ToString() ?? "")
+                    </MudText>
+                    <MudText Typo="Typo.h5"
+                             Class="font-mono-numbers"
+                             Style="@AccountCardStyles.GetBalanceStyle(account)">
+                        @FormatBalance(account)
+                    </MudText>
+                </MudPaper>
             </MudItem>
         }
     </MudGrid>

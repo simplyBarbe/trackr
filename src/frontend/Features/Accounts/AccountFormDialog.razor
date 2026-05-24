@@ -31,7 +31,7 @@
                     {
                         <MudSelectItem T="AccountColor" Value="@color">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                                <span style="display:inline-block;width:1rem;height:1rem;border-radius:50%;@AccountCardStyles.GetCardStyle(color)"></span>
+                                <span style="@AccountCardStyles.GetSwatchStyle(color)"></span>
                                 <span>@color</span>
                             </MudStack>
                         </MudSelectItem>

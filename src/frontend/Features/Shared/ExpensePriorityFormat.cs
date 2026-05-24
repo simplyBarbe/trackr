@@ -14,22 +14,24 @@ public static class ExpensePriorityFormat
             _ => "—"
         };
 
-    public static Color GetChipColor(ExpensePriority? priority) =>
+    public static Variant GetChipVariant(ExpensePriority? priority) => Variant.Outlined;
+
+    public static string GetChipClass(ExpensePriority? priority) =>
         priority switch
         {
-            ExpensePriority.Essential => Color.Error,
-            ExpensePriority.Important => Color.Warning,
-            ExpensePriority.Discretionary => Color.Default,
-            _ => Color.Default
+            ExpensePriority.Essential => "trackr-priority-chip--essential",
+            ExpensePriority.Important => "trackr-priority-chip--important",
+            ExpensePriority.Discretionary => "trackr-priority-chip--discretionary",
+            _ => ""
         };
 
-    /// <summary>Hex colors for charts; aligned with <see cref="GetChipColor"/> (Error / Warning / Default).</summary>
+    /// <summary>Hex colors for charts; aligned with priority semantics.</summary>
     public static string GetChartColor(ExpensePriority priority) =>
         priority switch
         {
-            ExpensePriority.Essential => Colors.Red.Default,
-            ExpensePriority.Important => Colors.Orange.Default,
-            ExpensePriority.Discretionary => Colors.Gray.Default,
-            _ => Colors.Gray.Lighten1
+            ExpensePriority.Essential => "#dc2626",
+            ExpensePriority.Important => "#d97706",
+            ExpensePriority.Discretionary => "#64748b",
+            _ => "#94a3b8"
         };
 }

@@ -4,19 +4,11 @@
 
 <PageTitle>Transactions</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">Transactions</MudText>
-
-@if (_accountsQuery.IsLoading || _categoriesQuery.IsLoading)
-{
-    <MudProgressLinear Indeterminate="true" Class="mb-4" />
-}
-
-@if (_query.IsError)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
-}
-
-<MudStack Spacing="3" Class="mb-4" AlignItems="AlignItems.Start">
+<div class="trackr-page-header">
+    <div>
+        <span class="trackr-page-badge">Ledger</span>
+        <MudText Typo="Typo.h4" Style="font-weight: 600; letter-spacing: -0.02em;">Transactions</MudText>
+    </div>
     <MudButton Color="Color.Primary"
                Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.Add"
@@ -24,113 +16,113 @@
                OnClick="OpenCreateDialogAsync">
         New transaction
     </MudButton>
+</div>
 
-    <MudGrid Spacing="2">
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudStack Spacing="0">
-                <MudSelect T="string"
-                           Label="Account"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           FullWidth="true"
-                           Value="_accountIdFilter"
-                           ValueChanged="@OnAccountFilterChanged"
-                           Disabled="@(_accountsQuery.IsLoading || _accountsQuery.IsError)"
-                           Clearable="true">
-                    <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-                    @if (_accountsQuery.HasData)
-                    {
-                        @foreach (var account in _accountsQuery.Data!)
-                        {
-                            <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
-                @if (_accountsQuery.IsError)
+@if (_accountsQuery.IsLoading || _categoriesQuery.IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
+}
+
+@if (_query.IsError)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
+}
+
+<div class="trackr-toolbar mb-4">
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Account"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_accountIdFilter"
+                   ValueChanged="@OnAccountFilterChanged"
+                   Disabled="@(_accountsQuery.IsLoading || _accountsQuery.IsError)"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            @if (_accountsQuery.HasData)
+            {
+                @foreach (var account in _accountsQuery.Data!)
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Error">@_accountsQuery.Error</MudText>
+                    <MudSelectItem T="string" Value="@(account.Id ?? "")">@account.Name</MudSelectItem>
                 }
-            </MudStack>
-        </MudItem>
+            }
+        </MudSelect>
+    </div>
+    @if (_accountsQuery.IsError)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Error">@_accountsQuery.Error</MudText>
+    }
 
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudStack Spacing="0">
-                <MudSelect T="string"
-                           Label="Category"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           FullWidth="true"
-                           Value="_categoryIdFilter"
-                           ValueChanged="@OnCategoryFilterChanged"
-                           Disabled="@(_categoriesQuery.IsLoading || _categoriesQuery.IsError)"
-                           Clearable="true">
-                    <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-                    @if (_categoriesQuery.HasData)
-                    {
-                        @foreach (var category in _categoriesQuery.Data!)
-                        {
-                            <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
-                @if (_categoriesQuery.IsError)
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Category"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_categoryIdFilter"
+                   ValueChanged="@OnCategoryFilterChanged"
+                   Disabled="@(_categoriesQuery.IsLoading || _categoriesQuery.IsError)"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            @if (_categoriesQuery.HasData)
+            {
+                @foreach (var category in _categoriesQuery.Data!)
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
+                    <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
                 }
-            </MudStack>
-        </MudItem>
+            }
+        </MudSelect>
+    </div>
+    @if (_categoriesQuery.IsError)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesQuery.Error</MudText>
+    }
 
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudSelect T="string"
-                       Label="Type"
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Type"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_typeFilter"
+                   ValueChanged="@OnTypeFilterChanged">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
+        </MudSelect>
+    </div>
+
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Priority"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_priorityFilter"
+                   ValueChanged="@OnPriorityFilterChanged"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Essential")">Essential</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Important")">Important</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Discretionary")">Discretionary</MudSelectItem>
+        </MudSelect>
+    </div>
+
+    <div class="trackr-filter-field">
+        <MudDatePicker Label="From"
                        Variant="Variant.Outlined"
                        Margin="Margin.Dense"
-                       FullWidth="true"
-                       Value="_typeFilter"
-                       ValueChanged="@OnTypeFilterChanged">
-                <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
-            </MudSelect>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
-            <MudSelect T="string"
-                       Label="Priority"
+                       Date="_fromPicker"
+                       DateChanged="@OnFromPickerChanged"
+                       Clearable="true" />
+    </div>
+    <div class="trackr-filter-field">
+        <MudDatePicker Label="To"
                        Variant="Variant.Outlined"
                        Margin="Margin.Dense"
-                       FullWidth="true"
-                       Value="_priorityFilter"
-                       ValueChanged="@OnPriorityFilterChanged"
-                       Clearable="true">
-                <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Essential")">Essential</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Important")">Important</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Discretionary")">Discretionary</MudSelectItem>
-            </MudSelect>
-        </MudItem>
-
-        <MudItem xs="12" sm="6">
-            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start" Style="flex-wrap: nowrap;">
-                <MudDatePicker Label="From"
-                               Variant="Variant.Outlined"
-                               Margin="Margin.Dense"
-                               Style="min-width: 9rem;"
-                               Date="_fromPicker"
-                               DateChanged="@OnFromPickerChanged"
-                               Clearable="true" />
-                <MudDatePicker Label="To"
-                               Variant="Variant.Outlined"
-                               Margin="Margin.Dense"
-                               Style="min-width: 9rem;"
-                               Date="_toPicker"
-                               DateChanged="@OnToPickerChanged"
-                               Clearable="true" />
-            </MudStack>
-        </MudItem>
-    </MudGrid>
-</MudStack>
+                       Date="_toPicker"
+                       DateChanged="@OnToPickerChanged"
+                       Clearable="true" />
+    </div>
+</div>
 
 @if (_summaryQuery.IsError)
 {
@@ -147,14 +139,15 @@
           Hover="true"
           Striped="true"
           Breakpoint="Breakpoint.Sm"
-          Loading="_query.IsFetching">
+          Loading="_query.IsFetching"
+          Class="trackr-table">
     <HeaderContent>
         <MudTh>Date</MudTh>
         <MudTh>Type</MudTh>
         <MudTh>Account</MudTh>
         <MudTh>Category</MudTh>
         <MudTh>Priority</MudTh>
-        <MudTh>Amount</MudTh>
+        <MudTh Style="text-align: right;">Amount</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Created</MudTh>
         <MudTh Style="width: 4rem;">Actions</MudTh>
@@ -169,7 +162,8 @@
             {
                 <MudChip T="string"
                          Size="Size.Small"
-                         Color="@ExpensePriorityFormat.GetChipColor(context.Priority)">
+                         Variant="@ExpensePriorityFormat.GetChipVariant(context.Priority)"
+                         Class="@ExpensePriorityFormat.GetChipClass(context.Priority)">
                     @ExpensePriorityFormat.GetLabel(context.Priority)
                 </MudChip>
             }
@@ -178,7 +172,9 @@
                 <text>—</text>
             }
         </MudTd>
-        <MudTd DataLabel="Amount">@FormatAmount(context.Amount)</MudTd>
+        <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
+            @FormatAmount(context.Amount)
+        </MudTd>
         <MudTd DataLabel="Description">@(context.Description ?? "")</MudTd>
         <MudTd DataLabel="Created">@FormatCreatedAt(context.CreatedAt)</MudTd>
         <MudTd DataLabel="Actions">

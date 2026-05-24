@@ -4,18 +4,19 @@
 
 <PageTitle>Categories</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">Categories</MudText>
+<div class="trackr-page-header">
+    <div>
+        <span class="trackr-page-badge">Manage</span>
+        <MudText Typo="Typo.h4" Style="font-weight: 600; letter-spacing: -0.02em;">Categories</MudText>
+    </div>
+</div>
 
 @if (_query.IsError)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
 }
 
-<MudStack Row="true"
-          AlignItems="AlignItems.Center"
-          Spacing="2"
-          Class="mb-4"
-          Style="flex-wrap: wrap;">
+<div class="trackr-toolbar mb-4">
     <MudButton Color="Color.Primary"
                Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.Add"
@@ -24,34 +25,36 @@
         New category
     </MudButton>
 
-    <MudSelect T="string"
-               Label="Kind"
-               Variant="Variant.Outlined"
-               Margin="Margin.Dense"
-               Style="min-width: 12rem;"
-               Value="_kindQuery"
-               ValueChanged="@OnKindQueryChanged">
-        <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-        <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
-        <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
-    </MudSelect>
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Kind"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_kindQuery"
+                   ValueChanged="@OnKindQueryChanged">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+        </MudSelect>
+    </div>
 
-    <MudTextField T="string"
-                  Label="Name contains"
-                  Variant="Variant.Outlined"
-                  Margin="Margin.Dense"
-                  Style="min-width: 14rem;"
-                  Immediate="true"
-                  @bind-Value="_nameDraft"
-                  OnBlur="@ApplyNameFilterOnBlur"
-                  @onkeydown="OnNameFilterKeyDown" />
+    <div class="trackr-filter-field trackr-filter-field--wide">
+        <MudTextField T="string"
+                      Label="Name contains"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Immediate="true"
+                      @bind-Value="_nameDraft"
+                      OnBlur="@ApplyNameFilterOnBlur"
+                      @onkeydown="OnNameFilterKeyDown" />
+    </div>
 
     <MudCheckBox T="bool"
                  Value="@_includeArchived"
                  Label="Include archived"
                  Dense="true"
                  ValueChanged="@OnIncludeArchivedChanged"/>
-</MudStack>
+</div>
 
 <MudTable T="CategoryResponse"
           @ref="_table"
@@ -60,13 +63,14 @@
           RowsPerPage="50"
           Hover="true"
           Striped="true"
-          Breakpoint="Breakpoint.Sm">
+          Breakpoint="Breakpoint.Sm"
+          Class="trackr-table">
     <HeaderContent>
         <MudTh>Name</MudTh>
         <MudTh>Kind</MudTh>
         <MudTh>Priority</MudTh>
         <MudTh>Parent</MudTh>
-        <MudTh>Sort order</MudTh>
+        <MudTh Style="text-align: right;">Sort order</MudTh>
         <MudTh>Archived</MudTh>
         <MudTh>Actions</MudTh>
     </HeaderContent>
@@ -78,7 +82,8 @@
             {
                 <MudChip T="string"
                          Size="Size.Small"
-                         Color="@ExpensePriorityFormat.GetChipColor(context.Priority)">
+                         Variant="@ExpensePriorityFormat.GetChipVariant(context.Priority)"
+                         Class="@ExpensePriorityFormat.GetChipClass(context.Priority)">
                     @ExpensePriorityFormat.GetLabel(context.Priority)
                 </MudChip>
             }
@@ -88,7 +93,7 @@
             }
         </MudTd>
         <MudTd DataLabel="Parent">@(context.Parent?.Name is { Length: > 0 } name ? name : "—")</MudTd>
-        <MudTd DataLabel="Sort order">@context.SortOrder</MudTd>
+        <MudTd DataLabel="Sort order" Style="text-align: right;" Class="font-mono-numbers">@context.SortOrder</MudTd>
         <MudTd DataLabel="Archived">
             @(context.IsArchived switch { true => "Yes", false => "No", _ => "" })
         </MudTd>
