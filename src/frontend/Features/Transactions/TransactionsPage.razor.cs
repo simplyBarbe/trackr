@@ -1,6 +1,7 @@
 using frontend.Features.Shared;
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Microsoft.Kiota.Abstractions;
 using MudBlazor;
 using Trackr.Api;
@@ -19,6 +20,9 @@ public partial class TransactionsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
+
     private QueryState<PagedList<TransactionResponse>> _query =
         QueryState<PagedList<TransactionResponse>>.Loading();
 
@@ -32,6 +36,7 @@ public partial class TransactionsPage : ComponentBase
         QueryState<GetTransactionSummaryResponse>.Loading();
 
     private MutationState _mutation = MutationState.Idle;
+    private bool _exporting;
     private MudTable<TransactionResponse>? _table;
     private int _tableVersion;
 
@@ -390,5 +395,44 @@ public partial class TransactionsPage : ComponentBase
     {
         _tableVersion++;
         return InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ExportCsvAsync()
+    {
+        _exporting = true;
+        try
+        {
+            var response = await TrackrApi.Transactions.Export.GetAsync(configuration =>
+            {
+                ApplyTransactionFilters(
+                    v => configuration.QueryParameters.AccountId = v,
+                    v => configuration.QueryParameters.CategoryId = v,
+                    v => configuration.QueryParameters.Type = v,
+                    v => configuration.QueryParameters.Priority = v,
+                    v => configuration.QueryParameters.From = v,
+                    v => configuration.QueryParameters.To = v);
+            });
+
+            if (string.IsNullOrEmpty(response?.CsvContent))
+            {
+                Snackbar.Add("Export returned no data.", Severity.Error, c => c.VisibleStateDuration = 5000);
+                return;
+            }
+
+            var fileName = string.IsNullOrWhiteSpace(response.FileName)
+                ? "transactions.csv"
+                : response.FileName;
+
+            await JSRuntime.InvokeVoidAsync("downloadFile", fileName, response.CsvContent);
+            Snackbar.Add("CSV exported.", Severity.Success, c => c.VisibleStateDuration = 3000);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
+        }
+        finally
+        {
+            _exporting = false;
+        }
     }
 }

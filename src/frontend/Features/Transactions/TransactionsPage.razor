@@ -9,13 +9,30 @@
         <span class="trackr-page-badge">Ledger</span>
         <MudText Typo="Typo.h4" Style="font-weight: 600; letter-spacing: -0.02em;">Transactions</MudText>
     </div>
-    <MudButton Color="Color.Primary"
-               Variant="Variant.Filled"
-               StartIcon="@Icons.Material.Filled.Add"
-               Disabled="@(_mutation.IsPending || !CanMutate)"
-               OnClick="OpenCreateDialogAsync">
-        New transaction
-    </MudButton>
+    <div class="d-flex gap-2">
+        <MudButton Color="Color.Secondary"
+                   Variant="Variant.Outlined"
+                   StartIcon="@Icons.Material.Filled.Download"
+                   Disabled="@_exporting"
+                   OnClick="ExportCsvAsync">
+            @if (_exporting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Exporting...</MudText>
+            }
+            else
+            {
+                <text>Export CSV</text>
+            }
+        </MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Disabled="@(_mutation.IsPending || !CanMutate)"
+                   OnClick="OpenCreateDialogAsync">
+            New transaction
+        </MudButton>
+    </div>
 </div>
 
 @if (_accountsQuery.IsLoading || _categoriesQuery.IsLoading)

@@ -14,6 +14,7 @@ using backend.Features.Health.Get;
 using backend.Features.Transactions.Create;
 using backend.Features.Transactions.Delete;
 using backend.Features.Transactions.Get;
+using backend.Features.Transactions.Export;
 using backend.Features.Transactions.List;
 using backend.Features.Transactions.Summary;
 using backend.Features.Transactions.Update;
@@ -42,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<ArchiveCategoryHandler>();
 
         services.AddScoped<ListTransactionsHandler>();
+        services.AddScoped<ExportTransactionsHandler>();
         services.AddScoped<GetTransactionSummaryHandler>();
         services.AddScoped<GetExpensesByCategoryHandler>();
         services.AddScoped<GetTransactionHandler>();

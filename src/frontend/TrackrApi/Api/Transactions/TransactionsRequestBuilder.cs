@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Trackr.Api.Api.Transactions.Export;
 using Trackr.Api.Api.Transactions.Item;
 using Trackr.Api.Api.Transactions.Summary;
 using Trackr.Api.Models;
@@ -19,6 +20,11 @@ namespace Trackr.Api.Api.Transactions
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class TransactionsRequestBuilder : BaseRequestBuilder
     {
+        /// <summary>The export property</summary>
+        public global::Trackr.Api.Api.Transactions.Export.ExportRequestBuilder Export
+        {
+            get => new global::Trackr.Api.Api.Transactions.Export.ExportRequestBuilder(PathParameters, RequestAdapter);
+        }
         /// <summary>The summary property</summary>
         public global::Trackr.Api.Api.Transactions.Summary.SummaryRequestBuilder Summary
         {

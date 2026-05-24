@@ -39,7 +39,7 @@ namespace Trackr.Api
             ApiClientBuilder.RegisterDefaultDeserializer<FormParseNodeFactory>();
             if (string.IsNullOrEmpty(RequestAdapter.BaseUrl))
             {
-                RequestAdapter.BaseUrl = "http://localhost:5103";
+                RequestAdapter.BaseUrl = "http://localhost:5099";
             }
             PathParameters.TryAdd("baseurl", RequestAdapter.BaseUrl);
         }
