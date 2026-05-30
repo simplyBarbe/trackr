@@ -94,6 +94,83 @@ namespace backend.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
+            modelBuilder.Entity("backend.Data.Entities.RecurringTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DayOfMonth")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("DayOfWeek")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("EndOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Month")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly>("NextOccurrenceOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Priority")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("StartOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ToAccountId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ToAccountId");
+
+                    b.HasIndex("IsActive", "NextOccurrenceOn");
+
+                    b.ToTable("RecurringTransactions", (string)null);
+                });
+
             modelBuilder.Entity("backend.Data.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -124,6 +201,9 @@ namespace backend.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("RecurringTransactionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("ToAccountId")
                         .HasColumnType("TEXT");
 
@@ -140,6 +220,10 @@ namespace backend.Migrations
 
                     b.HasIndex("AccountId", "OccurredOn");
 
+                    b.HasIndex("RecurringTransactionId", "OccurredOn")
+                        .IsUnique()
+                        .HasFilter("[RecurringTransactionId] IS NOT NULL");
+
                     b.ToTable("Transactions", (string)null);
                 });
 
@@ -151,6 +235,31 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.RecurringTransaction", b =>
+                {
+                    b.HasOne("backend.Data.Entities.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend.Data.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("backend.Data.Entities.Account", "ToAccount")
+                        .WithMany()
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ToAccount");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.Transaction", b =>
@@ -166,6 +275,11 @@ namespace backend.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("backend.Data.Entities.RecurringTransaction", "RecurringTransaction")
+                        .WithMany("GeneratedTransactions")
+                        .HasForeignKey("RecurringTransactionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("backend.Data.Entities.Account", "ToAccount")
                         .WithMany("IncomingTransfers")
                         .HasForeignKey("ToAccountId")
@@ -174,6 +288,8 @@ namespace backend.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Category");
+
+                    b.Navigation("RecurringTransaction");
 
                     b.Navigation("ToAccount");
                 });
@@ -190,6 +306,11 @@ namespace backend.Migrations
                     b.Navigation("Children");
 
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.RecurringTransaction", b =>
+                {
+                    b.Navigation("GeneratedTransactions");
                 });
 #pragma warning restore 612, 618
         }

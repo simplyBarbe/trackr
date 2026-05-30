@@ -45,6 +45,15 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
             .HasForeignKey(t => t.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasOne(t => t.RecurringTransaction)
+            .WithMany(r => r.GeneratedTransactions)
+            .HasForeignKey(t => t.RecurringTransactionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(t => new { t.RecurringTransactionId, t.OccurredOn })
+            .IsUnique()
+            .HasFilter("[RecurringTransactionId] IS NOT NULL");
+
         builder.HasIndex(t => new { t.AccountId, t.OccurredOn });
         builder.HasIndex(t => t.ToAccountId);
         builder.HasIndex(t => t.CategoryId);

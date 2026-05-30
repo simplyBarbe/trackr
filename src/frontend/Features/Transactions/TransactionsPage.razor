@@ -192,7 +192,15 @@
         <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
             @FormatAmount(context.Amount)
         </MudTd>
-        <MudTd DataLabel="Description">@(context.Description ?? "")</MudTd>
+        <MudTd DataLabel="Description">
+            @if (!string.IsNullOrEmpty(context.RecurringTransactionId))
+            {
+                <MudTooltip Text="Created from a recurring rule">
+                    <MudIcon Icon="@Icons.Material.Filled.EventRepeat" Size="Size.Small" Class="me-1 mud-text-secondary" />
+                </MudTooltip>
+            }
+            @(context.Description ?? "")
+        </MudTd>
         <MudTd DataLabel="Created">@FormatCreatedAt(context.CreatedAt)</MudTd>
         <MudTd DataLabel="Actions">
             <MudIconButton Icon="@Icons.Material.Filled.Edit"

@@ -23,7 +23,7 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    builder.Services.AddTrackrApplication();
+    builder.Services.AddTrackrApplication(builder.Configuration);
 
     builder.Services.ConfigureHttpJsonOptions(options =>
     {

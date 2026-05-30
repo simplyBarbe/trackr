@@ -22,7 +22,11 @@ public class Transaction
 
     public string? Description { get; set; }
 
+    public Guid? RecurringTransactionId { get; set; }
+
     public DateTime CreatedAt { get; set; }
+
+    public RecurringTransaction? RecurringTransaction { get; set; }
 
     public Account Account { get; set; } = null!;
 

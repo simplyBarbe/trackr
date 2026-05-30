@@ -9,6 +9,7 @@ using System;
 using Trackr.Api.Api.Accounts;
 using Trackr.Api.Api.Categories;
 using Trackr.Api.Api.Health;
+using Trackr.Api.Api.RecurringTransactions;
 using Trackr.Api.Api.Transactions;
 namespace Trackr.Api.Api
 {
@@ -32,6 +33,11 @@ namespace Trackr.Api.Api
         public global::Trackr.Api.Api.Health.HealthRequestBuilder Health
         {
             get => new global::Trackr.Api.Api.Health.HealthRequestBuilder(PathParameters, RequestAdapter);
+        }
+        /// <summary>The recurringTransactions property</summary>
+        public global::Trackr.Api.Api.RecurringTransactions.RecurringTransactionsRequestBuilder RecurringTransactions
+        {
+            get => new global::Trackr.Api.Api.RecurringTransactions.RecurringTransactionsRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The transactions property</summary>
         public global::Trackr.Api.Api.Transactions.TransactionsRequestBuilder Transactions

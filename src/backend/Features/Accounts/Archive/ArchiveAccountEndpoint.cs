@@ -1,4 +1,5 @@
 using backend.Common.Http;
+using FastEndpoints;
 
 namespace backend.Features.Accounts.Archive;
 
@@ -9,7 +10,7 @@ public sealed class ArchiveAccountEndpoint(ArchiveAccountHandler handler)
     {
         Post("/api/accounts/{id}/archive");
         AllowAnonymous();
-        Description(b => b.WithTags("Accounts"));
+        Description(b => b.WithTags("Accounts").Accepts<ArchiveAccountRequest>());
     }
 
     public override async Task HandleAsync(ArchiveAccountRequest req, CancellationToken ct)

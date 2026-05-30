@@ -17,6 +17,7 @@ public sealed record TransactionResponse(
     decimal Amount,
     DateOnly OccurredOn,
     string? Description,
+    Guid? RecurringTransactionId,
     DateTime CreatedAt);
 
 public sealed record ListTransactionsResponse(
@@ -57,5 +58,6 @@ public static class TransactionMapping
             transaction.Amount,
             transaction.OccurredOn,
             transaction.Description,
+            transaction.RecurringTransactionId,
             transaction.CreatedAt);
 }

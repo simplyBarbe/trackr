@@ -69,6 +69,14 @@ namespace Trackr.Api.Models
         public Date? OccurredOn { get; set; }
         /// <summary>The priority property</summary>
         public global::Trackr.Api.Models.ExpensePriority? Priority { get; set; }
+        /// <summary>The recurringTransactionId property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? RecurringTransactionId { get; set; }
+#nullable restore
+#else
+        public string RecurringTransactionId { get; set; }
+#endif
         /// <summary>The toAccountId property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -115,6 +123,7 @@ namespace Trackr.Api.Models
                 { "id", n => { Id = n.GetStringValue(); } },
                 { "occurredOn", n => { OccurredOn = n.GetDateValue(); } },
                 { "priority", n => { Priority = n.GetEnumValue<global::Trackr.Api.Models.ExpensePriority>(); } },
+                { "recurringTransactionId", n => { RecurringTransactionId = n.GetStringValue(); } },
                 { "toAccountId", n => { ToAccountId = n.GetStringValue(); } },
                 { "toAccountName", n => { ToAccountName = n.GetStringValue(); } },
                 { "type", n => { Type = n.GetEnumValue<global::Trackr.Api.Models.TransactionType>(); } },
@@ -137,6 +146,7 @@ namespace Trackr.Api.Models
             writer.WriteStringValue("id", Id);
             writer.WriteDateValue("occurredOn", OccurredOn);
             writer.WriteEnumValue<global::Trackr.Api.Models.ExpensePriority>("priority", Priority);
+            writer.WriteStringValue("recurringTransactionId", RecurringTransactionId);
             writer.WriteStringValue("toAccountId", ToAccountId);
             writer.WriteStringValue("toAccountName", ToAccountName);
             writer.WriteEnumValue<global::Trackr.Api.Models.TransactionType>("type", Type);

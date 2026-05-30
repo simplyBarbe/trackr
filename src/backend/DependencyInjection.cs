@@ -18,14 +18,28 @@ using backend.Features.Transactions.Export;
 using backend.Features.Transactions.List;
 using backend.Features.Transactions.Summary;
 using backend.Features.Transactions.Update;
+using backend.Features.RecurringTransactions.Archive;
+using backend.Features.RecurringTransactions.Create;
+using backend.Features.RecurringTransactions.GenerateNow;
+using backend.Features.RecurringTransactions.Get;
+using backend.Features.RecurringTransactions.List;
+using backend.Features.RecurringTransactions.Update;
+using backend.Infrastructure;
+using Microsoft.Extensions.Configuration;
 
 namespace backend;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddTrackrApplication(this IServiceCollection services)
+    public static IServiceCollection AddTrackrApplication(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
+        services.Configure<RecurringTransactionOptions>(
+            configuration.GetSection(RecurringTransactionOptions.SectionName));
+
         services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+        services.AddScoped<RecurringTransactionGenerationService>();
         services.AddScoped<DataSeeder>();
 
         services.AddScoped<GetHealthHandler>();
@@ -50,6 +64,15 @@ public static class DependencyInjection
         services.AddScoped<CreateTransactionHandler>();
         services.AddScoped<UpdateTransactionHandler>();
         services.AddScoped<DeleteTransactionHandler>();
+
+        services.AddScoped<ListRecurringTransactionsHandler>();
+        services.AddScoped<GetRecurringTransactionHandler>();
+        services.AddScoped<CreateRecurringTransactionHandler>();
+        services.AddScoped<UpdateRecurringTransactionHandler>();
+        services.AddScoped<ArchiveRecurringTransactionHandler>();
+        services.AddScoped<GenerateRecurringTransactionHandler>();
+
+        services.AddHostedService<RecurringTransactionBackgroundService>();
 
         return services;
     }
