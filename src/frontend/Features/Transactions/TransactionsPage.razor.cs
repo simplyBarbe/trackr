@@ -127,7 +127,7 @@ public partial class TransactionsPage : ComponentBase
         CancellationToken cancellationToken)
     {
         var page = state.Page + 1;
-        var pageSize = state.PageSize > 0 ? state.PageSize : 50;
+        var pageSize = state.PageSize > 0 ? state.PageSize : PaginationDefaults.PageSize;
 
         try
         {

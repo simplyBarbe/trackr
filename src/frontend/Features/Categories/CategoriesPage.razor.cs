@@ -31,7 +31,7 @@ public partial class CategoriesPage : ComponentBase
     private async Task<TableData<CategoryResponse>> LoadServerDataAsync(TableState state, CancellationToken cancellationToken)
     {
         var page = state.Page + 1;
-        var pageSize = state.PageSize > 0 ? state.PageSize : 50;
+        var pageSize = state.PageSize > 0 ? state.PageSize : PaginationDefaults.PageSize;
 
         try
         {

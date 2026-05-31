@@ -6,6 +6,6 @@ public sealed record PagedList<T>(
     int PageSize,
     int TotalCount)
 {
-    public static PagedList<T> Empty(int page = 1, int pageSize = 50) =>
+    public static PagedList<T> Empty(int page = 1, int pageSize = PaginationDefaults.PageSize) =>
         new([], page, pageSize, 0);
 }
