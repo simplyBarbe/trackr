@@ -17,9 +17,6 @@ public partial class RecurringTransactionsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<PagedList<RecurringTransactionResponse>> _query =
-        QueryState<PagedList<RecurringTransactionResponse>>.Loading();
-
     private QueryState<IReadOnlyList<AccountResponse>> _accountsQuery =
         QueryState<IReadOnlyList<AccountResponse>>.Loading();
 
@@ -28,7 +25,7 @@ public partial class RecurringTransactionsPage : ComponentBase
 
     private MutationState _mutation = MutationState.Idle;
     private MudTable<RecurringTransactionResponse>? _table;
-    private int _tableVersion;
+    private string? _tableError;
 
     private bool? _activeFilter;
 
@@ -71,15 +68,10 @@ public partial class RecurringTransactionsPage : ComponentBase
         TableState state,
         CancellationToken cancellationToken)
     {
-        if (_query.Data is not null)
-            _query = QueryState<PagedList<RecurringTransactionResponse>>.Fetching(_query.Data);
-        else
-            _query = QueryState<PagedList<RecurringTransactionResponse>>.Loading();
-
         var page = state.Page + 1;
         var pageSize = state.PageSize > 0 ? state.PageSize : 50;
 
-        _query = await QueryState<PagedList<RecurringTransactionResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.RecurringTransactions.GetAsync(config =>
             {
@@ -89,27 +81,26 @@ public partial class RecurringTransactionsPage : ComponentBase
                     config.QueryParameters.IsActive = _activeFilter;
             }, cancellationToken);
 
-            return new PagedList<RecurringTransactionResponse>(
-                response?.Items ?? [],
-                response?.Page ?? page,
-                response?.PageSize ?? pageSize,
-                response?.TotalCount ?? 0);
-        });
+            if (_tableError is not null)
+                _tableError = null;
 
-        if (_query.Data is null)
-            return new TableData<RecurringTransactionResponse> { Items = [], TotalItems = 0 };
-
-        return new TableData<RecurringTransactionResponse>
+            return new TableData<RecurringTransactionResponse>
+            {
+                Items = response?.Items ?? [],
+                TotalItems = response?.TotalCount ?? 0
+            };
+        }
+        catch (Exception ex)
         {
-            Items = _query.Data.Items,
-            TotalItems = _query.Data.TotalCount
-        };
+            _tableError = ApiErrors.GetMessage(ex);
+            return new TableData<RecurringTransactionResponse> { Items = [], TotalItems = 0 };
+        }
     }
 
-    private Task OnActiveFilterChanged(bool? value)
+    private async Task OnActiveFilterChanged(bool? value)
     {
         _activeFilter = value;
-        return ResetToFirstPageAndReloadAsync();
+        await ReloadTableAsync();
     }
 
     private async Task OpenCreateDialogAsync()
@@ -343,9 +334,14 @@ public partial class RecurringTransactionsPage : ComponentBase
     private static string FormatAmount(decimal? amount) =>
         amount?.ToString("N2") ?? "";
 
-    private Task ResetToFirstPageAndReloadAsync()
+    private async Task ReloadTableAsync()
     {
-        _tableVersion++;
-        return InvokeAsync(StateHasChanged);
+        if (_table is null)
+            return;
+
+        if (_table.CurrentPage != 0)
+            _table.NavigateTo(0);
+
+        await _table.ReloadServerData();
     }
 }

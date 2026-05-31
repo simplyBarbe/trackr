@@ -26,9 +26,9 @@
     <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
 }
 
-@if (_query.IsError)
+@if (_tableError is not null)
 {
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_tableError</MudAlert>
 }
 
 @if (_accountsQuery.IsError)
@@ -54,13 +54,11 @@
 
 <MudTable T="RecurringTransactionResponse"
           @ref="_table"
-          @key="_tableVersion"
           ServerData="LoadServerDataAsync"
           RowsPerPage="50"
           Hover="true"
           Striped="true"
           Breakpoint="Breakpoint.Sm"
-          Loading="_query.IsFetching"
           Class="trackr-table">
     <HeaderContent>
         <MudTh>Description</MudTh>

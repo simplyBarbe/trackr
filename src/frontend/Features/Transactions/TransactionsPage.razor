@@ -40,11 +40,6 @@
     <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
 }
 
-@if (_query.IsError)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
-}
-
 <div class="trackr-toolbar mb-4">
     <div class="trackr-filter-field">
         <MudSelect T="string"
@@ -148,15 +143,18 @@
 
 <TransactionSummaryCards SummaryQuery="_summaryQuery" />
 
+@if (_tableError is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_tableError</MudAlert>
+}
+
 <MudTable T="TransactionResponse"
           @ref="_table"
-          @key="_tableVersion"
           ServerData="LoadServerDataAsync"
           RowsPerPage="50"
           Hover="true"
           Striped="true"
           Breakpoint="Breakpoint.Sm"
-          Loading="_query.IsFetching"
           Class="trackr-table">
     <HeaderContent>
         <MudTh>Date</MudTh>

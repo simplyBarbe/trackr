@@ -23,9 +23,6 @@ public partial class TransactionsPage : ComponentBase
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
-    private QueryState<PagedList<TransactionResponse>> _query =
-        QueryState<PagedList<TransactionResponse>>.Loading();
-
     private QueryState<IReadOnlyList<AccountResponse>> _accountsQuery =
         QueryState<IReadOnlyList<AccountResponse>>.Loading();
 
@@ -38,7 +35,7 @@ public partial class TransactionsPage : ComponentBase
     private MutationState _mutation = MutationState.Idle;
     private bool _exporting;
     private MudTable<TransactionResponse>? _table;
-    private int _tableVersion;
+    private string? _tableError;
 
     private string _accountIdFilter = string.Empty;
     private string _categoryIdFilter = string.Empty;
@@ -129,15 +126,10 @@ public partial class TransactionsPage : ComponentBase
         TableState state,
         CancellationToken cancellationToken)
     {
-        if (_query.Data is not null)
-            _query = QueryState<PagedList<TransactionResponse>>.Fetching(_query.Data);
-        else
-            _query = QueryState<PagedList<TransactionResponse>>.Loading();
-
         var page = state.Page + 1;
         var pageSize = state.PageSize > 0 ? state.PageSize : 50;
 
-        _query = await QueryState<PagedList<TransactionResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Transactions.GetAsync(configuration =>
                 {
@@ -153,21 +145,20 @@ public partial class TransactionsPage : ComponentBase
                 },
                 cancellationToken);
 
-            return new PagedList<TransactionResponse>(
-                response?.Items ?? [],
-                response?.Page ?? page,
-                response?.PageSize ?? pageSize,
-                response?.TotalCount ?? 0);
-        });
+            if (_tableError is not null)
+                _tableError = null;
 
-        if (_query.Data is null)
-            return new TableData<TransactionResponse> { Items = [], TotalItems = 0 };
-
-        return new TableData<TransactionResponse>
+            return new TableData<TransactionResponse>
+            {
+                Items = response?.Items ?? [],
+                TotalItems = response?.TotalCount ?? 0
+            };
+        }
+        catch (Exception ex)
         {
-            Items = _query.Data.Items,
-            TotalItems = _query.Data.TotalCount
-        };
+            _tableError = ApiErrors.GetMessage(ex);
+            return new TableData<TransactionResponse> { Items = [], TotalItems = 0 };
+        }
     }
 
     private async Task LoadSummaryAsync()
@@ -261,8 +252,18 @@ public partial class TransactionsPage : ComponentBase
 
     private async Task ReloadFiltersAsync()
     {
-        await LoadSummaryAsync();
-        await ResetToFirstPageAndReloadAsync();
+        await Task.WhenAll(LoadSummaryAsync(), ReloadTableAsync());
+    }
+
+    private async Task ReloadTableAsync()
+    {
+        if (_table is null)
+            return;
+
+        if (_table.CurrentPage != 0)
+            _table.NavigateTo(0);
+
+        await _table.ReloadServerData();
     }
 
     private static Date? ToApiDate(DateTime? value) =>
@@ -387,14 +388,7 @@ public partial class TransactionsPage : ComponentBase
     private async Task ReloadAfterMutationAsync()
     {
         await LoadSummaryAsync();
-        if (_table is not null)
-            await _table.ReloadServerData();
-    }
-
-    private Task ResetToFirstPageAndReloadAsync()
-    {
-        _tableVersion++;
-        return InvokeAsync(StateHasChanged);
+        await ReloadTableAsync();
     }
 
     private async Task ExportCsvAsync()

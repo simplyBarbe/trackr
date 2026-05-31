@@ -11,9 +11,9 @@
     </div>
 </div>
 
-@if (_query.IsError)
+@if (_tableError is not null)
 {
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_query.Error</MudAlert>
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_tableError</MudAlert>
 }
 
 <div class="trackr-toolbar mb-4">
@@ -60,7 +60,6 @@
 
 <MudTable T="AccountResponse"
           @ref="_table"
-          @key="_tableVersion"
           ServerData="LoadServerDataAsync"
           RowsPerPage="50"
           Hover="true"

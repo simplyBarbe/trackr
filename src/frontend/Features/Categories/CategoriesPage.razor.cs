@@ -18,11 +18,10 @@ public partial class CategoriesPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<PagedList<CategoryResponse>> _query = QueryState<PagedList<CategoryResponse>>.Loading();
-
     private MutationState _mutation = MutationState.Idle;
     private MudTable<CategoryResponse>? _table;
-    private int _tableVersion;
+    private string? _tableError;
+    private IReadOnlyList<CategoryResponse> _parentCandidates = [];
 
     private bool _includeArchived;
     private string _kindQuery = string.Empty;
@@ -31,15 +30,10 @@ public partial class CategoriesPage : ComponentBase
 
     private async Task<TableData<CategoryResponse>> LoadServerDataAsync(TableState state, CancellationToken cancellationToken)
     {
-        if (_query.Data is not null)
-            _query = QueryState<PagedList<CategoryResponse>>.Fetching(_query.Data);
-        else
-            _query = QueryState<PagedList<CategoryResponse>>.Loading();
-
         var page = state.Page + 1;
         var pageSize = state.PageSize > 0 ? state.PageSize : 50;
 
-        _query = await QueryState<PagedList<CategoryResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Categories.GetAsync(configuration =>
                 {
@@ -53,21 +47,22 @@ public partial class CategoriesPage : ComponentBase
                 },
                 cancellationToken);
 
-            return new PagedList<CategoryResponse>(
-                response?.Items ?? [],
-                response?.Page ?? page,
-                response?.PageSize ?? pageSize,
-                response?.TotalCount ?? 0);
-        });
+            if (_tableError is not null)
+                _tableError = null;
 
-        if (_query.Data is null)
-            return new TableData<CategoryResponse> { Items = [], TotalItems = 0 };
+            _parentCandidates = response?.Items ?? [];
 
-        return new TableData<CategoryResponse>
+            return new TableData<CategoryResponse>
+            {
+                Items = _parentCandidates,
+                TotalItems = response?.TotalCount ?? 0
+            };
+        }
+        catch (Exception ex)
         {
-            Items = _query.Data.Items,
-            TotalItems = _query.Data.TotalCount
-        };
+            _tableError = ApiErrors.GetMessage(ex);
+            return new TableData<CategoryResponse> { Items = [], TotalItems = 0 };
+        }
     }
 
     private async Task OnKindQueryChanged(string value)
@@ -106,7 +101,7 @@ public partial class CategoriesPage : ComponentBase
     {
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _query.Data?.Items ?? [] },
+            { x => x.ParentCandidates, _parentCandidates },
             { x => x.SubmitText, "Create" }
         };
         var options = new DialogOptions
@@ -132,7 +127,7 @@ public partial class CategoriesPage : ComponentBase
 
         var parameters = new DialogParameters<CategoryFormDialog>
         {
-            { x => x.ParentCandidates, _query.Data?.Items ?? [] },
+            { x => x.ParentCandidates, _parentCandidates },
             { x => x.Category, category },
             { x => x.SubmitText, "Save" }
         };
@@ -206,9 +201,16 @@ public partial class CategoriesPage : ComponentBase
             await _table.ReloadServerData();
     }
 
-    private Task ResetToFirstPageAndReloadAsync()
+    private async Task ReloadTableAsync()
     {
-        _tableVersion++;
-        return InvokeAsync(StateHasChanged);
+        if (_table is null)
+            return;
+
+        if (_table.CurrentPage != 0)
+            _table.NavigateTo(0);
+
+        await _table.ReloadServerData();
     }
+
+    private Task ResetToFirstPageAndReloadAsync() => ReloadTableAsync();
 }

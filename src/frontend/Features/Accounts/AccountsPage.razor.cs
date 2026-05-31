@@ -18,12 +18,9 @@ public partial class AccountsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<PagedList<AccountResponse>> _query =
-        QueryState<PagedList<AccountResponse>>.Loading();
-
     private MutationState _mutation = MutationState.Idle;
     private MudTable<AccountResponse>? _table;
-    private int _tableVersion;
+    private string? _tableError;
 
     private bool _includeArchived;
     private string _typeQuery = string.Empty;
@@ -37,15 +34,10 @@ public partial class AccountsPage : ComponentBase
         TableState state,
         CancellationToken cancellationToken)
     {
-        if (_query.Data is not null)
-            _query = QueryState<PagedList<AccountResponse>>.Fetching(_query.Data);
-        else
-            _query = QueryState<PagedList<AccountResponse>>.Loading();
-
         var page = state.Page + 1;
         var pageSize = state.PageSize > 0 ? state.PageSize : 50;
 
-        _query = await QueryState<PagedList<AccountResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Accounts.GetAsync(configuration =>
                 {
@@ -59,21 +51,20 @@ public partial class AccountsPage : ComponentBase
                 },
                 cancellationToken);
 
-            return new PagedList<AccountResponse>(
-                response?.Items ?? [],
-                response?.Page ?? page,
-                response?.PageSize ?? pageSize,
-                response?.TotalCount ?? 0);
-        });
+            if (_tableError is not null)
+                _tableError = null;
 
-        if (_query.Data is null)
-            return new TableData<AccountResponse> { Items = [], TotalItems = 0 };
-
-        return new TableData<AccountResponse>
+            return new TableData<AccountResponse>
+            {
+                Items = response?.Items ?? [],
+                TotalItems = response?.TotalCount ?? 0
+            };
+        }
+        catch (Exception ex)
         {
-            Items = _query.Data.Items,
-            TotalItems = _query.Data.TotalCount
-        };
+            _tableError = ApiErrors.GetMessage(ex);
+            return new TableData<AccountResponse> { Items = [], TotalItems = 0 };
+        }
     }
 
     private async Task OnIncludeArchivedChanged(bool value)
@@ -208,9 +199,16 @@ public partial class AccountsPage : ComponentBase
             await _table.ReloadServerData();
     }
 
-    private Task ResetToFirstPageAndReloadAsync()
+    private async Task ReloadTableAsync()
     {
-        _tableVersion++;
-        return InvokeAsync(StateHasChanged);
+        if (_table is null)
+            return;
+
+        if (_table.CurrentPage != 0)
+            _table.NavigateTo(0);
+
+        await _table.ReloadServerData();
     }
+
+    private Task ResetToFirstPageAndReloadAsync() => ReloadTableAsync();
 }

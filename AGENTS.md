@@ -133,8 +133,18 @@ Conventions:
 - `QueryState<T>` for API reads (`IsLoading` = first load, `IsFetching` = refetch with stale data kept, `Success`, `Error`); `MutationState` for writes (`IsPending` / `Error`).
 - Use `QueryState.RunAsync` and `MutationState.RunAsync`; map exceptions via `ApiErrors.GetMessage`.
 - Load errors → `MudAlert` on the page; mutation errors → `ISnackbar` (`Severity.Error`, ~5s auto-close).
-- New list pages should follow `AccountsPage` / `CategoriesPage` (query + mutation, refetch after successful mutation).
+- Use `QueryState` for **auxiliary** reads (lookups, summaries, charts) and for **non–`ServerData`** tables bound via `Items`.
+- Do **not** use `QueryState` loading/fetching updates inside `MudTable` `ServerData` callbacks — see **Blazor WASM / `MudTable` `ServerData`** below.
 - Do not reference MudBlazor from `Infrastructure/`.
+
+**Blazor WASM / `MudTable` `ServerData`** — WASM runs UI and continuations on one thread. Updating page fields during `LoadServerDataAsync` (e.g. `QueryState.Loading()` / `Fetching()`, or `Loading="@_query.IsFetching"`) re-renders the whole page and can block HTTP callbacks for seconds even when the API is fast.
+
+- In `LoadServerDataAsync`: call the API, return `TableData<T>`; do **not** assign `QueryState` loading/fetching on the page for the table.
+- Table errors: `string? _tableError` set only in `catch`; clear only when transitioning from error → success.
+- Let `MudTable` show loading for `ServerData` itself — do **not** bind `Loading` to page `QueryState.IsFetching`.
+- Filter/page reset: `_table.NavigateTo(0)` when needed, then `await _table.ReloadServerData()` — do **not** use `@key` on the table to force remount.
+- If the page needs current rows for dialogs (e.g. parent candidates), keep a separate field updated on successful load (e.g. `_parentCandidates`), not table `QueryState`.
+- Reference: `TransactionsPage` (`LoadServerDataAsync`, `ReloadTableAsync`).
 
 **Pagination standard**:
 
@@ -149,6 +159,6 @@ Conventions:
 - Use separate `QueryState<T>` fields (e.g. `_accountsQuery`, `_categoriesQuery`), each with its own `Load*Async`.
 - Initial load: `await Task.WhenAll(...)` when queries are independent.
 - Refetch only the query whose inputs changed.
-- Loading UX: full-page spinner while **all** initial queries load; toolbar/auxiliary controls as soon as their query resolves; `IsFetching` on the main list for refetch.
-- Errors: main query → `MudAlert`; auxiliary query → caption near control or snackbar.
+- Loading UX: full-page spinner while **all** initial auxiliary queries load; toolbar controls as soon as their query resolves; `IsFetching` + shimmer/progress on **summary/metric** blocks fed by `QueryState` (not on `ServerData` tables).
+- Errors: auxiliary query → caption near control or snackbar; table `ServerData` → `_tableError` + `MudAlert` above the table.
 - Prefer a backend filter on the primary list over client-side joins across entities.
