@@ -1,0 +1,99 @@
+@using Trackr.Api.Models
+@using frontend.Features.Shared
+
+@if (_summaryError is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_summaryError</MudAlert>
+}
+
+<TransactionSummaryCards Summary="_summary" IsInitialLoading="_initialLoading" />
+
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Visual insights</MudText>
+
+<MudGrid Class="mb-4" Spacing="2">
+    <MudItem xs="12" md="6">
+        <MudPaper Class="trackr-panel pa-4" Elevation="0">
+            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by category</MudText>
+            @if (_expensesError is not null)
+            {
+                <MudText Color="Color.Error">@_expensesError</MudText>
+            }
+            else if (_categoryChartLabels.Length == 0)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No expenses in this period.</MudText>
+            }
+            else
+            {
+                <MudChart T="double"
+                          ChartType="ChartType.Donut"
+                          ChartSeries="_categoryChartData.AsChartDataSet()"
+                          ChartOptions="_donutChartOptions"
+                          ChartLabels="_categoryChartLabels"
+                          Width="100%"
+                          Height="280px" />
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudPaper Class="trackr-panel pa-4" Elevation="0">
+            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by priority</MudText>
+            @if (_summaryError is not null)
+            {
+                <MudText Color="Color.Error">@_summaryError</MudText>
+            }
+            else if (_priorityChartLabels.Length == 0)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No expenses in this period.</MudText>
+            }
+            else
+            {
+                <MudChart T="double"
+                          ChartType="ChartType.Pie"
+                          ChartSeries="_priorityChartData.AsChartDataSet()"
+                          ChartOptions="_priorityPieChartOptions"
+                          ChartLabels="_priorityChartLabels"
+                          Width="100%"
+                          Height="280px" />
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Expenses by category</MudText>
+
+@if (_expensesError is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_expensesError</MudAlert>
+}
+else if (!_initialLoading && _expenses.Count == 0)
+{
+    <MudText Class="mb-4" Color="Color.Secondary">No expenses in this period.</MudText>
+}
+else if (!_initialLoading)
+{
+    var expenseTotal = GetCategoryExpenseTotal();
+    <MudTable T="ExpenseByCategoryItem"
+              Items="_expenses"
+              Hover="true"
+              Dense="true"
+              Class="mb-4 trackr-table">
+        <HeaderContent>
+            <MudTh>Category</MudTh>
+            <MudTh Style="text-align: right;">Amount</MudTh>
+            <MudTh Style="text-align: right;">Share</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Category">@(context.CategoryName ?? "")</MudTd>
+            <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
+                @MoneyFormat.Format(context.TotalAmount)
+            </MudTd>
+            <MudTd DataLabel="Share" Style="text-align: right;" Class="font-mono-numbers">
+                @FormatPercent(context.TotalAmount ?? 0m, expenseTotal)
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private readonly DonutChartOptions _donutChartOptions = new() { ShowLegend = true };
+}

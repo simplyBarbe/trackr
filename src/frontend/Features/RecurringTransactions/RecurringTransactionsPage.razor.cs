@@ -6,7 +6,7 @@ using Trackr.Api.Models;
 
 namespace frontend.Features.RecurringTransactions;
 
-public partial class RecurringTransactionsPage : ComponentBase
+public partial class RecurringTransactionsPage : ComponentBase, IDisposable
 {
     [Inject]
     private TrackrApiClient TrackrApi { get; set; } = null!;
@@ -17,19 +17,21 @@ public partial class RecurringTransactionsPage : ComponentBase
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<AccountResponse>> _accountsQuery =
-        QueryState<IReadOnlyList<AccountResponse>>.Loading();
+    private IReadOnlyList<AccountResponse> _accounts = [];
+    private IReadOnlyList<CategoryResponse> _categories = [];
+    private bool _accountsLoading = true;
+    private bool _categoriesLoading = true;
+    private string? _accountsError;
 
-    private QueryState<IReadOnlyList<CategoryResponse>> _categoriesQuery =
-        QueryState<IReadOnlyList<CategoryResponse>>.Loading();
+    private bool _saving;
+    private int _refreshVersion;
+    private bool? _activeFilterDraft;
+    private RecurringListFilters _listFilters = new();
 
-    private MutationState _mutation = MutationState.Idle;
-    private MudTable<RecurringTransactionResponse>? _table;
-    private string? _tableError;
+    private readonly DebouncedAsync _filterPublish = new();
 
-    private bool? _activeFilter;
-
-    private bool CanMutate => _accountsQuery.HasData && !_accountsQuery.IsError;
+    private bool CanMutate =>
+        !_accountsLoading && _accountsError is null && _accounts.Count > 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,7 +40,7 @@ public partial class RecurringTransactionsPage : ComponentBase
 
     private async Task LoadAccountsAsync()
     {
-        _accountsQuery = await QueryState<IReadOnlyList<AccountResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Accounts.GetAsync(config =>
             {
@@ -46,13 +48,22 @@ public partial class RecurringTransactionsPage : ComponentBase
                 config.QueryParameters.PageSize = 200;
             });
 
-            return (IReadOnlyList<AccountResponse>)(response?.Items ?? []);
-        });
+            _accounts = response?.Items ?? [];
+            _accountsError = null;
+        }
+        catch (Exception ex)
+        {
+            _accountsError = ApiErrors.GetMessage(ex);
+        }
+        finally
+        {
+            _accountsLoading = false;
+        }
     }
 
     private async Task LoadCategoriesAsync()
     {
-        _categoriesQuery = await QueryState<IReadOnlyList<CategoryResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Categories.GetAsync(config =>
             {
@@ -60,55 +71,37 @@ public partial class RecurringTransactionsPage : ComponentBase
                 config.QueryParameters.PageSize = 200;
             });
 
-            return (IReadOnlyList<CategoryResponse>)(response?.Items ?? []);
-        });
-    }
-
-    private async Task<TableData<RecurringTransactionResponse>> LoadServerDataAsync(
-        TableState state,
-        CancellationToken cancellationToken)
-    {
-        var page = state.Page + 1;
-        var pageSize = state.PageSize > 0 ? state.PageSize : PaginationDefaults.PageSize;
-
-        try
-        {
-            var response = await TrackrApi.RecurringTransactions.GetAsync(config =>
-            {
-                config.QueryParameters.Page = page;
-                config.QueryParameters.PageSize = pageSize;
-                if (_activeFilter is not null)
-                    config.QueryParameters.IsActive = _activeFilter;
-            }, cancellationToken);
-
-            if (_tableError is not null)
-                _tableError = null;
-
-            return new TableData<RecurringTransactionResponse>
-            {
-                Items = response?.Items ?? [],
-                TotalItems = response?.TotalCount ?? 0
-            };
+            _categories = response?.Items ?? [];
         }
-        catch (Exception ex)
+        finally
         {
-            _tableError = ApiErrors.GetMessage(ex);
-            return new TableData<RecurringTransactionResponse> { Items = [], TotalItems = 0 };
+            _categoriesLoading = false;
         }
     }
 
-    private async Task OnActiveFilterChanged(bool? value)
+    private Task OnActiveFilterChanged(bool? value)
     {
-        _activeFilter = value;
-        await ReloadTableAsync();
+        _activeFilterDraft = value;
+        return SchedulePublishFiltersAsync();
     }
+
+    private Task SchedulePublishFiltersAsync() =>
+        _filterPublish.InvokeAsync(PublishFiltersAsync);
+
+    private Task PublishFiltersAsync()
+    {
+        _listFilters = new RecurringListFilters(_activeFilterDraft);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _filterPublish.Dispose();
 
     private async Task OpenCreateDialogAsync()
     {
         var parameters = new DialogParameters<RecurringTransactionFormDialog>
         {
-            { x => x.Accounts, _accountsQuery.Data ?? [] },
-            { x => x.Categories, _categoriesQuery.Data ?? [] },
+            { x => x.Accounts, _accounts },
+            { x => x.Categories, _categories },
             { x => x.SubmitText, "Create" }
         };
         var options = new DialogOptions
@@ -138,8 +131,8 @@ public partial class RecurringTransactionsPage : ComponentBase
         var parameters = new DialogParameters<RecurringTransactionFormDialog>
         {
             { x => x.Recurring, recurring },
-            { x => x.Accounts, _accountsQuery.Data ?? [] },
-            { x => x.Categories, _categoriesQuery.Data ?? [] },
+            { x => x.Accounts, _accounts },
+            { x => x.Categories, _categories },
             { x => x.SubmitText, "Save" }
         };
         var options = new DialogOptions
@@ -163,40 +156,42 @@ public partial class RecurringTransactionsPage : ComponentBase
 
     private async Task CreateAsync(RecurringTransactionFormResult form)
     {
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
-            var request = MapCreateRequest(form);
-            await TrackrApi.RecurringTransactions.PostAsync(request);
-        });
-
-        if (_mutation.Error is not null)
+            await TrackrApi.RecurringTransactions.PostAsync(MapCreateRequest(form));
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        if (_table is not null)
-            await _table.ReloadServerData();
+        _refreshVersion++;
     }
 
     private async Task UpdateAsync(string id, RecurringTransactionFormResult form)
     {
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
-            var request = MapUpdateRequest(form);
-            await TrackrApi.RecurringTransactions[id].PutAsync(request);
-        });
-
-        if (_mutation.Error is not null)
+            await TrackrApi.RecurringTransactions[id].PutAsync(MapUpdateRequest(form));
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        if (_table is not null)
-            await _table.ReloadServerData();
+        _refreshVersion++;
     }
 
     private async Task GenerateNowAsync(RecurringTransactionResponse recurring)
@@ -204,17 +199,20 @@ public partial class RecurringTransactionsPage : ComponentBase
         if (string.IsNullOrWhiteSpace(recurring.Id))
             return;
 
-        _mutation = MutationState.Pending();
+        _saving = true;
         GenerateRecurringTransactionResponse? response = null;
-        _mutation = await MutationState.RunAsync(async () =>
+        try
         {
             response = await TrackrApi.RecurringTransactions[recurring.Id].GenerateNow.PostAsync();
-        });
-
-        if (_mutation.Error is not null)
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
+        }
+        finally
+        {
+            _saving = false;
         }
 
         var created = response?.TransactionsCreated ?? 0;
@@ -230,8 +228,7 @@ public partial class RecurringTransactionsPage : ComponentBase
             Snackbar.Add("Nothing due to post.", Severity.Info, c => c.VisibleStateDuration = 5000);
         }
 
-        if (_table is not null)
-            await _table.ReloadServerData();
+        _refreshVersion++;
     }
 
     private async Task ArchiveAsync(RecurringTransactionResponse recurring)
@@ -239,20 +236,22 @@ public partial class RecurringTransactionsPage : ComponentBase
         if (string.IsNullOrWhiteSpace(recurring.Id))
             return;
 
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
             await TrackrApi.RecurringTransactions[recurring.Id].Archive.PostAsync();
-        });
-
-        if (_mutation.Error is not null)
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        if (_table is not null)
-            await _table.ReloadServerData();
+        _refreshVersion++;
     }
 
     private async Task ToggleActiveAsync(RecurringTransactionResponse recurring)
@@ -278,20 +277,22 @@ public partial class RecurringTransactionsPage : ComponentBase
             IsActive = !(recurring.IsActive ?? true)
         };
 
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
             await TrackrApi.RecurringTransactions[recurring.Id].PutAsync(request);
-        });
-
-        if (_mutation.Error is not null)
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        if (_table is not null)
-            await _table.ReloadServerData();
+        _refreshVersion++;
     }
 
     private static CreateRecurringTransactionRequest MapCreateRequest(RecurringTransactionFormResult form) =>
@@ -330,18 +331,4 @@ public partial class RecurringTransactionsPage : ComponentBase
             EndOn = form.EndOn,
             IsActive = form.IsActive
         };
-
-    private static string FormatAmount(decimal? amount) =>
-        amount?.ToString("N2") ?? "";
-
-    private async Task ReloadTableAsync()
-    {
-        if (_table is null)
-            return;
-
-        if (_table.CurrentPage != 0)
-            _table.NavigateTo(0);
-
-        await _table.ReloadServerData();
-    }
 }

@@ -137,14 +137,22 @@ Conventions:
 - Do **not** use `QueryState` loading/fetching updates inside `MudTable` `ServerData` callbacks — see **Blazor WASM / `MudTable` `ServerData`** below.
 - Do not reference MudBlazor from `Infrastructure/`.
 
-**Blazor WASM / `MudTable` `ServerData`** — WASM runs UI and continuations on one thread. Updating page fields during `LoadServerDataAsync` (e.g. `QueryState.Loading()` / `Fetching()`, or `Loading="@_query.IsFetching"`) re-renders the whole page and can block HTTP callbacks for seconds even when the API is fast.
+**Blazor WASM / `MudTable` `ServerData`** — WASM runs UI and continuations on one thread. Updating page fields during `LoadServerDataAsync` (e.g. `QueryState.Loading()` / `Fetching()`, or `Loading="@_query.IsFetching"`) re-renders the whole page and can block the UI for seconds even when the API is fast. **Debug builds are much slower than Release** — profile UI responsiveness with `dotnet run -c Release` or a published build, not Debug alone.
 
 - In `LoadServerDataAsync`: call the API, return `TableData<T>`; do **not** assign `QueryState` loading/fetching on the page for the table.
 - Table errors: `string? _tableError` set only in `catch`; clear only when transitioning from error → success.
 - Let `MudTable` show loading for `ServerData` itself — do **not** bind `Loading` to page `QueryState.IsFetching`.
 - Filter/page reset: `_table.NavigateTo(0)` when needed, then `await _table.ReloadServerData()` — do **not** use `@key` on the table to force remount.
 - If the page needs current rows for dialogs (e.g. parent candidates), keep a separate field updated on successful load (e.g. `_parentCandidates`), not table `QueryState`.
-- Reference: `TransactionsPage` (`LoadServerDataAsync`, `ReloadTableAsync`).
+- Reference: `TransactionsTableSection` (`LoadServerDataAsync`, filter-driven reload via `OnParametersSetAsync`).
+
+**Heavy pages (toolbar + multiple data regions)** — when a page combines filters, summary/metrics, charts, and a `ServerData` table, **do not** load and render everything on the routable `*Page` component. Split into feature-local sections so each region re-renders independently:
+
+- `*Page` — header, toolbar, filter draft fields, lookup loads; publishes an immutable filter snapshot (e.g. `TransactionListFilters`, `DashboardDateRange`) via `DebouncedAsync` when filters change.
+- `*SummarySection` / `*DashboardSection` — summary, charts, or other auxiliary API reads tied to the filter snapshot.
+- `*TableSection` — `MudTable` + `ServerData`; reloads when the filter snapshot or a `RefreshVersion` (post-mutation bump) changes.
+- On filter-driven refetch: update section data **only when the API returns** — skip `QueryState.Fetching()` / intermediate loading assignments that repaint the whole page (use `IsInitialLoading` shimmer on first load only).
+- Single-table CRUD pages (`AccountsPage`, `CategoriesPage`) may keep table + toolbar on one page — no extra sections until a second data region appears.
 
 **Pagination standard**:
 
@@ -159,6 +167,6 @@ Conventions:
 - Use separate `QueryState<T>` fields (e.g. `_accountsQuery`, `_categoriesQuery`), each with its own `Load*Async`.
 - Initial load: `await Task.WhenAll(...)` when queries are independent.
 - Refetch only the query whose inputs changed.
-- Loading UX: full-page spinner while **all** initial auxiliary queries load; toolbar controls as soon as their query resolves; `IsFetching` + shimmer/progress on **summary/metric** blocks fed by `QueryState` (not on `ServerData` tables).
+- Loading UX: full-page spinner while **all** initial auxiliary queries load; toolbar controls as soon as their query resolves; `IsFetching` + shimmer/progress on **summary/metric** blocks fed by `QueryState` (not on `ServerData` tables). On **filter-driven refetch**, prefer stale data until the response arrives — do **not** assign `Fetching` if it would re-render a parent that also hosts a table or charts (see **Heavy pages** above).
 - Errors: auxiliary query → caption near control or snackbar; table `ServerData` → `_tableError` + `MudAlert` above the table.
 - Prefer a backend filter on the primary list over client-side joins across entities.

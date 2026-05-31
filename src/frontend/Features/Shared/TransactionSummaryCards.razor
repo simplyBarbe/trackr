@@ -1,11 +1,10 @@
-@using frontend.Infrastructure
 @using Trackr.Api.Models
 
 <MudGrid Class="mb-4" Spacing="2">
     <MudItem xs="12" md="4">
         <div class="trackr-metric-tile trackr-metric-tile--featured pa-5">
             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">Net savings</MudText>
-            @if (SummaryQuery.IsLoading && !SummaryQuery.HasData)
+            @if (IsInitialLoading)
             {
                 <div class="trackr-shimmer" style="height: 2.5rem; width: 70%;"></div>
             }
@@ -17,86 +16,66 @@
                          Style="font-weight: 600;">
                     @MoneyFormat.Format(NetSavings)
                 </MudText>
-                @if (SummaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Primary" />
-                }
             }
         </div>
     </MudItem>
     <MudItem xs="6" sm="6" md="2">
         <div class="trackr-metric-tile trackr-metric-tile--income pa-4" style="height: 100%;">
             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">Income</MudText>
-            @if (SummaryQuery.IsLoading && !SummaryQuery.HasData)
+            @if (IsInitialLoading)
             {
                 <div class="trackr-shimmer" style="height: 1.75rem; width: 80%;"></div>
             }
             else
             {
                 <MudText Typo="Typo.h6" Class="font-mono-numbers" Color="Color.Success" Style="font-weight: 600;">
-                    @MoneyFormat.Format(SummaryQuery.Data?.TotalIncome)
+                    @MoneyFormat.Format(Summary.TotalIncome)
                 </MudText>
-                @if (SummaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Success" />
-                }
             }
         </div>
     </MudItem>
     <MudItem xs="6" sm="6" md="2">
         <div class="trackr-metric-tile trackr-metric-tile--essential pa-4" style="height: 100%;">
             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">Essential</MudText>
-            @if (SummaryQuery.IsLoading && !SummaryQuery.HasData)
+            @if (IsInitialLoading)
             {
                 <div class="trackr-shimmer" style="height: 1.75rem; width: 80%;"></div>
             }
             else
             {
                 <MudText Typo="Typo.h6" Class="font-mono-numbers" Color="Color.Error" Style="font-weight: 600;">
-                    @MoneyFormat.Format(SummaryQuery.Data?.TotalEssentialExpense)
+                    @MoneyFormat.Format(Summary.TotalEssentialExpense)
                 </MudText>
-                @if (SummaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Error" />
-                }
             }
         </div>
     </MudItem>
     <MudItem xs="6" sm="6" md="2">
         <div class="trackr-metric-tile trackr-metric-tile--important pa-4" style="height: 100%;">
             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">Important</MudText>
-            @if (SummaryQuery.IsLoading && !SummaryQuery.HasData)
+            @if (IsInitialLoading)
             {
                 <div class="trackr-shimmer" style="height: 1.75rem; width: 80%;"></div>
             }
             else
             {
                 <MudText Typo="Typo.h6" Class="font-mono-numbers" Color="Color.Warning" Style="font-weight: 600;">
-                    @MoneyFormat.Format(SummaryQuery.Data?.TotalImportantExpense)
+                    @MoneyFormat.Format(Summary.TotalImportantExpense)
                 </MudText>
-                @if (SummaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Warning" />
-                }
             }
         </div>
     </MudItem>
     <MudItem xs="6" sm="6" md="2">
         <div class="trackr-metric-tile trackr-metric-tile--discretionary pa-4" style="height: 100%;">
             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-1">Discretionary</MudText>
-            @if (SummaryQuery.IsLoading && !SummaryQuery.HasData)
+            @if (IsInitialLoading)
             {
                 <div class="trackr-shimmer" style="height: 1.75rem; width: 80%;"></div>
             }
             else
             {
                 <MudText Typo="Typo.h6" Class="font-mono-numbers" Style="font-weight: 600;">
-                    @MoneyFormat.Format(SummaryQuery.Data?.TotalDiscretionaryExpense)
+                    @MoneyFormat.Format(Summary.TotalDiscretionaryExpense)
                 </MudText>
-                @if (SummaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" />
-                }
             }
         </div>
     </MudItem>
@@ -104,20 +83,19 @@
 
 @code {
     [Parameter, EditorRequired]
-    public QueryState<GetTransactionSummaryResponse> SummaryQuery { get; set; } = null!;
+    public GetTransactionSummaryResponse Summary { get; set; } = null!;
+
+    [Parameter]
+    public bool IsInitialLoading { get; set; }
 
     private decimal NetSavings
     {
         get
         {
-            var data = SummaryQuery.Data;
-            if (data is null)
-                return 0m;
-
-            var income = data.TotalIncome ?? 0m;
-            var expenses = (data.TotalEssentialExpense ?? 0m)
-                + (data.TotalImportantExpense ?? 0m)
-                + (data.TotalDiscretionaryExpense ?? 0m);
+            var income = Summary.TotalIncome ?? 0m;
+            var expenses = (Summary.TotalEssentialExpense ?? 0m)
+                + (Summary.TotalImportantExpense ?? 0m)
+                + (Summary.TotalDiscretionaryExpense ?? 0m);
             return income - expenses;
         }
     }

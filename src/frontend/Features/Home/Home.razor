@@ -1,6 +1,5 @@
 @page "/"
-@using frontend.Features.Accounts
-@using Trackr.Api.Models
+@using frontend.Features.Shared
 
 <PageTitle>Home</PageTitle>
 
@@ -33,7 +32,7 @@
                            Variant="Variant.Outlined"
                            Margin="Margin.Dense"
                            Date="_fromPicker"
-                           DateChanged="OnFromPickerChanged"
+                           DateChanged="OnFromDateChanged"
                            Clearable="true" />
         </div>
         <div class="trackr-filter-field">
@@ -41,153 +40,12 @@
                            Variant="Variant.Outlined"
                            Margin="Margin.Dense"
                            Date="_toPicker"
-                           DateChanged="OnToPickerChanged"
+                           DateChanged="OnToDateChanged"
                            Clearable="true" />
         </div>
     </div>
 </div>
 
-@if (IsInitialLoading)
-{
-    <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
-}
+<HomeDashboardSection DateRange="_dateRange" />
 
-@if (_summaryQuery.IsError)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_summaryQuery.Error</MudAlert>
-}
-
-<TransactionSummaryCards SummaryQuery="_summaryQuery" />
-
-<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Visual insights</MudText>
-
-<MudGrid Class="mb-4" Spacing="2">
-    <MudItem xs="12" md="6">
-        <MudPaper Class="trackr-panel pa-4" Elevation="0">
-            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by category</MudText>
-            @if (_expensesByCategoryQuery.IsError)
-            {
-                <MudText Color="Color.Error">@_expensesByCategoryQuery.Error</MudText>
-            }
-            else if (_categoryChartLabels.Length == 0)
-            {
-                <MudText Typo="Typo.body2" Color="Color.Secondary">No expenses in this period.</MudText>
-            }
-            else
-            {
-                <MudChart T="double"
-                          ChartType="ChartType.Donut"
-                          ChartSeries="_categoryChartData.AsChartDataSet()"
-                          ChartOptions="_donutChartOptions"
-                          ChartLabels="_categoryChartLabels"
-                          Width="100%"
-                          Height="280px" />
-                @if (_expensesByCategoryQuery.IsFetching || _summaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Primary" />
-                }
-            }
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" md="6">
-        <MudPaper Class="trackr-panel pa-4" Elevation="0">
-            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight: 600;">Expenses by priority</MudText>
-            @if (_summaryQuery.IsError)
-            {
-                <MudText Color="Color.Error">@_summaryQuery.Error</MudText>
-            }
-            else if (_priorityChartLabels.Length == 0)
-            {
-                <MudText Typo="Typo.body2" Color="Color.Secondary">No expenses in this period.</MudText>
-            }
-            else
-            {
-                <MudChart T="double"
-                          ChartType="ChartType.Pie"
-                          ChartSeries="_priorityChartData.AsChartDataSet()"
-                          ChartOptions="_priorityPieChartOptions"
-                          ChartLabels="_priorityChartLabels"
-                          Width="100%"
-                          Height="280px" />
-                @if (_summaryQuery.IsFetching)
-                {
-                    <MudProgressLinear Indeterminate="true" Class="mt-2" Color="Color.Primary" />
-                }
-            }
-        </MudPaper>
-    </MudItem>
-</MudGrid>
-
-<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Expenses by category</MudText>
-
-@if (_expensesByCategoryQuery.IsError)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_expensesByCategoryQuery.Error</MudAlert>
-}
-else if (_expensesByCategoryQuery.HasData && _expensesByCategoryQuery.Data!.Count == 0)
-{
-    <MudText Class="mb-4" Color="Color.Secondary">No expenses in this period.</MudText>
-}
-else if (_expensesByCategoryQuery.HasData)
-{
-    var expenseTotal = GetCategoryExpenseTotal();
-    <MudTable T="ExpenseByCategoryItem"
-              Items="_expensesByCategoryQuery.Data"
-              Hover="true"
-              Dense="true"
-              Class="mb-4 trackr-table">
-        <HeaderContent>
-            <MudTh>Category</MudTh>
-            <MudTh Style="text-align: right;">Amount</MudTh>
-            <MudTh Style="text-align: right;">Share</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Category">@(context.CategoryName ?? "")</MudTd>
-            <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
-                @MoneyFormat.Format(context.TotalAmount)
-            </MudTd>
-            <MudTd DataLabel="Share" Style="text-align: right;" Class="font-mono-numbers">
-                @FormatPercent(context.TotalAmount ?? 0m, expenseTotal)
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-}
-
-<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Balances</MudText>
-
-@if (_accountsQuery.IsError)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4">@_accountsQuery.Error</MudAlert>
-}
-else if (_accountsQuery.HasData && _accountsQuery.Data!.Count == 0)
-{
-    <MudText Class="mb-2" Color="Color.Secondary">No accounts yet.</MudText>
-    <MudButton Href="/accounts" Variant="Variant.Filled" Color="Color.Primary">
-        Create an account
-    </MudButton>
-}
-else if (_accountsQuery.HasData)
-{
-    <MudGrid Class="mb-4" Spacing="2">
-        @foreach (var account in _accountsQuery.Data!)
-        {
-            <MudItem xs="12" sm="6" md="4" lg="3">
-                <MudPaper Class="trackr-account-card pa-4" Elevation="0" Style="@AccountCardStyles.GetBorderLeftStyle(account.Color)">
-                    <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@(account.Name ?? "")</MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
-                        @(account.Type?.ToString() ?? "")
-                    </MudText>
-                    <MudText Typo="Typo.h5"
-                             Class="font-mono-numbers"
-                             Style="@AccountCardStyles.GetBalanceStyle(account)">
-                        @FormatBalance(account)
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-        }
-    </MudGrid>
-}
-
-@code {
-    private readonly DonutChartOptions _donutChartOptions = new() { ShowLegend = true };
-}
+<HomeBalancesSection />

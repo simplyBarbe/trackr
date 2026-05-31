@@ -1,0 +1,41 @@
+@using frontend.Features.Accounts
+@using Trackr.Api.Models
+
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 600;">Balances</MudText>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" Color="Color.Primary" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+else if (_accounts.Count == 0)
+{
+    <MudText Class="mb-2" Color="Color.Secondary">No accounts yet.</MudText>
+    <MudButton Href="/accounts" Variant="Variant.Filled" Color="Color.Primary">
+        Create an account
+    </MudButton>
+}
+else
+{
+    <MudGrid Class="mb-4" Spacing="2">
+        @foreach (var account in _accounts)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudPaper Class="trackr-account-card pa-4" Elevation="0" Style="@AccountCardStyles.GetBorderLeftStyle(account.Color)">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@(account.Name ?? "")</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
+                        @(account.Type?.ToString() ?? "")
+                    </MudText>
+                    <MudText Typo="Typo.h5"
+                             Class="font-mono-numbers"
+                             Style="@AccountCardStyles.GetBalanceStyle(account)">
+                        @MoneyFormat.Format(account.Balance)
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+}

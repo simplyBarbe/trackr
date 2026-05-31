@@ -1,0 +1,76 @@
+@using Trackr.Api.Models
+@using frontend.Features.Shared
+
+@if (_tableError is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_tableError</MudAlert>
+}
+
+<MudTable T="RecurringTransactionResponse"
+          @ref="_table"
+          ServerData="LoadServerDataAsync"
+          Hover="true"
+          Striped="true"
+          Breakpoint="Breakpoint.Sm"
+          Class="trackr-table">
+    <HeaderContent>
+        <MudTh>Description</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Account</MudTh>
+        <MudTh>Schedule</MudTh>
+        <MudTh Style="text-align: right;">Amount</MudTh>
+        <MudTh>Next due</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh Style="width: 10rem;">Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Description">@(string.IsNullOrWhiteSpace(context.Description) ? "—" : context.Description)</MudTd>
+        <MudTd DataLabel="Type">@(context.Type?.ToString() ?? "")</MudTd>
+        <MudTd DataLabel="Account">@context.AccountName</MudTd>
+        <MudTd DataLabel="Schedule">@RecurringFormat.FormatFrequency(context)</MudTd>
+        <MudTd DataLabel="Amount" Style="text-align: right;" Class="font-mono-numbers">
+            @FormatAmount(context.Amount)
+        </MudTd>
+        <MudTd DataLabel="Next due">@RecurringFormat.FormatDate(context.NextOccurrenceOn)</MudTd>
+        <MudTd DataLabel="Status">
+            @if (context.IsActive == true)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Filled">Active</MudChip>
+            }
+            else
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">Paused</MudChip>
+            }
+        </MudTd>
+        <MudTd DataLabel="Actions">
+            <MudTooltip Text="Run now">
+                <MudIconButton Icon="@Icons.Material.Filled.PlayCircle"
+                               Color="Color.Secondary"
+                               Size="Size.Small"
+                               Disabled="@(Saving || context.IsActive != true)"
+                               aria-label="Run now"
+                               OnClick="@(() => OnGenerateNow.InvokeAsync(context))" />
+            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           Disabled="@(Saving || !CanEdit)"
+                           OnClick="@(() => OnEdit.InvokeAsync(context))" />
+            <MudIconButton Icon="@(context.IsActive == true ? Icons.Material.Filled.Pause : Icons.Material.Filled.PlayArrow)"
+                           Color="Color.Default"
+                           Size="Size.Small"
+                           Disabled="@Saving"
+                           aria-label="@(context.IsActive == true ? "Pause" : "Resume")"
+                           OnClick="@(() => OnToggleActive.InvokeAsync(context))" />
+            <MudIconButton Icon="@Icons.Material.Filled.Archive"
+                           Color="Color.Default"
+                           Size="Size.Small"
+                           Disabled="@Saving"
+                           aria-label="Archive"
+                           OnClick="@(() => OnArchive.InvokeAsync(context))" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

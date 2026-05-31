@@ -9,7 +9,7 @@ using Trackr.Api.Models;
 
 namespace frontend.Features.Transactions;
 
-public partial class TransactionsPage : ComponentBase
+public partial class TransactionsPage : ComponentBase, IDisposable
 {
     [Inject]
     private TrackrApiClient TrackrApi { get; set; } = null!;
@@ -23,19 +23,16 @@ public partial class TransactionsPage : ComponentBase
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
-    private QueryState<IReadOnlyList<AccountResponse>> _accountsQuery =
-        QueryState<IReadOnlyList<AccountResponse>>.Loading();
+    private IReadOnlyList<AccountResponse> _accounts = [];
+    private IReadOnlyList<CategoryResponse> _categories = [];
+    private bool _accountsLoading = true;
+    private bool _categoriesLoading = true;
+    private string? _accountsError;
+    private string? _categoriesError;
 
-    private QueryState<IReadOnlyList<CategoryResponse>> _categoriesQuery =
-        QueryState<IReadOnlyList<CategoryResponse>>.Loading();
-
-    private QueryState<GetTransactionSummaryResponse> _summaryQuery =
-        QueryState<GetTransactionSummaryResponse>.Loading();
-
-    private MutationState _mutation = MutationState.Idle;
+    private bool _saving;
     private bool _exporting;
-    private MudTable<TransactionResponse>? _table;
-    private string? _tableError;
+    private int _refreshVersion;
 
     private string _accountIdFilter = string.Empty;
     private string _categoryIdFilter = string.Empty;
@@ -45,44 +42,20 @@ public partial class TransactionsPage : ComponentBase
     private Date? _toFilter;
     private DateTime? _fromPicker;
     private DateTime? _toPicker;
+    private TransactionListFilters _listFilters = new();
 
     private const int FilterLookupPageSize = 200;
 
+    private readonly DebouncedAsync _filterReload = new();
+
     private bool CanMutate =>
-        !_accountsQuery.IsLoading
-        && !_accountsQuery.IsError
-        && _accountsQuery.HasData;
-
-    private IReadOnlyList<AccountResponse> ActiveAccounts =>
-        _accountsQuery.Data ?? [];
-
-    private IReadOnlyList<CategoryResponse> ActiveCategories =>
-        _categoriesQuery.Data ?? [];
-
-    private static string FormatCreatedAt(DateTimeOffset? createdAt) =>
-        createdAt?.ToLocalTime().ToString("g") ?? "";
-
-    private static string FormatOccurredOn(Date? occurredOn) =>
-        occurredOn?.ToString() ?? "";
-
-    private static string FormatAmount(decimal? amount) =>
-        MoneyFormat.Format(amount);
-
-    private static string FormatAccount(TransactionResponse transaction)
-    {
-        if (transaction.Type == TransactionType.Transfer
-            && !string.IsNullOrEmpty(transaction.ToAccountName))
-        {
-            return $"{transaction.AccountName} → {transaction.ToAccountName}";
-        }
-
-        return transaction.AccountName ?? "";
-    }
+        !_accountsLoading && _accountsError is null && _accounts.Count > 0;
 
     protected override async Task OnInitializedAsync()
     {
         ApplyCurrentMonthDefault();
-        await Task.WhenAll(LoadAccountsAsync(), LoadCategoriesAsync(), LoadSummaryAsync());
+        _listFilters = BuildListFilters();
+        await Task.WhenAll(LoadAccountsAsync(), LoadCategoriesAsync());
     }
 
     private void ApplyCurrentMonthDefault()
@@ -94,9 +67,17 @@ public partial class TransactionsPage : ComponentBase
         _toFilter = ToApiDate(_toPicker);
     }
 
+    private TransactionListFilters BuildListFilters() => new(
+        _accountIdFilter,
+        _categoryIdFilter,
+        _typeFilter,
+        _priorityFilter,
+        _fromFilter,
+        _toFilter);
+
     private async Task LoadAccountsAsync()
     {
-        _accountsQuery = await QueryState<IReadOnlyList<AccountResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Accounts.GetAsync(configuration =>
             {
@@ -104,13 +85,22 @@ public partial class TransactionsPage : ComponentBase
                 configuration.QueryParameters.PageSize = FilterLookupPageSize;
             });
 
-            return (IReadOnlyList<AccountResponse>)(response?.Items ?? []);
-        });
+            _accounts = response?.Items ?? [];
+            _accountsError = null;
+        }
+        catch (Exception ex)
+        {
+            _accountsError = ApiErrors.GetMessage(ex);
+        }
+        finally
+        {
+            _accountsLoading = false;
+        }
     }
 
     private async Task LoadCategoriesAsync()
     {
-        _categoriesQuery = await QueryState<IReadOnlyList<CategoryResponse>>.RunAsync(async () =>
+        try
         {
             var response = await TrackrApi.Categories.GetAsync(configuration =>
             {
@@ -118,153 +108,67 @@ public partial class TransactionsPage : ComponentBase
                 configuration.QueryParameters.PageSize = FilterLookupPageSize;
             });
 
-            return (IReadOnlyList<CategoryResponse>)(response?.Items ?? []);
-        });
-    }
-
-    private async Task<TableData<TransactionResponse>> LoadServerDataAsync(
-        TableState state,
-        CancellationToken cancellationToken)
-    {
-        var page = state.Page + 1;
-        var pageSize = state.PageSize > 0 ? state.PageSize : PaginationDefaults.PageSize;
-
-        try
-        {
-            var response = await TrackrApi.Transactions.GetAsync(configuration =>
-                {
-                    configuration.QueryParameters.Page = page;
-                    configuration.QueryParameters.PageSize = pageSize;
-                    ApplyTransactionFilters(
-                        v => configuration.QueryParameters.AccountId = v,
-                        v => configuration.QueryParameters.CategoryId = v,
-                        v => configuration.QueryParameters.Type = v,
-                        v => configuration.QueryParameters.Priority = v,
-                        v => configuration.QueryParameters.From = v,
-                        v => configuration.QueryParameters.To = v);
-                },
-                cancellationToken);
-
-            if (_tableError is not null)
-                _tableError = null;
-
-            return new TableData<TransactionResponse>
-            {
-                Items = response?.Items ?? [],
-                TotalItems = response?.TotalCount ?? 0
-            };
+            _categories = response?.Items ?? [];
+            _categoriesError = null;
         }
         catch (Exception ex)
         {
-            _tableError = ApiErrors.GetMessage(ex);
-            return new TableData<TransactionResponse> { Items = [], TotalItems = 0 };
+            _categoriesError = ApiErrors.GetMessage(ex);
+        }
+        finally
+        {
+            _categoriesLoading = false;
         }
     }
 
-    private async Task LoadSummaryAsync()
-    {
-        if (_summaryQuery.Data is not null)
-            _summaryQuery = QueryState<GetTransactionSummaryResponse>.Fetching(_summaryQuery.Data);
-        else
-            _summaryQuery = QueryState<GetTransactionSummaryResponse>.Loading();
-
-        _summaryQuery = await QueryState<GetTransactionSummaryResponse>.RunAsync(async () =>
-        {
-            var response = await TrackrApi.Transactions.Summary.GetAsync(configuration =>
-            {
-                ApplyTransactionFilters(
-                    v => configuration.QueryParameters.AccountId = v,
-                    v => configuration.QueryParameters.CategoryId = v,
-                    v => configuration.QueryParameters.Type = v,
-                    v => configuration.QueryParameters.Priority = v,
-                    v => configuration.QueryParameters.From = v,
-                    v => configuration.QueryParameters.To = v);
-            });
-
-            return response ?? new GetTransactionSummaryResponse();
-        });
-    }
-
-    private void ApplyTransactionFilters(
-        Action<string?> setAccountId,
-        Action<string?> setCategoryId,
-        Action<string?> setType,
-        Action<string?> setPriority,
-        Action<Date?> setFrom,
-        Action<Date?> setTo)
-    {
-        if (!string.IsNullOrEmpty(_accountIdFilter))
-            setAccountId(_accountIdFilter);
-
-        if (!string.IsNullOrEmpty(_categoryIdFilter))
-            setCategoryId(_categoryIdFilter);
-
-        if (!string.IsNullOrEmpty(_typeFilter))
-            setType(_typeFilter);
-
-        if (!string.IsNullOrEmpty(_priorityFilter))
-            setPriority(_priorityFilter);
-
-        if (_fromFilter is not null)
-            setFrom(_fromFilter);
-
-        if (_toFilter is not null)
-            setTo(_toFilter);
-    }
-
-    private async Task OnAccountFilterChanged(string value)
+    private Task OnAccountFilterChanged(string value)
     {
         _accountIdFilter = value;
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task OnCategoryFilterChanged(string value)
+    private Task OnCategoryFilterChanged(string value)
     {
         _categoryIdFilter = value;
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task OnTypeFilterChanged(string value)
+    private Task OnTypeFilterChanged(string value)
     {
         _typeFilter = value;
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task OnPriorityFilterChanged(string value)
+    private Task OnPriorityFilterChanged(string value)
     {
         _priorityFilter = value;
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task OnFromPickerChanged(DateTime? value)
+    private Task OnFromFilterCommitted(DateTime? value)
     {
         _fromPicker = value;
         _fromFilter = ToApiDate(value);
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task OnToPickerChanged(DateTime? value)
+    private Task OnToFilterCommitted(DateTime? value)
     {
         _toPicker = value;
         _toFilter = ToApiDate(value);
-        await ReloadFiltersAsync();
+        return SchedulePublishFiltersAsync();
     }
 
-    private async Task ReloadFiltersAsync()
+    private Task SchedulePublishFiltersAsync() =>
+        _filterReload.InvokeAsync(PublishFiltersAsync);
+
+    private Task PublishFiltersAsync()
     {
-        await Task.WhenAll(LoadSummaryAsync(), ReloadTableAsync());
+        _listFilters = BuildListFilters();
+        return Task.CompletedTask;
     }
 
-    private async Task ReloadTableAsync()
-    {
-        if (_table is null)
-            return;
-
-        if (_table.CurrentPage != 0)
-            _table.NavigateTo(0);
-
-        await _table.ReloadServerData();
-    }
+    public void Dispose() => _filterReload.Dispose();
 
     private static Date? ToApiDate(DateTime? value) =>
         value is null ? null : new Date(value.Value.Year, value.Value.Month, value.Value.Day);
@@ -273,8 +177,8 @@ public partial class TransactionsPage : ComponentBase
     {
         var parameters = new DialogParameters<TransactionFormDialog>
         {
-            { x => x.Accounts, ActiveAccounts },
-            { x => x.Categories, ActiveCategories },
+            { x => x.Accounts, _accounts },
+            { x => x.Categories, _categories },
             { x => x.SubmitText, "Create" }
         };
         var options = new DialogOptions
@@ -304,8 +208,8 @@ public partial class TransactionsPage : ComponentBase
         var parameters = new DialogParameters<TransactionFormDialog>
         {
             { x => x.Transaction, transaction },
-            { x => x.Accounts, ActiveAccounts },
-            { x => x.Categories, ActiveCategories },
+            { x => x.Accounts, _accounts },
+            { x => x.Categories, _categories },
             { x => x.SubmitText, "Save" }
         };
         var options = new DialogOptions
@@ -329,8 +233,8 @@ public partial class TransactionsPage : ComponentBase
 
     private async Task CreateAsync(TransactionFormResult form)
     {
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
             var request = new CreateTransactionRequest
             {
@@ -345,21 +249,24 @@ public partial class TransactionsPage : ComponentBase
             };
 
             await TrackrApi.Transactions.PostAsync(request);
-        });
-
-        if (_mutation.Error is not null)
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        await ReloadAfterMutationAsync();
+        _refreshVersion++;
     }
 
     private async Task UpdateAsync(string transactionId, TransactionFormResult form)
     {
-        _mutation = MutationState.Pending();
-        _mutation = await MutationState.RunAsync(async () =>
+        _saving = true;
+        try
         {
             var request = new UpdateTransactionRequest
             {
@@ -374,21 +281,18 @@ public partial class TransactionsPage : ComponentBase
             };
 
             await TrackrApi.Transactions[transactionId].PutAsync(request);
-        });
-
-        if (_mutation.Error is not null)
+        }
+        catch (Exception ex)
         {
-            Snackbar.Add(_mutation.Error, Severity.Error, c => c.VisibleStateDuration = 5000);
+            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
             return;
         }
+        finally
+        {
+            _saving = false;
+        }
 
-        await ReloadAfterMutationAsync();
-    }
-
-    private async Task ReloadAfterMutationAsync()
-    {
-        await LoadSummaryAsync();
-        await ReloadTableAsync();
+        _refreshVersion++;
     }
 
     private async Task ExportCsvAsync()
@@ -398,7 +302,7 @@ public partial class TransactionsPage : ComponentBase
         {
             var response = await TrackrApi.Transactions.Export.GetAsync(configuration =>
             {
-                ApplyTransactionFilters(
+                _listFilters.ApplyTo(
                     v => configuration.QueryParameters.AccountId = v,
                     v => configuration.QueryParameters.CategoryId = v,
                     v => configuration.QueryParameters.Type = v,
