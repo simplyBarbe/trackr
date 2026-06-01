@@ -86,7 +86,7 @@ docker compose up -d
 | API | http://localhost:5080 |
 | OpenAPI (dev) | http://localhost:5080/scalar/v1 |
 
-SQLite data persists in the `trackr-data` Docker volume.
+SQLite uses `src/backend/trackr.db` (same file as local `dotnet run`).
 
 ### Local development (UI work)
 

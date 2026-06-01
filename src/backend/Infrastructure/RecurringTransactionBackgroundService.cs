@@ -16,22 +16,11 @@ public sealed class RecurringTransactionBackgroundService(
         var interval = TimeSpan.FromMinutes(Math.Max(1, options.Value.PollIntervalMinutes));
         using var timer = new PeriodicTimer(interval);
 
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        do
         {
             try
             {
-                await using var scope = scopeFactory.CreateAsyncScope();
-                var generation = scope.ServiceProvider.GetRequiredService<RecurringTransactionGenerationService>();
-                var today = DateOnly.FromDateTime(DateTime.UtcNow);
-                var created = await generation.ProcessDueAsync(today, stoppingToken);
-
-                if (created > 0)
-                {
-                    logger.LogInformation(
-                        "Recurring transaction poll created {Count} transaction(s) for {Today}",
-                        created,
-                        today);
-                }
+                await PollAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -41,6 +30,23 @@ public sealed class RecurringTransactionBackgroundService(
             {
                 logger.LogError(ex, "Recurring transaction poll failed");
             }
+        }
+        while (await timer.WaitForNextTickAsync(stoppingToken));
+    }
+
+    private async Task PollAsync(CancellationToken stoppingToken)
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var generation = scope.ServiceProvider.GetRequiredService<RecurringTransactionGenerationService>();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var created = await generation.ProcessDueAsync(today, stoppingToken);
+
+        if (created > 0)
+        {
+            logger.LogInformation(
+                "Recurring transaction poll created {Count} transaction(s) for {Today}",
+                created,
+                today);
         }
     }
 }

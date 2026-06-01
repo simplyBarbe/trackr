@@ -7,6 +7,8 @@
     <title>trackr</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
+    <link rel="preload" href="logo_black.png" as="image" />
+    <link rel="preload" href="logo_color.png" as="image" />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
     <link rel="stylesheet" href="css/app.css" />
@@ -19,13 +21,17 @@
 </head>
 
 <body>
-    <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+    <div id="trackr-splash" class="trackr-splash">
+        <div class="trackr-load-stack">
+            <div class="trackr-load-logo" aria-hidden="true">
+                <img class="trackr-load-logo__base" src="logo_black.png" alt="" />
+                <img class="trackr-load-logo__color" src="logo_color.png" alt="" />
+            </div>
+            <p class="trackr-load-label" id="trackr-load-label" aria-live="polite">0%</p>
+        </div>
     </div>
+
+    <div id="app"></div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -33,6 +39,7 @@
         <span class="dismiss" aria-label="Dismiss">X</span>
     </div>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="js/trackr-splash.js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
     <script>navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });</script>
     <script>
