@@ -1,6 +1,5 @@
 using backend.Application.Services;
 using backend.Common.Results;
-using backend.Features.Accounts;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
 

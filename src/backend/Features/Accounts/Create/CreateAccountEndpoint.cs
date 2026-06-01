@@ -1,5 +1,4 @@
 using backend.Common.Http;
-using backend.Features.Accounts;
 
 namespace backend.Features.Accounts.Create;
 

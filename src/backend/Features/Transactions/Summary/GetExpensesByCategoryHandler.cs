@@ -1,7 +1,6 @@
 using backend.Common.Results;
 using backend.Data;
 using backend.Data.Entities.Enums;
-using backend.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Transactions.Summary;

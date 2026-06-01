@@ -3,7 +3,6 @@ using backend.Application.Services;
 using backend.Common.Results;
 using backend.Data;
 using backend.Data.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.RecurringTransactions.Create;
 

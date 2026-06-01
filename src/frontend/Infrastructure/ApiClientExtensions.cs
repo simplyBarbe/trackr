@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace frontend.Infrastructure;
 
 public static class ApiClientExtensions

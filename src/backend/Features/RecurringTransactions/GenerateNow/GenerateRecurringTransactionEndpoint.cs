@@ -1,5 +1,4 @@
 using backend.Common.Http;
-using backend.Features.RecurringTransactions;
 using FastEndpoints;
 
 namespace backend.Features.RecurringTransactions.GenerateNow;

@@ -1,4 +1,3 @@
-using frontend.Features.Shared;
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;

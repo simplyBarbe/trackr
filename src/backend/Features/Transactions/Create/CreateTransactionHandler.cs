@@ -2,7 +2,6 @@ using backend.Application.Rules;
 using backend.Common.Results;
 using backend.Data;
 using backend.Data.Entities;
-using backend.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Transaction = backend.Data.Entities.Transaction;
 

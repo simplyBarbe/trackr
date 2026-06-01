@@ -1,6 +1,5 @@
 using backend.Common.Results;
 using backend.Data;
-using backend.Features.Categories;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Categories.Get;

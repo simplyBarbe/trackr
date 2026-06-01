@@ -1,6 +1,6 @@
+using backend.Common.Pagination;
 using FastEndpoints;
 using FluentValidation;
-using backend.Common.Pagination;
 
 namespace backend.Features.Accounts.List;
 

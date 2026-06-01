@@ -1,9 +1,7 @@
 using backend.Application.Rules;
 using backend.Common.Results;
-using backend.Features.Categories;
 using backend.Data;
 using backend.Data.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Categories.Create;
 

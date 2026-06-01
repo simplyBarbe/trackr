@@ -1,6 +1,5 @@
 using backend.Application.Rules;
 using backend.Common.Results;
-using backend.Features.Categories;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
 

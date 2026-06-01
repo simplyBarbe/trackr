@@ -1,6 +1,5 @@
 using backend.Common.Results;
 using backend.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Health.Get;
 

@@ -1,5 +1,4 @@
 using backend.Common.Http;
-using backend.Features.Transactions;
 
 namespace backend.Features.Transactions.Update;
 

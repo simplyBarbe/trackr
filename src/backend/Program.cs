@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using backend;
 using backend.Common;
 using backend.Data;
@@ -8,6 +7,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
+using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()

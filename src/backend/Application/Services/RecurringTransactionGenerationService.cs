@@ -1,9 +1,7 @@
 using backend.Application.Rules;
 using backend.Data;
 using backend.Data.Entities;
-using backend.Data.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Transaction = backend.Data.Entities.Transaction;
 
 namespace backend.Application.Services;

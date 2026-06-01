@@ -1,8 +1,7 @@
 using backend.Application.Services;
 using backend.Common.Results;
-using backend.Features.Accounts;
-using backend.Features.Accounts.Shared;
 using backend.Data;
+using backend.Features.Accounts.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Accounts.Update;

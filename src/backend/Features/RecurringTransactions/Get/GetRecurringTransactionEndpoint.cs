@@ -1,5 +1,4 @@
 using backend.Common.Http;
-using backend.Features.RecurringTransactions;
 
 namespace backend.Features.RecurringTransactions.Get;
 

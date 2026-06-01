@@ -1,6 +1,5 @@
 using backend.Common.Results;
 using backend.Data;
-using backend.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Features.Transactions.Get;

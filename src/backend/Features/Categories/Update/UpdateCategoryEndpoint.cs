@@ -1,5 +1,4 @@
 using backend.Common.Http;
-using backend.Features.Categories;
 
 namespace backend.Features.Categories.Update;
 
