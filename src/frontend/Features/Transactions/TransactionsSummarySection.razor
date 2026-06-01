@@ -1,8 +1,0 @@
-@using frontend.Features.Shared
-
-@if (_error is not null)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true">@_error</MudAlert>
-}
-
-<TransactionSummaryCards Summary="_summary" IsInitialLoading="_initialLoading" />

@@ -144,15 +144,9 @@ Conventions:
 - Let `MudTable` show loading for `ServerData` itself — do **not** bind `Loading` to page `QueryState.IsFetching`.
 - Filter/page reset: `_table.NavigateTo(0)` when needed, then `await _table.ReloadServerData()` — do **not** use `@key` on the table to force remount.
 - If the page needs current rows for dialogs (e.g. parent candidates), keep a separate field updated on successful load (e.g. `_parentCandidates`), not table `QueryState`.
-- Reference: `TransactionsTableSection` (`LoadServerDataAsync`, filter-driven reload via `OnParametersSetAsync`).
+- Reference: `TransactionsPage` (`LoadServerDataAsync`, debounced `PublishFiltersAsync` + `ReloadTableAsync` on filter change).
 
-**Heavy pages (toolbar + multiple data regions)** — when a page combines filters, summary/metrics, charts, and a `ServerData` table, **do not** load and render everything on the routable `*Page` component. Split into feature-local sections so each region re-renders independently:
-
-- `*Page` — header, toolbar, filter draft fields, lookup loads; publishes an immutable filter snapshot (e.g. `TransactionListFilters`, `DashboardDateRange`) via `DebouncedAsync` when filters change.
-- `*SummarySection` / `*DashboardSection` — summary, charts, or other auxiliary API reads tied to the filter snapshot.
-- `*TableSection` — `MudTable` + `ServerData`; reloads when the filter snapshot or a `RefreshVersion` (post-mutation bump) changes.
-- On filter-driven refetch: update section data **only when the API returns** — skip `QueryState.Fetching()` / intermediate loading assignments that repaint the whole page (use `IsInitialLoading` shimmer on first load only).
-- Single-table CRUD pages (`AccountsPage`, `CategoriesPage`) may keep table + toolbar on one page — no extra sections until a second data region appears.
+**Pages with filters + summary + table** — keep header, toolbar, auxiliary reads (summary, charts), and `MudTable` on the routable `*Page` (see `TransactionsPage`, `AccountsPage`). Do **not** split into `*SummarySection` / `*TableSection` child components or use `RefreshVersion` to coordinate reloads — call `LoadSummaryAsync` (or `QueryState`) and `_table.ReloadServerData()` directly after filter changes and mutations. Use an immutable filter snapshot (e.g. `TransactionListFilters`) with `DebouncedAsync` when filters are chatty. On filter-driven refetch, update summary data when the API returns; skip `QueryState.Fetching()` assignments that repaint the whole page (shimmer/`IsInitialLoading` on first load only).
 
 **Pagination standard**:
 
@@ -167,6 +161,6 @@ Conventions:
 - Use separate `QueryState<T>` fields (e.g. `_accountsQuery`, `_categoriesQuery`), each with its own `Load*Async`.
 - Initial load: `await Task.WhenAll(...)` when queries are independent.
 - Refetch only the query whose inputs changed.
-- Loading UX: full-page spinner while **all** initial auxiliary queries load; toolbar controls as soon as their query resolves; `IsFetching` + shimmer/progress on **summary/metric** blocks fed by `QueryState` (not on `ServerData` tables). On **filter-driven refetch**, prefer stale data until the response arrives — do **not** assign `Fetching` if it would re-render a parent that also hosts a table or charts (see **Heavy pages** above).
+- Loading UX: full-page spinner while **all** initial auxiliary queries load; toolbar controls as soon as their query resolves; `IsFetching` + shimmer/progress on **summary/metric** blocks fed by `QueryState` (not on `ServerData` tables). On **filter-driven refetch**, prefer stale data until the response arrives — do **not** assign `Fetching` if it would re-render the whole page including the table.
 - Errors: auxiliary query → caption near control or snackbar; table `ServerData` → `_tableError` + `MudAlert` above the table.
 - Prefer a backend filter on the primary list over client-side joins across entities.

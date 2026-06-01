@@ -32,7 +32,13 @@ public partial class TransactionsPage : ComponentBase, IDisposable
 
     private bool _saving;
     private bool _exporting;
-    private int _refreshVersion;
+
+    private MudTable<TransactionResponse>? _table;
+    private string? _tableError;
+
+    private GetTransactionSummaryResponse _summary = new();
+    private string? _summaryError;
+    private bool _summaryInitialLoading = true;
 
     private string _accountIdFilter = string.Empty;
     private string _categoryIdFilter = string.Empty;
@@ -81,6 +87,7 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         ApplyCurrentMonthDefault();
         _listFilters = BuildListFilters();
         await Task.WhenAll(LoadAccountsAsync(), LoadCategoriesAsync());
+        await LoadSummaryAsync();
     }
 
     private void ApplyCurrentMonthDefault()
@@ -141,6 +148,59 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         finally
         {
             _categoriesLoading = false;
+        }
+    }
+
+    private async Task LoadSummaryAsync()
+    {
+        try
+        {
+            var response = await TrackrApi.Transactions.Summary.GetAsync(configuration =>
+                _listFilters.ApplyTo(configuration.QueryParameters));
+
+            _summary = response ?? new GetTransactionSummaryResponse();
+            _summaryError = null;
+        }
+        catch (Exception ex)
+        {
+            _summaryError = ApiErrors.GetMessage(ex);
+        }
+        finally
+        {
+            _summaryInitialLoading = false;
+        }
+    }
+
+    private async Task<TableData<TransactionResponse>> LoadServerDataAsync(
+        TableState state,
+        CancellationToken cancellationToken)
+    {
+        var page = state.Page + 1;
+        var pageSize = state.PageSize > 0 ? state.PageSize : PaginationDefaults.PageSize;
+
+        try
+        {
+            var response = await TrackrApi.Transactions.GetAsync(configuration =>
+                {
+                    configuration.QueryParameters.Page = page;
+                    configuration.QueryParameters.PageSize = pageSize;
+                    _listFilters.ApplyTo(configuration.QueryParameters);
+                },
+                cancellationToken);
+
+            if (_tableError is not null)
+                _tableError = null;
+
+            return new TableData<TransactionResponse>
+            {
+                Items = response?.Items ?? [],
+                TotalItems = response?.TotalCount ?? 0
+            };
+        }
+        catch (Exception ex)
+        {
+            _tableError = ApiErrors.GetMessage(ex);
+            return new TableData<TransactionResponse> { Items = [], TotalItems = 0 };
         }
     }
 
@@ -207,16 +267,48 @@ public partial class TransactionsPage : ComponentBase, IDisposable
     private Task SchedulePublishFiltersAsync() =>
         _filterReload.InvokeAsync(PublishFiltersAsync);
 
-    private Task PublishFiltersAsync()
+    private async Task PublishFiltersAsync()
     {
         _listFilters = BuildListFilters();
-        return Task.CompletedTask;
+        await LoadSummaryAsync();
+        await ReloadTableAsync();
+    }
+
+    private async Task ReloadTableAsync()
+    {
+        if (_table is null)
+            return;
+
+        if (_table.CurrentPage != 0)
+            _table.NavigateTo(0);
+
+        await _table.ReloadServerData();
     }
 
     public void Dispose() => _filterReload.Dispose();
 
     private static Date? ToApiDate(DateTime? value) =>
         value is null ? null : new Date(value.Value.Year, value.Value.Month, value.Value.Day);
+
+    private static string FormatCreatedAt(DateTimeOffset? createdAt) =>
+        createdAt?.ToLocalTime().ToString("g") ?? "";
+
+    private static string FormatOccurredOn(Date? occurredOn) =>
+        occurredOn?.ToString() ?? "";
+
+    private static string FormatAmount(decimal? amount) =>
+        MoneyFormat.Format(amount);
+
+    private static string FormatAccount(TransactionResponse transaction)
+    {
+        if (transaction.Type == TransactionType.Transfer
+            && !string.IsNullOrEmpty(transaction.ToAccountName))
+        {
+            return $"{transaction.AccountName} → {transaction.ToAccountName}";
+        }
+
+        return transaction.AccountName ?? "";
+    }
 
     private async Task OpenCreateDialogAsync()
     {
@@ -320,7 +412,8 @@ public partial class TransactionsPage : ComponentBase, IDisposable
             _saving = false;
         }
 
-        _refreshVersion++;
+        await LoadSummaryAsync();
+        await ReloadTableAsync();
     }
 
     private async Task ExportCsvAsync()
