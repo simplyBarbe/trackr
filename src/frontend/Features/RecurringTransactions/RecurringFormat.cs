@@ -5,6 +5,16 @@ namespace frontend.Features.RecurringTransactions;
 
 internal static class RecurringFormat
 {
+    public static string GetFrequencyLabel(RecurrenceFrequency frequency) =>
+        frequency switch
+        {
+            RecurrenceFrequency.Weekly => "Weekly",
+            RecurrenceFrequency.Biweekly => "Biweekly",
+            RecurrenceFrequency.Monthly => "Monthly",
+            RecurrenceFrequency.Yearly => "Yearly",
+            _ => frequency.ToString() ?? ""
+        };
+
     public static string FormatFrequency(RecurringTransactionResponse rule)
     {
         if (rule.Frequency is null)

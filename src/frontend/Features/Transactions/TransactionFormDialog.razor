@@ -17,9 +17,10 @@
                                FullWidth="true"
                                Value="_type"
                                ValueChanged="@OnTypeChanged">
-                        <MudSelectItem T="TransactionType" Value="TransactionType.Income">Income</MudSelectItem>
-                        <MudSelectItem T="TransactionType" Value="TransactionType.Expense">Expense</MudSelectItem>
-                        <MudSelectItem T="TransactionType" Value="TransactionType.Transfer">Transfer</MudSelectItem>
+                        @foreach (var type in Enum.GetValues<TransactionType>())
+                        {
+                            <MudSelectItem T="TransactionType" Value="@type">@TransactionTypeFormat.GetLabel(type)</MudSelectItem>
+                        }
                     </MudSelect>
                 </MudItem>
 
@@ -101,9 +102,10 @@
                                    FullWidth="true"
                                    Value="_priority"
                                    ValueChanged="@OnPriorityChanged">
-                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Essential">Essential</MudSelectItem>
-                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Important">Important</MudSelectItem>
-                            <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Discretionary">Discretionary</MudSelectItem>
+                            @foreach (var priority in Enum.GetValues<ExpensePriority>())
+                            {
+                                <MudSelectItem T="ExpensePriority" Value="@priority">@ExpensePriorityFormat.GetLabel(priority)</MudSelectItem>
+                            }
                         </MudSelect>
                     </MudItem>
                 }

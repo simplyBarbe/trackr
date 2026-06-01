@@ -17,8 +17,10 @@
                            Variant="Variant.Outlined"
                            Value="_kind"
                            ValueChanged="@OnKindChanged">
-                    <MudSelectItem T="CategoryKind" Value="CategoryKind.Income">Income</MudSelectItem>
-                    <MudSelectItem T="CategoryKind" Value="CategoryKind.Expense">Expense</MudSelectItem>
+                    @foreach (var kind in Enum.GetValues<CategoryKind>())
+                    {
+                        <MudSelectItem T="CategoryKind" Value="@kind">@CategoryKindFormat.GetLabel(kind)</MudSelectItem>
+                    }
                 </MudSelect>
 
                 @if (_kind == CategoryKind.Expense)
@@ -28,9 +30,10 @@
                                Variant="Variant.Outlined"
                                Value="_priority"
                                ValueChanged="@OnPriorityChanged">
-                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Essential">Essential</MudSelectItem>
-                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Important">Important</MudSelectItem>
-                        <MudSelectItem T="ExpensePriority" Value="ExpensePriority.Discretionary">Discretionary</MudSelectItem>
+                        @foreach (var priority in Enum.GetValues<ExpensePriority>())
+                        {
+                            <MudSelectItem T="ExpensePriority" Value="@priority">@ExpensePriorityFormat.GetLabel(priority)</MudSelectItem>
+                        }
                     </MudSelect>
                 }
 

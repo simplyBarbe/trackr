@@ -33,8 +33,10 @@
                    Value="_kindQuery"
                    ValueChanged="@OnKindQueryChanged">
             <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
+            @foreach (var kind in Enum.GetValues<CategoryKind>())
+            {
+                <MudSelectItem T="string" Value="@ApiEnumWire.GetValue(kind)">@CategoryKindFormat.GetLabel(kind)</MudSelectItem>
+            }
         </MudSelect>
     </div>
 

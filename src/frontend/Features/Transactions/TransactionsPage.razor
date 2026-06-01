@@ -90,9 +90,10 @@
                    Value="_typeFilter"
                    ValueChanged="@OnTypeFilterChanged">
             <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Income")">Income</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Expense")">Expense</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Transfer")">Transfer</MudSelectItem>
+            @foreach (var type in Enum.GetValues<TransactionType>())
+            {
+                <MudSelectItem T="string" Value="@ApiEnumWire.GetValue(type)">@TransactionTypeFormat.GetLabel(type)</MudSelectItem>
+            }
         </MudSelect>
     </div>
 
@@ -105,9 +106,10 @@
                    ValueChanged="@OnPriorityFilterChanged"
                    Clearable="true">
             <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Essential")">Essential</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Important")">Important</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Discretionary")">Discretionary</MudSelectItem>
+            @foreach (var priority in Enum.GetValues<ExpensePriority>())
+            {
+                <MudSelectItem T="string" Value="@ApiEnumWire.GetValue(priority)">@ExpensePriorityFormat.GetLabel(priority)</MudSelectItem>
+            }
         </MudSelect>
     </div>
 

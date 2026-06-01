@@ -33,10 +33,10 @@
                    Value="_typeQuery"
                    ValueChanged="@OnTypeQueryChanged">
             <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Checking")">Checking</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Savings")">Savings</MudSelectItem>
-            <MudSelectItem T="string" Value="@("Cash")">Cash</MudSelectItem>
-            <MudSelectItem T="string" Value="@("CreditCard")">Credit card</MudSelectItem>
+            @foreach (var type in Enum.GetValues<AccountType>())
+            {
+                <MudSelectItem T="string" Value="@ApiEnumWire.GetValue(type)">@AccountTypeFormat.GetLabel(type)</MudSelectItem>
+            }
         </MudSelect>
     </div>
 

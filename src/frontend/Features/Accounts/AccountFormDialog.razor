@@ -17,10 +17,10 @@
                            Variant="Variant.Outlined"
                            Value="_type"
                            ValueChanged="@OnTypeChanged">
-                    <MudSelectItem T="AccountType" Value="AccountType.Checking">Checking</MudSelectItem>
-                    <MudSelectItem T="AccountType" Value="AccountType.Savings">Savings</MudSelectItem>
-                    <MudSelectItem T="AccountType" Value="AccountType.Cash">Cash</MudSelectItem>
-                    <MudSelectItem T="AccountType" Value="AccountType.CreditCard">Credit card</MudSelectItem>
+                    @foreach (var type in Enum.GetValues<AccountType>())
+                    {
+                        <MudSelectItem T="AccountType" Value="@type">@AccountTypeFormat.GetLabel(type)</MudSelectItem>
+                    }
                 </MudSelect>
 
                 <MudSelect T="AccountColor"
