@@ -1,4 +1,7 @@
 using Microsoft.Kiota.Abstractions;
+using Trackr.Api.Api.Transactions;
+using Trackr.Api.Api.Transactions.Export;
+using Trackr.Api.Api.Transactions.Summary;
 
 namespace frontend.Features.Transactions;
 
@@ -10,7 +13,34 @@ public sealed record TransactionListFilters(
     Date? From = null,
     Date? To = null)
 {
-    public void ApplyTo(
+    public void ApplyTo(TransactionsRequestBuilder.TransactionsRequestBuilderGetQueryParameters query) =>
+        ApplyCore(
+            v => query.AccountId = v,
+            v => query.CategoryId = v,
+            v => query.Type = v,
+            v => query.Priority = v,
+            v => query.From = v,
+            v => query.To = v);
+
+    public void ApplyTo(SummaryRequestBuilder.SummaryRequestBuilderGetQueryParameters query) =>
+        ApplyCore(
+            v => query.AccountId = v,
+            v => query.CategoryId = v,
+            v => query.Type = v,
+            v => query.Priority = v,
+            v => query.From = v,
+            v => query.To = v);
+
+    public void ApplyTo(ExportRequestBuilder.ExportRequestBuilderGetQueryParameters query) =>
+        ApplyCore(
+            v => query.AccountId = v,
+            v => query.CategoryId = v,
+            v => query.Type = v,
+            v => query.Priority = v,
+            v => query.From = v,
+            v => query.To = v);
+
+    private void ApplyCore(
         Action<string?> setAccountId,
         Action<string?> setCategoryId,
         Action<string?> setType,

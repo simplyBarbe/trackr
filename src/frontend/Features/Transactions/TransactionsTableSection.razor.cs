@@ -64,13 +64,7 @@ public partial class TransactionsTableSection : ComponentBase
                 {
                     configuration.QueryParameters.Page = page;
                     configuration.QueryParameters.PageSize = pageSize;
-                    Filters.ApplyTo(
-                        v => configuration.QueryParameters.AccountId = v,
-                        v => configuration.QueryParameters.CategoryId = v,
-                        v => configuration.QueryParameters.Type = v,
-                        v => configuration.QueryParameters.Priority = v,
-                        v => configuration.QueryParameters.From = v,
-                        v => configuration.QueryParameters.To = v);
+                    Filters.ApplyTo(configuration.QueryParameters);
                 },
                 cancellationToken);
 

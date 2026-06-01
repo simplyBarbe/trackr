@@ -1,3 +1,4 @@
+using frontend.Features.Shared;
 using frontend.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -37,8 +38,6 @@ public partial class TransactionsPage : ComponentBase, IDisposable
     private string _categoryIdFilter = string.Empty;
     private string _typeFilter = string.Empty;
     private string _priorityFilter = string.Empty;
-    private Date? _fromFilter;
-    private Date? _toFilter;
     private DateTime? _fromPicker;
     private DateTime? _toPicker;
     private TransactionListFilters _listFilters = new();
@@ -49,6 +48,33 @@ public partial class TransactionsPage : ComponentBase, IDisposable
 
     private bool CanMutate =>
         !_accountsLoading && _accountsError is null && _accounts.Count > 0;
+
+    private bool IsCategoryFilterDisabled =>
+        _categoriesLoading
+        || _categoriesError is not null
+        || (TryGetTypeFilter(out var type) && type == TransactionType.Transfer);
+
+    private IEnumerable<CategoryResponse> FilterCategoryOptions
+    {
+        get
+        {
+            var active = _categories
+                .Where(c => c.IsArchived != true)
+                .OrderBy(c => c.SortOrder)
+                .ThenBy(c => c.Name);
+
+            if (!TryGetTypeFilter(out var transactionType))
+                return active;
+
+            return transactionType switch
+            {
+                TransactionType.Income => active.Where(c => c.Kind == CategoryKind.Income),
+                TransactionType.Expense => active.Where(c => c.Kind == CategoryKind.Expense),
+                TransactionType.Transfer => [],
+                _ => active
+            };
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,8 +88,6 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         var today = DateTime.Today;
         _fromPicker = new DateTime(today.Year, today.Month, 1);
         _toPicker = new DateTime(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
-        _fromFilter = ToApiDate(_fromPicker);
-        _toFilter = ToApiDate(_toPicker);
     }
 
     private TransactionListFilters BuildListFilters() => new(
@@ -71,8 +95,8 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         _categoryIdFilter,
         _typeFilter,
         _priorityFilter,
-        _fromFilter,
-        _toFilter);
+        ToApiDate(_fromPicker),
+        ToApiDate(_toPicker));
 
     private async Task LoadAccountsAsync()
     {
@@ -135,7 +159,31 @@ public partial class TransactionsPage : ComponentBase, IDisposable
     private Task OnTypeFilterChanged(string value)
     {
         _typeFilter = value;
+        if (!FilterCategoryOptions.Any(c => c.Id == _categoryIdFilter))
+            _categoryIdFilter = string.Empty;
+
         return SchedulePublishFiltersAsync();
+    }
+
+    private bool TryGetTypeFilter(out TransactionType type)
+    {
+        if (string.IsNullOrEmpty(_typeFilter))
+        {
+            type = default;
+            return false;
+        }
+
+        foreach (var candidate in Enum.GetValues<TransactionType>())
+        {
+            if (ApiEnumWire.GetValue(candidate) == _typeFilter)
+            {
+                type = candidate;
+                return true;
+            }
+        }
+
+        type = default;
+        return false;
     }
 
     private Task OnPriorityFilterChanged(string value)
@@ -147,14 +195,12 @@ public partial class TransactionsPage : ComponentBase, IDisposable
     private Task OnFromFilterCommitted(DateTime? value)
     {
         _fromPicker = value;
-        _fromFilter = ToApiDate(value);
         return SchedulePublishFiltersAsync();
     }
 
     private Task OnToFilterCommitted(DateTime? value)
     {
         _toPicker = value;
-        _toFilter = ToApiDate(value);
         return SchedulePublishFiltersAsync();
     }
 
@@ -196,7 +242,7 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         if (result is null || result.Canceled || result.Data is not TransactionFormResult form)
             return;
 
-        await CreateAsync(form);
+        await SaveAsync(id: null, form);
     }
 
     private async Task OpenEditDialogAsync(TransactionResponse transaction)
@@ -227,59 +273,42 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         if (result is null || result.Canceled || result.Data is not TransactionFormResult form)
             return;
 
-        await UpdateAsync(transaction.Id, form);
+        await SaveAsync(transaction.Id, form);
     }
 
-    private async Task CreateAsync(TransactionFormResult form)
+    private async Task SaveAsync(string? id, TransactionFormResult form)
     {
         _saving = true;
         try
         {
-            var request = new CreateTransactionRequest
+            if (id is null)
             {
-                Type = form.Type,
-                AccountId = form.AccountId,
-                ToAccountId = form.ToAccountId,
-                CategoryId = form.CategoryId,
-                Priority = form.Priority,
-                Amount = form.Amount,
-                OccurredOn = form.OccurredOn,
-                Description = form.Description
-            };
-
-            await TrackrApi.Transactions.PostAsync(request);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ApiErrors.GetMessage(ex), Severity.Error, c => c.VisibleStateDuration = 5000);
-            return;
-        }
-        finally
-        {
-            _saving = false;
-        }
-
-        _refreshVersion++;
-    }
-
-    private async Task UpdateAsync(string transactionId, TransactionFormResult form)
-    {
-        _saving = true;
-        try
-        {
-            var request = new UpdateTransactionRequest
+                await TrackrApi.Transactions.PostAsync(new CreateTransactionRequest
+                {
+                    Type = form.Type,
+                    AccountId = form.AccountId,
+                    ToAccountId = form.ToAccountId,
+                    CategoryId = form.CategoryId,
+                    Priority = form.Priority,
+                    Amount = form.Amount,
+                    OccurredOn = form.OccurredOn,
+                    Description = form.Description
+                });
+            }
+            else
             {
-                Type = form.Type,
-                AccountId = form.AccountId,
-                ToAccountId = form.ToAccountId,
-                CategoryId = form.CategoryId,
-                Priority = form.Priority,
-                Amount = form.Amount,
-                OccurredOn = form.OccurredOn,
-                Description = form.Description
-            };
-
-            await TrackrApi.Transactions[transactionId].PutAsync(request);
+                await TrackrApi.Transactions[id].PutAsync(new UpdateTransactionRequest
+                {
+                    Type = form.Type,
+                    AccountId = form.AccountId,
+                    ToAccountId = form.ToAccountId,
+                    CategoryId = form.CategoryId,
+                    Priority = form.Priority,
+                    Amount = form.Amount,
+                    OccurredOn = form.OccurredOn,
+                    Description = form.Description
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -301,13 +330,7 @@ public partial class TransactionsPage : ComponentBase, IDisposable
         {
             var response = await TrackrApi.Transactions.Export.GetAsync(configuration =>
             {
-                _listFilters.ApplyTo(
-                    v => configuration.QueryParameters.AccountId = v,
-                    v => configuration.QueryParameters.CategoryId = v,
-                    v => configuration.QueryParameters.Type = v,
-                    v => configuration.QueryParameters.Priority = v,
-                    v => configuration.QueryParameters.From = v,
-                    v => configuration.QueryParameters.To = v);
+                _listFilters.ApplyTo(configuration.QueryParameters);
             });
 
             if (string.IsNullOrEmpty(response?.CsvContent))

@@ -137,7 +137,7 @@ Conventions:
 - Do **not** use `QueryState` loading/fetching updates inside `MudTable` `ServerData` callbacks — see **Blazor WASM / `MudTable` `ServerData`** below.
 - Do not reference MudBlazor from `Infrastructure/`.
 
-**Blazor WASM / `MudTable` `ServerData`** — WASM runs UI and continuations on one thread. Updating page fields during `LoadServerDataAsync` (e.g. `QueryState.Loading()` / `Fetching()`, or `Loading="@_query.IsFetching"`) re-renders the whole page and can block the UI for seconds even when the API is fast. **Debug builds are much slower than Release** — profile UI responsiveness with `dotnet run -c Release` or a published build, not Debug alone.
+**Blazor WASM / `MudTable` `ServerData`** — WASM runs UI and continuations on one thread. Updating page fields during `LoadServerDataAsync` (e.g. `QueryState.Loading()` / `Fetching()`, or `Loading="@_query.IsFetching"`) re-renders the whole page and can block the UI for seconds even when the API is fast.
 
 - In `LoadServerDataAsync`: call the API, return `TableData<T>`; do **not** assign `QueryState` loading/fetching on the page for the table.
 - Table errors: `string? _tableError` set only in `catch`; clear only when transitioning from error → success.

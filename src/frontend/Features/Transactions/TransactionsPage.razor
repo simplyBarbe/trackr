@@ -63,27 +63,6 @@
 
     <div class="trackr-filter-field">
         <MudSelect T="string"
-                   Label="Category"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Dense"
-                   Value="_categoryIdFilter"
-                   ValueChanged="@OnCategoryFilterChanged"
-                   Disabled="@(_categoriesLoading || _categoriesError is not null)"
-                   Clearable="true">
-            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
-            @foreach (var category in _categories)
-            {
-                <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
-            }
-        </MudSelect>
-    </div>
-    @if (_categoriesError is not null)
-    {
-        <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesError</MudText>
-    }
-
-    <div class="trackr-filter-field">
-        <MudSelect T="string"
                    Label="Type"
                    Variant="Variant.Outlined"
                    Margin="Margin.Dense"
@@ -96,6 +75,27 @@
             }
         </MudSelect>
     </div>
+
+    <div class="trackr-filter-field">
+        <MudSelect T="string"
+                   Label="Category"
+                   Variant="Variant.Outlined"
+                   Margin="Margin.Dense"
+                   Value="_categoryIdFilter"
+                   ValueChanged="@OnCategoryFilterChanged"
+                   Disabled="@IsCategoryFilterDisabled"
+                   Clearable="true">
+            <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+            @foreach (var category in FilterCategoryOptions)
+            {
+                <MudSelectItem T="string" Value="@(category.Id ?? "")">@category.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </div>
+    @if (_categoriesError is not null)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Error">@_categoriesError</MudText>
+    }
 
     <div class="trackr-filter-field">
         <MudSelect T="string"

@@ -26,7 +26,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Date">@FormatOccurredOn(context.OccurredOn)</MudTd>
-        <MudTd DataLabel="Type">@(context.Type?.ToString() ?? "")</MudTd>
+        <MudTd DataLabel="Type">@(context.Type is { } type ? TransactionTypeFormat.GetLabel(type) : "")</MudTd>
         <MudTd DataLabel="Account">@FormatAccount(context)</MudTd>
         <MudTd DataLabel="Category">@(string.IsNullOrEmpty(context.CategoryName) ? "—" : context.CategoryName)</MudTd>
         <MudTd DataLabel="Priority">

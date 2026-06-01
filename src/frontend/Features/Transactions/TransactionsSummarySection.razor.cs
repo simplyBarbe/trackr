@@ -37,15 +37,7 @@ public partial class TransactionsSummarySection : ComponentBase
         try
         {
             var response = await TrackrApi.Transactions.Summary.GetAsync(configuration =>
-            {
-                Filters.ApplyTo(
-                    v => configuration.QueryParameters.AccountId = v,
-                    v => configuration.QueryParameters.CategoryId = v,
-                    v => configuration.QueryParameters.Type = v,
-                    v => configuration.QueryParameters.Priority = v,
-                    v => configuration.QueryParameters.From = v,
-                    v => configuration.QueryParameters.To = v);
-            });
+                Filters.ApplyTo(configuration.QueryParameters));
 
             _summary = response ?? new GetTransactionSummaryResponse();
             _error = null;
